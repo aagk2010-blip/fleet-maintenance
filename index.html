@@ -128,7 +128,8 @@
     .badge-working { background: #d1fae5; color: #065f46; }
     .badge-maintenance { background: #fef3c7; color: #78350f; }
     .badge-stopped { background: #fee2e2; color: #7f1d1d; }
-    .badge-urgent { background: #fee2e2; color: #dc2626; }
+    .badge-rented { background: #dbeafe; color: #1e40af; }
+    .badge-available { background: #d1fae5; color: #065f46; }
 
     .bottom-tab-bar {
       position: fixed;
@@ -305,17 +306,13 @@
       border-right: 3px solid var(--danger);
     }
     .order-card.ok { border-right-color: var(--success); }
-
-    /* تحسينات جديدة للصفحة الرئيسية */
-    .equipment-main-card {
-      background: var(--white);
-      border-radius: 20px;
-      padding: 16px;
+    .rental-card {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
       margin-bottom: 12px;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.2s;
+      border-right: 3px solid var(--info);
     }
-    .equipment-main-card:active { transform: scale(0.98); }
     .hours-input-group {
       display: flex;
       gap: 8px;
@@ -331,45 +328,6 @@
       font-family: inherit;
       text-align: center;
     }
-    .update-hours-btn {
-      background: linear-gradient(135deg, var(--info), #0f5c73);
-      border: none;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .remaining-hours {
-      font-size: 13px;
-      font-weight: 700;
-      margin-top: 8px;
-      padding: 8px 12px;
-      border-radius: 12px;
-      background: #f8fafc;
-    }
-    .remaining-hours.urgent { background: #fee2e2; color: #dc2626; }
-    .remaining-hours.warning { background: #fef3c7; color: #b45309; }
-    .remaining-hours.good { background: #d1fae5; color: #065f46; }
-    .quick-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .quick-btn {
-      flex: 1;
-      padding: 8px;
-      border-radius: 12px;
-      border: none;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      background: #f1f5f9;
-      color: var(--primary);
-    }
-    .quick-btn.maintenance { background: #fef3c7; color: #b45309; }
-    .quick-btn.edit { background: #e0e7ff; color: #4338ca; }
     .daily-meter-btn {
       background: linear-gradient(135deg, var(--info), var(--primary));
       border: none;
@@ -380,6 +338,18 @@
       margin: 0 14px 16px 14px;
       width: calc(100% - 28px);
       cursor: pointer;
+    }
+    .rental-stats {
+      display: flex;
+      gap: 10px;
+      margin: 12px 14px;
+    }
+    .rental-stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 12px;
+      flex: 1;
+      text-align: center;
     }
   </style>
 </head>
@@ -393,7 +363,7 @@
   <div style="text-align:center; width:100%; max-width:320px">
     <div style="font-size:60px; margin-bottom:20px">🏗️</div>
     <div style="font-size:28px; font-weight:800; margin-bottom:10px; color:white">نظام الصيانة المتكامل</div>
-    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">إدارة متكاملة للمعدات - فلاتر - طلبيات - تقارير</div>
+    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">إدارة متكاملة للمعدات - فلاتر - تأجير - تقارير</div>
     <input type="text" id="login-username" placeholder="اسم المستخدم" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:12px; text-align:center; font-size:14px">
     <input type="password" id="login-password" placeholder="كلمة المرور" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:20px; text-align:center; font-size:14px">
     <button onclick="performLogin()" style="width:100%; background:var(--accent); color:var(--primary); border:none; padding:14px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer">دخول</button>
@@ -418,18 +388,9 @@
       <div class="header-sub" id="sync-status">مزامنة فورية مع السحابة</div>
     </div>
     <div class="stats-grid" id="stats-summary"></div>
-    
-    <!-- زر تحديث العدادات اليومي السريع -->
-    <button class="daily-meter-btn" onclick="openQuickMeterUpdate()">
-      ⏱️ تحديث العدادات اليومي لجميع المعدات
-    </button>
-    
-    <!-- قائمة جميع المعدات مع شريط التقدم وعداد الساعات -->
+    <button class="daily-meter-btn" onclick="openQuickMeterUpdate()">⏱️ تحديث العدادات اليومي لجميع المعدات</button>
     <div class="section">
-      <div class="section-title">
-        <span>🚜 جميع المعدات</span>
-        <span id="equipment-count"></span>
-      </div>
+      <div class="section-title">🚜 جميع المعدات <span id="equipment-count"></span></div>
       <div id="all-equipment-list"></div>
     </div>
   </div>
@@ -457,6 +418,26 @@
     <div id="inv-list" style="padding:14px"></div>
   </div>
 
+  <!-- Rental View - صفحة تأجير المعدات الجديدة -->
+  <div id="view-rental" style="display:none">
+    <div class="header" style="padding:20px">
+      <div class="header-title">🚛 تأجير المعدات</div>
+      <div class="header-sub">متابعة عقود الإيجار وساعات العمل</div>
+    </div>
+    
+    <div class="rental-stats">
+      <div class="rental-stat-card"><div class="stat-number" id="rented-count">0</div><div class="stat-label">معدات مؤجرة</div></div>
+      <div class="rental-stat-card"><div class="stat-number" id="available-count">0</div><div class="stat-label">معدات متاحة</div></div>
+      <div class="rental-stat-card"><div class="stat-number" id="monthly-hours">0</div><div class="stat-label">ساعات الشهر</div></div>
+    </div>
+    
+    <div style="padding:14px">
+      <button onclick="openRentalContractModal()" class="save-btn" style="margin:0 0 12px 0; background:linear-gradient(135deg, var(--info), var(--primary))">➕ عقد إيجار جديد</button>
+      <input type="text" id="search-rental" placeholder="🔍 بحث باسم المعدة أو المستأجر..." style="width:100%; padding:12px 16px; border-radius:30px; border:1px solid #e2e8f0; background:white; font-family:inherit; font-size:14px; margin-bottom:12px" onkeyup="filterRentalContracts()">
+      <div id="rental-contracts-list"></div>
+    </div>
+  </div>
+
   <!-- Orders View -->
   <div id="view-orders" style="display:none">
     <div class="header" style="padding:20px">
@@ -479,7 +460,7 @@
       <div class="grid-2" style="margin-bottom:12px">
         <button onclick="exportToPDF()" class="save-btn" style="margin:0">📄 PDF</button>
         <button onclick="exportToExcel()" class="save-btn" style="margin:0; background:var(--success)">📊 Excel</button>
-        <button onclick="exportToCSV()" class="save-btn" style="margin:0; background:var(--info)">📁 CSV</button>
+        <button onclick="exportRentalReport()" class="save-btn" style="margin:0; background:var(--info)">📋 تقرير التأجير</button>
         <button onclick="window.print()" class="save-btn" style="margin:0; background:var(--warning)">🖨️ طباعة</button>
       </div>
       <div id="reports-content"></div>
@@ -488,9 +469,10 @@
 
   <!-- Bottom Tab Bar -->
   <div class="bottom-tab-bar">
-    <button class="bottom-tab active" data-view="home" onclick="switchView('home')"><span class="tab-icon">📊</span><span>الرئيسية</span></button>
+    <button class="bottom-tab" data-view="home" onclick="switchView('home')"><span class="tab-icon">📊</span><span>الرئيسية</span></button>
     <button class="bottom-tab" data-view="equipment" onclick="switchView('equipment')"><span class="tab-icon">🏗️</span><span>المعدات</span></button>
     <button class="bottom-tab" data-view="inventory" onclick="switchView('inventory')"><span class="tab-icon">📦</span><span>المخزن</span></button>
+    <button class="bottom-tab" data-view="rental" onclick="switchView('rental')"><span class="tab-icon">🚛</span><span>التأجير</span></button>
     <button class="bottom-tab" data-view="orders" onclick="switchView('orders')"><span class="tab-icon">📋</span><span>الطلبيات</span></button>
     <button class="bottom-tab" data-view="reports" onclick="switchView('reports')"><span class="tab-icon">📊</span><span>التقارير</span></button>
   </div>
@@ -498,7 +480,7 @@
   <button class="fab" id="fab-btn" onclick="openAddEquipmentModal()">+</button>
 </div>
 
-<!-- Daily Meter Update Overlay (سريع) -->
+<!-- Daily Meter Update Overlay -->
 <div class="modal-overlay" id="quick-meter-modal">
   <div class="modal-header" style="background:linear-gradient(135deg, #065f46, #0e7490)">
     <div class="modal-title">⏱️ تحديث العدادات اليومي</div>
@@ -527,11 +509,45 @@
       <div class="form-field"><label class="form-label">🔧 عداد الصيانة القادمة (ساعة)</label><input class="form-input" type="number" id="eq-next-hours" value="250"></div>
       <div class="form-field"><label class="form-label">دورة الصيانة (ساعة)</label><input class="form-input" type="number" id="eq-interval" value="250"></div>
       <div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="eq-status"><option>يعمل</option><option>صيانة</option><option>متوقف</option></select></div>
+      <div class="form-field"><label class="form-label">سعر الإيجار اليومي (ر.س)</label><input class="form-input" type="number" id="eq-daily-rate" value="0" placeholder="سعر الإيجار اليومي"></div>
       <div class="form-field"><label class="form-label">تكلفة الشراء</label><input class="form-input" type="number" id="eq-purchase-cost" value="0"></div>
       <div class="form-field"><label class="form-label">رابط صورة المعدة</label><input class="form-input" id="eq-image" placeholder="https://..."></div>
       <div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="eq-notes" placeholder="أي ملاحظات"></textarea></div>
     </div>
     <button class="save-btn" onclick="saveEquipment()">✅ حفظ المعدة</button>
+  </div>
+</div>
+
+<!-- Rental Contract Modal -->
+<div class="modal-overlay" id="rental-modal">
+  <div class="modal-header">
+    <div class="modal-title" id="rental-modal-title">عقد إيجار جديد</div>
+    <button class="modal-close" onclick="closeModal('rental-modal')">✕</button>
+  </div>
+  <div>
+    <div class="form-group">
+      <div class="form-field"><label class="form-label">اختر المعدة *</label><select class="form-select" id="rental-equipment-id"></select></div>
+      <div class="form-field"><label class="form-label">اسم المستأجر *</label><input class="form-input" id="rental-tenant" placeholder="اسم الشركة أو الشخص"></div>
+      <div class="form-field"><label class="form-label">جهة الاتصال</label><input class="form-input" id="rental-contact" placeholder="رقم الهاتف"></div>
+      <div class="form-field"><label class="form-label">تاريخ بدء الإيجار *</label><input class="form-input" type="date" id="rental-start-date"></div>
+      <div class="form-field"><label class="form-label">تاريخ انتهاء الإيجار</label><input class="form-input" type="date" id="rental-end-date"></div>
+      <div class="form-field"><label class="form-label">السعر اليومي (ر.س)</label><input class="form-input" type="number" id="rental-daily-rate" value="0"></div>
+      <div class="form-field"><label class="form-label">العداد عند التسليم</label><input class="form-input" type="number" id="rental-start-hours" value="0"></div>
+      <div class="form-field"><label class="form-label">ملاحظات العقد</label><textarea class="form-textarea" id="rental-notes" placeholder="أي شروط أو ملاحظات"></textarea></div>
+    </div>
+    <button class="save-btn" onclick="saveRentalContract()">✅ حفظ العقد</button>
+  </div>
+</div>
+
+<!-- Add Daily Hours Modal -->
+<div class="modal-overlay" id="daily-hours-modal">
+  <div class="modal-header" style="background:linear-gradient(135deg, var(--info), var(--primary))">
+    <div class="modal-title">⏱️ تسجيل ساعات العمل اليومية</div>
+    <button class="modal-close" onclick="closeModal('daily-hours-modal')">✕</button>
+  </div>
+  <div id="daily-hours-content" style="padding:14px"></div>
+  <div style="position:sticky; bottom:0; background:var(--light); padding:14px">
+    <button class="save-btn" onclick="saveDailyHours()">💾 حفظ الساعات</button>
   </div>
 </div>
 
@@ -626,12 +642,14 @@
   let fbDb = null;
   let equipmentData = [];
   let inventoryFilters = [];
+  let rentalContracts = [];
   let currentUser = null;
   let statusChart = null;
   let editingEquipmentId = null;
-  let editingFilterId = null;
   let editingInvId = null;
   let linkingInvId = null;
+  let editingContractId = null;
+  let currentDailyHoursContract = null;
   let altCount = 0;
   let invAltCount = 0;
   
@@ -688,11 +706,17 @@
       const data = snap.val();
       equipmentData = data ? Object.entries(data).map(([id, eq]) => ({ ...eq, id })) : [];
       refreshUI();
+      updateRentalEquipmentSelect();
     });
     fbDb.ref('inventoryFilters').on('value', (snap) => {
       const data = snap.val();
       inventoryFilters = data ? Object.entries(data).map(([id, f]) => ({ ...f, id })) : [];
       refreshUI();
+    });
+    fbDb.ref('rentalContracts').on('value', (snap) => {
+      const data = snap.val();
+      rentalContracts = data ? Object.entries(data).map(([id, c]) => ({ ...c, id })) : [];
+      renderRentalContracts();
     });
     firebase.auth().signInAnonymously().catch(err => console.error('Auth error:', err));
   }
@@ -737,7 +761,317 @@
   }
   
   // ============================================
-  // تحديث العداد اليومي السريع
+  // RENTAL CONTRACTS FUNCTIONS
+  // ============================================
+  function updateRentalEquipmentSelect() {
+    const select = document.getElementById('rental-equipment-id');
+    if (select) {
+      select.innerHTML = '<option value="">اختر المعدة</option>' + 
+        equipmentData.map(eq => `<option value="${eq.id}">${eq.name} (${eq.code})</option>`).join('');
+    }
+  }
+  
+  function openRentalContractModal(contractId = null) {
+    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
+    editingContractId = contractId;
+    document.getElementById('rental-modal-title').innerHTML = contractId ? '✏️ تعديل عقد إيجار' : '➕ عقد إيجار جديد';
+    
+    if (contractId) {
+      const contract = rentalContracts.find(c => c.id === contractId);
+      if (contract) {
+        document.getElementById('rental-equipment-id').value = contract.equipmentId || '';
+        document.getElementById('rental-tenant').value = contract.tenant || '';
+        document.getElementById('rental-contact').value = contract.contact || '';
+        document.getElementById('rental-start-date').value = contract.startDate || '';
+        document.getElementById('rental-end-date').value = contract.endDate || '';
+        document.getElementById('rental-daily-rate').value = contract.dailyRate || 0;
+        document.getElementById('rental-start-hours').value = contract.startHours || 0;
+        document.getElementById('rental-notes').value = contract.notes || '';
+      }
+    } else {
+      ['rental-equipment-id', 'rental-tenant', 'rental-contact', 'rental-start-date', 'rental-end-date', 'rental-notes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('rental-daily-rate').value = 0;
+      document.getElementById('rental-start-hours').value = 0;
+      document.getElementById('rental-start-date').value = new Date().toISOString().split('T')[0];
+    }
+    updateRentalEquipmentSelect();
+    document.getElementById('rental-modal').classList.add('active');
+  }
+  
+  function saveRentalContract() {
+    const equipmentId = document.getElementById('rental-equipment-id').value;
+    const tenant = document.getElementById('rental-tenant').value.trim();
+    
+    if (!equipmentId || !tenant) {
+      showToast('يرجى اختيار المعدة وإدخال اسم المستأجر');
+      return;
+    }
+    
+    const contract = {
+      equipmentId: equipmentId,
+      tenant: tenant,
+      contact: document.getElementById('rental-contact').value,
+      startDate: document.getElementById('rental-start-date').value,
+      endDate: document.getElementById('rental-end-date').value,
+      dailyRate: parseInt(document.getElementById('rental-daily-rate').value) || 0,
+      startHours: parseInt(document.getElementById('rental-start-hours').value) || 0,
+      notes: document.getElementById('rental-notes').value,
+      status: 'active',
+      dailyHours: [],
+      updatedAt: new Date().toISOString()
+    };
+    
+    if (editingContractId) {
+      saveToFirebase('rentalContracts', { ...contract, id: editingContractId });
+    } else {
+      contract.createdAt = new Date().toISOString();
+      saveToFirebase('rentalContracts', contract);
+    }
+    
+    closeModal('rental-modal');
+    showToast(editingContractId ? 'تم تحديث العقد' : 'تم إضافة العقد');
+  }
+  
+  function openDailyHoursModal(contractId) {
+    currentDailyHoursContract = contractId;
+    const contract = rentalContracts.find(c => c.id === contractId);
+    if (!contract) return;
+    
+    const eq = equipmentData.find(e => e.id === contract.equipmentId);
+    const today = new Date().toISOString().split('T')[0];
+    const todayHours = (contract.dailyHours || []).find(h => h.date === today);
+    
+    const content = document.getElementById('daily-hours-content');
+    content.innerHTML = `
+      <div style="background:white; border-radius:16px; padding:16px; margin-bottom:12px">
+        <div style="font-weight:700">${eq?.name || 'معدة غير معروفة'}</div>
+        <div style="font-size:12px; color:var(--gray)">المستأجر: ${contract.tenant}</div>
+        <div style="font-size:12px; color:var(--gray)">العداد عند التسليم: ${contract.startHours} ساعة</div>
+      </div>
+      <div class="form-group">
+        <div class="form-field">
+          <label class="form-label">التاريخ</label>
+          <input class="form-input" type="date" id="hours-date" value="${today}">
+        </div>
+        <div class="form-field">
+          <label class="form-label">عدد ساعات العمل اليومية</label>
+          <input class="form-input" type="number" id="daily-hours" step="0.5" value="${todayHours?.hours || ''}" placeholder="أدخل عدد الساعات">
+        </div>
+        <div class="form-field">
+          <label class="form-label">العداد الحالي (ساعة)</label>
+          <input class="form-input" type="number" id="current-hours" value="${eq?.hours || ''}" placeholder="القراءة الحالية">
+        </div>
+        <div class="form-field">
+          <label class="form-label">ساعات العمل الإضافي</label>
+          <input class="form-input" type="number" id="overtime-hours" step="0.5" value="${todayHours?.overtime || 0}" placeholder="ساعات إضافية">
+        </div>
+        <div class="form-field">
+          <label class="form-label">ملاحظات</label>
+          <textarea class="form-textarea" id="hours-notes" placeholder="أي ملاحظات عن اليوم">${todayHours?.notes || ''}</textarea>
+        </div>
+      </div>
+    `;
+    document.getElementById('daily-hours-modal').classList.add('active');
+  }
+  
+  function saveDailyHours() {
+    const contract = rentalContracts.find(c => c.id === currentDailyHoursContract);
+    if (!contract) return;
+    
+    const date = document.getElementById('hours-date').value;
+    const hours = parseFloat(document.getElementById('daily-hours').value) || 0;
+    const overtime = parseFloat(document.getElementById('overtime-hours').value) || 0;
+    const notes = document.getElementById('hours-notes').value;
+    const currentHours = parseInt(document.getElementById('current-hours').value);
+    
+    const dailyHours = contract.dailyHours || [];
+    const existingIndex = dailyHours.findIndex(h => h.date === date);
+    
+    const record = { date, hours, overtime, notes, recordedAt: new Date().toISOString() };
+    
+    if (existingIndex >= 0) {
+      dailyHours[existingIndex] = record;
+    } else {
+      dailyHours.push(record);
+    }
+    
+    contract.dailyHours = dailyHours.sort((a, b) => a.date.localeCompare(b.date));
+    
+    // تحديث عداد المعدة إذا تم إدخال قيمة
+    if (currentHours && !isNaN(currentHours)) {
+      const eq = equipmentData.find(e => e.id === contract.equipmentId);
+      if (eq && currentHours !== eq.hours) {
+        eq.hours = currentHours;
+        saveToFirebase('equipment', eq);
+      }
+    }
+    
+    saveToFirebase('rentalContracts', contract);
+    closeModal('daily-hours-modal');
+    showToast('تم تسجيل ساعات العمل');
+  }
+  
+  function completeRentalContract(contractId) {
+    if (confirm('هل أنت متأكد من إنهاء هذا العقد؟')) {
+      const contract = rentalContracts.find(c => c.id === contractId);
+      if (contract) {
+        contract.status = 'completed';
+        contract.endDateActual = new Date().toISOString().split('T')[0];
+        saveToFirebase('rentalContracts', contract);
+        showToast('تم إنهاء العقد');
+      }
+    }
+  }
+  
+  function filterRentalContracts() {
+    renderRentalContracts();
+  }
+  
+  function calculateContractTotal(contract) {
+    const totalHours = (contract.dailyHours || []).reduce((sum, d) => sum + (d.hours || 0), 0);
+    const totalOvertime = (contract.dailyHours || []).reduce((sum, d) => sum + (d.overtime || 0), 0);
+    const revenue = (totalHours * (contract.dailyRate || 0)) + (totalOvertime * (contract.dailyRate || 0) * 1.5);
+    return { totalHours, totalOvertime, revenue };
+  }
+  
+  function renderRentalContracts() {
+    const searchTerm = (document.getElementById('search-rental')?.value || '').toLowerCase();
+    const activeContracts = rentalContracts.filter(c => c.status === 'active');
+    const completedContracts = rentalContracts.filter(c => c.status === 'completed');
+    const filtered = [...activeContracts, ...completedContracts].filter(c => {
+      const eq = equipmentData.find(e => e.id === c.equipmentId);
+      return (eq?.name || '').toLowerCase().includes(searchTerm) || 
+             c.tenant.toLowerCase().includes(searchTerm);
+    });
+    
+    document.getElementById('rented-count').innerHTML = activeContracts.length;
+    document.getElementById('available-count').innerHTML = equipmentData.filter(eq => 
+      !activeContracts.some(c => c.equipmentId === eq.id)
+    ).length;
+    
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const monthlyHours = activeContracts.reduce((sum, c) => {
+      const monthHours = (c.dailyHours || []).filter(h => {
+        const hDate = new Date(h.date);
+        return hDate.getMonth() === currentMonth && hDate.getFullYear() === currentYear;
+      }).reduce((s, h) => s + (h.hours || 0), 0);
+      return sum + monthHours;
+    }, 0);
+    document.getElementById('monthly-hours').innerHTML = monthlyHours;
+    
+    const container = document.getElementById('rental-contracts-list');
+    container.innerHTML = filtered.map(contract => {
+      const eq = equipmentData.find(e => e.id === contract.equipmentId);
+      const { totalHours, totalOvertime, revenue } = calculateContractTotal(contract);
+      const isActive = contract.status === 'active';
+      
+      return `
+        <div class="rental-card" style="border-right-color: ${isActive ? 'var(--info)' : 'var(--gray)'}">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start">
+            <div>
+              <div class="card-title">${eq?.name || 'معدة غير معروفة'}</div>
+              <div class="card-code">${eq?.code || ''}</div>
+            </div>
+            <span class="badge ${isActive ? 'badge-rented' : 'badge-stopped'}">${isActive ? 'مؤجرة' : 'منتهي'}</span>
+          </div>
+          <div style="margin-top:8px">
+            <div><span class="detail-label">المستأجر:</span> ${contract.tenant}</div>
+            <div><span class="detail-label">جهة الاتصال:</span> ${contract.contact || '—'}</div>
+            <div><span class="detail-label">فترة الإيجار:</span> ${contract.startDate} → ${contract.endDate || 'مفتوح'}</div>
+            <div><span class="detail-label">السعر اليومي:</span> ${contract.dailyRate} ر.س</div>
+          </div>
+          <div class="grid-3" style="margin-top:10px">
+            <div><div class="detail-label">إجمالي الساعات</div><div class="detail-value">${totalHours}</div></div>
+            <div><div class="detail-label">ساعات إضافية</div><div class="detail-value">${totalOvertime}</div></div>
+            <div><div class="detail-label">الإيرادات</div><div class="detail-value">${revenue.toLocaleString()} ر.س</div></div>
+          </div>
+          <div class="quick-actions" style="margin-top:12px">
+            <button class="quick-btn" onclick="openDailyHoursModal('${contract.id}')">⏱️ ساعات يومية</button>
+            <button class="quick-btn maintenance" onclick="viewContractDetails('${contract.id}')">📋 تفاصيل</button>
+            ${isActive && currentUser?.role === 'admin' ? `<button class="quick-btn edit" onclick="completeRentalContract('${contract.id}')">✅ إنهاء</button>` : ''}
+            ${currentUser?.role === 'admin' ? `<button class="quick-btn" style="background:#fee2e2" onclick="deleteFromFirebase('rentalContracts','${contract.id}')">🗑️</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-state">لا توجد عقود إيجار</div>';
+    }
+  }
+  
+  function viewContractDetails(contractId) {
+    const contract = rentalContracts.find(c => c.id === contractId);
+    if (!contract) return;
+    const eq = equipmentData.find(e => e.id === contract.equipmentId);
+    const { totalHours, totalOvertime, revenue } = calculateContractTotal(contract);
+    
+    let hoursHtml = '<div class="detail-label" style="margin-top:12px">📅 سجل الساعات اليومية</div>';
+    (contract.dailyHours || []).slice(-14).reverse().forEach(h => {
+      hoursHtml += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eef2f6">
+        <span>${h.date}</span>
+        <span>${h.hours || 0} ساعة</span>
+        <span style="color:var(--warning)">+${h.overtime || 0}</span>
+        <span style="font-size:11px">${h.notes || ''}</span>
+      </div>`;
+    });
+    
+    document.getElementById('detail-title').innerHTML = `📄 تفاصيل عقد الإيجار`;
+    document.getElementById('detail-content').innerHTML = `
+      <div class="detail-section">
+        <div class="grid-2">
+          <div><div class="detail-label">المعدة</div><div class="detail-value">${eq?.name} (${eq?.code})</div></div>
+          <div><div class="detail-label">المستأجر</div><div class="detail-value">${contract.tenant}</div></div>
+          <div><div class="detail-label">جهة الاتصال</div><div class="detail-value">${contract.contact || '—'}</div></div>
+          <div><div class="detail-label">السعر اليومي</div><div class="detail-value">${contract.dailyRate} ر.س</div></div>
+          <div><div class="detail-label">بدء الإيجار</div><div class="detail-value">${contract.startDate}</div></div>
+          <div><div class="detail-label">نهاية الإيجار</div><div class="detail-value">${contract.endDate || 'مفتوح'}</div></div>
+          <div><div class="detail-label">عداد التسليم</div><div class="detail-value">${contract.startHours} ساعة</div></div>
+        </div>
+      </div>
+      <div class="detail-section">
+        <div class="grid-3">
+          <div><div class="detail-label">إجمالي الساعات</div><div class="detail-value">${totalHours}</div></div>
+          <div><div class="detail-label">ساعات إضافية</div><div class="detail-value">${totalOvertime}</div></div>
+          <div><div class="detail-label">الإيرادات</div><div class="detail-value">${revenue.toLocaleString()} ر.س</div></div>
+        </div>
+      </div>
+      ${hoursHtml}
+      ${contract.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات العقد</div><div class="detail-value">${contract.notes}</div></div>` : ''}
+    `;
+    document.getElementById('detail-modal').classList.add('active');
+  }
+  
+  function exportRentalReport() {
+    const data = rentalContracts.map(c => {
+      const eq = equipmentData.find(e => e.id === c.equipmentId);
+      const { totalHours, totalOvertime, revenue } = calculateContractTotal(c);
+      return {
+        'المعدة': eq?.name || '',
+        'الكود': eq?.code || '',
+        'المستأجر': c.tenant,
+        'جهة الاتصال': c.contact,
+        'تاريخ البداية': c.startDate,
+        'تاريخ النهاية': c.endDate || 'مستمر',
+        'الحالة': c.status === 'active' ? 'مؤجرة' : 'منتهي',
+        'إجمالي الساعات': totalHours,
+        'ساعات إضافية': totalOvertime,
+        'الإيرادات (ر.س)': revenue
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'عقود الإيجار');
+    XLSX.writeFile(wb, `تقرير_التأجير_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('تم تصدير تقرير التأجير');
+  }
+  
+  // ============================================
+  // QUICK METER UPDATE
   // ============================================
   function openQuickMeterUpdate() {
     const container = document.getElementById('quick-meter-list');
@@ -746,7 +1080,7 @@
         <div style="font-weight:700">${eq.name}</div>
         <div style="font-size:12px; color:var(--gray)">العداد الحالي: ${eq.hours} ساعة</div>
         <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (eq.hours / (eq.nextHours || 1)) * 100)}%"></div></div>
-        <input type="number" id="quick-meter-${eq.id}" value="${eq.hours}" placeholder="القراءة الجديدة" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:12px; margin-top:10px; font-family:inherit">
+        <input type="number" id="quick-meter-${eq.id}" value="${eq.hours}" placeholder="القراءة الجديدة" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:12px; margin-top:10px">
       </div>
     `).join('');
     document.getElementById('quick-meter-modal').classList.add('active');
@@ -758,20 +1092,15 @@
       if (input && input.value) {
         const newHours = parseInt(input.value);
         if (newHours !== eq.hours && !isNaN(newHours)) {
-          const log = { date: new Date().toISOString().split('T')[0], old: eq.hours, new: newHours };
           eq.hours = newHours;
-          eq.hoursLog = [...(eq.hoursLog || []), log];
           saveToFirebase('equipment', eq);
         }
       }
     });
     closeModal('quick-meter-modal');
-    showToast('تم تحديث العدادات بنجاح');
+    showToast('تم تحديث العدادات');
   }
   
-  // ============================================
-  // تحديث العداد من الصفحة الرئيسية مباشرة
-  // ============================================
   function updateSingleMeter(eqId) {
     const input = document.getElementById(`home-meter-${eqId}`);
     if (input && input.value) {
@@ -779,9 +1108,7 @@
       if (eq) {
         const newHours = parseInt(input.value);
         if (!isNaN(newHours) && newHours !== eq.hours) {
-          const log = { date: new Date().toISOString().split('T')[0], old: eq.hours, new: newHours };
           eq.hours = newHours;
-          eq.hoursLog = [...(eq.hoursLog || []), log];
           saveToFirebase('equipment', eq);
           showToast(`تم تحديث عداد ${eq.name} إلى ${newHours} ساعة`);
         }
@@ -823,6 +1150,12 @@
       const totalQtyVal = totalQty(f);
       const needed = getFilterTotalNeeded(f);
       const shortage = Math.max(0, needed - totalQtyVal);
+      
+      // عرض المعدات المرتبطة بهذا الفلتر
+      const linkedEqs = equipmentData.filter(eq => 
+        Object.values(eq.filters || {}).some(lf => lf.invId === f.id)
+      );
+      
       return `
         <div class="filter-card ${shortage > 0 ? 'critical' : totalQtyVal < needed * 1.5 ? 'low' : ''}" style="margin-bottom:12px">
           <div style="display:flex; justify-content:space-between">
@@ -834,6 +1167,9 @@
             <div><div class="detail-label">المطلوب</div><div class="detail-value">${needed}</div></div>
             <div><div class="detail-label">النقص</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${shortage>0?shortage:'✓'}</div></div>
           </div>
+          ${linkedEqs.length ? `<div style="margin-top:8px; font-size:11px; color:var(--gray); background:#f8fafc; padding:8px; border-radius:12px">
+            🔗 مرتبط بـ: ${linkedEqs.map(e => e.name).join(', ')}
+          </div>` : '<div style="margin-top:8px; font-size:11px; color:var(--warning)">⚠️ غير مرتبط بأي معدة</div>'}
           <div style="margin-top:8px">
             <button onclick="adjustInvQty('${f.id}', -1)" class="qty-btn" style="background:var(--danger); color:white">-</button>
             <span style="margin:0 10px">الأصلي: ${f.qty || 0}</span>
@@ -921,8 +1257,7 @@
       const checked = document.getElementById(`inv-eq-${eq.id}`)?.checked;
       const existingLink = Object.entries(eq.filters || {}).find(([, f]) => f.invId === filterId);
       if (checked && !existingLink) {
-        const newFilter = { invId: filterId, type: filter.type, partNo: filter.partNo, qty: 0, usedPerService: 1 };
-        fbDb.ref(`equipment/${eq.id}/filters`).push(newFilter);
+        fbDb.ref(`equipment/${eq.id}/filters`).push({ invId: filterId, type: filter.type, partNo: filter.partNo, qty: 0, usedPerService: 1 });
       } else if (!checked && existingLink) {
         fbDb.ref(`equipment/${eq.id}/filters/${existingLink[0]}`).remove();
       }
@@ -965,19 +1300,15 @@
   // ============================================
   // ORDER FUNCTIONS
   // ============================================
-  function calcOrderForEquipment(eq) {
-    return Object.values(eq.filters || {}).map(f => {
-      const needed = (f.usedPerService || 1) * 4;
-      const totalQty = filterTotalQty(f);
-      const shortage = Math.max(0, needed - totalQty);
-      return { ...f, needed, totalQty, shortage, sufficient: shortage === 0 };
-    });
-  }
-  
   function generateOrderForAll() {
     let ordersHtml = '';
     equipmentData.forEach(eq => {
-      const items = calcOrderForEquipment(eq);
+      const items = Object.values(eq.filters || {}).map(f => {
+        const needed = (f.usedPerService || 1) * 4;
+        const totalQty = filterTotalQty(f);
+        const shortage = Math.max(0, needed - totalQty);
+        return { ...f, needed, shortage };
+      });
       const hasShortage = items.some(i => i.shortage > 0);
       if (!hasShortage) {
         ordersHtml += `<div class="order-card ok"><div class="card-title">${eq.name}</div><div style="font-size:12px">✅ جميع الفلاتر كافية</div></div>`;
@@ -1002,7 +1333,10 @@
     if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
     editingEquipmentId = null;
     document.getElementById('modal-title-equipment').innerHTML = 'إضافة معدة جديدة';
-    ['eq-code', 'eq-name', 'eq-location', 'eq-chassis', 'eq-hours', 'eq-next-hours', 'eq-interval', 'eq-purchase-cost', 'eq-image', 'eq-notes'].forEach(id => document.getElementById(id).value = '');
+    ['eq-code', 'eq-name', 'eq-location', 'eq-chassis', 'eq-hours', 'eq-next-hours', 'eq-interval', 'eq-daily-rate', 'eq-purchase-cost', 'eq-image', 'eq-notes'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
     document.getElementById('eq-type').value = 'حفارة';
     document.getElementById('eq-status').value = 'يعمل';
     document.getElementById('equipment-modal').classList.add('active');
@@ -1023,6 +1357,7 @@
     document.getElementById('eq-next-hours').value = eq.nextHours || 250;
     document.getElementById('eq-interval').value = eq.interval || 250;
     document.getElementById('eq-status').value = eq.status || 'يعمل';
+    document.getElementById('eq-daily-rate').value = eq.dailyRate || 0;
     document.getElementById('eq-purchase-cost').value = eq.purchaseCost || 0;
     document.getElementById('eq-image').value = eq.image || '';
     document.getElementById('eq-notes').value = eq.notes || '';
@@ -1040,6 +1375,7 @@
       nextHours: parseInt(document.getElementById('eq-next-hours').value) || 250,
       interval: parseInt(document.getElementById('eq-interval').value) || 250,
       status: document.getElementById('eq-status').value,
+      dailyRate: parseInt(document.getElementById('eq-daily-rate').value) || 0,
       purchaseCost: parseInt(document.getElementById('eq-purchase-cost').value) || 0,
       image: document.getElementById('eq-image').value,
       notes: document.getElementById('eq-notes').value,
@@ -1070,71 +1406,6 @@
   }
   
   // ============================================
-  // FILTER FUNCTIONS FOR EQUIPMENT
-  // ============================================
-  let currentEqForFilter = null;
-  
-  function openAddFilterModal(eqId) {
-    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
-    currentEqForFilter = eqId;
-    editingFilterId = null;
-    document.getElementById('filter-modal-title').innerHTML = 'إضافة فلتر للمعدة';
-    ['filter-type', 'filter-partno', 'filter-qty', 'filter-used-per'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('filter-interval').value = 250;
-    document.getElementById('filter-alts-container').innerHTML = '';
-    altCount = 0;
-    document.getElementById('filter-modal').classList.add('active');
-  }
-  
-  function addAltField() {
-    altCount++;
-    const container = document.getElementById('filter-alts-container');
-    const div = document.createElement('div');
-    div.id = `filter-alt-${altCount}`;
-    div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px';
-    div.innerHTML = `
-      <input class="form-input" id="filter-alt-pn-${altCount}" placeholder="رقم بديل" style="background:white; border-radius:8px; padding:8px">
-      <input class="form-input" type="number" id="filter-alt-qty-${altCount}" placeholder="كميته" style="background:white; border-radius:8px; padding:8px">
-      <button onclick="document.getElementById('filter-alt-${altCount}').remove()" style="background:#fee2e2; border:none; border-radius:8px; padding:8px 12px">×</button>
-    `;
-    container.appendChild(div);
-  }
-  
-  function saveFilterToEquipment() {
-    const alts = [];
-    for (let i = 1; i <= altCount; i++) {
-      const pn = document.getElementById(`filter-alt-pn-${i}`);
-      const qty = document.getElementById(`filter-alt-qty-${i}`);
-      if (pn && pn.value.trim()) alts.push({ partNo: pn.value.trim(), qty: parseInt(qty?.value) || 0 });
-    }
-    const filter = {
-      type: document.getElementById('filter-type').value.trim(),
-      partNo: document.getElementById('filter-partno').value.trim(),
-      qty: parseInt(document.getElementById('filter-qty').value) || 0,
-      usedPerService: parseInt(document.getElementById('filter-used-per').value) || 1,
-      interval: parseInt(document.getElementById('filter-interval').value) || 250,
-      alts: alts
-    };
-    if (!filter.type || !filter.partNo) { showToast('يرجى إدخال نوع الفلتر ورقم القطعة'); return; }
-    saveToFirebase(`equipment/${currentEqForFilter}/filters`, filter);
-    closeModal('filter-modal');
-    showToast('تم إضافة الفلتر');
-  }
-  
-  function deleteFilter(eqId, filterId) {
-    if (currentUser?.role !== 'admin') return;
-    if (confirm('هل أنت متأكد؟')) fbDb.ref(`equipment/${eqId}/filters/${filterId}`).remove();
-  }
-  
-  function adjustFilterQty(eqId, filterId, delta) {
-    const eq = equipmentData.find(e => e.id === eqId);
-    if (eq && eq.filters && eq.filters[filterId]) {
-      const newQty = Math.max(0, (eq.filters[filterId].qty || 0) + delta);
-      fbDb.ref(`equipment/${eqId}/filters/${filterId}/qty`).set(newQty);
-    }
-  }
-  
-  // ============================================
   // DETAIL MODAL
   // ============================================
   function openDetailModal(id) {
@@ -1143,21 +1414,7 @@
     const rem = hoursRemaining(eq);
     const remPercent = Math.min(100, (eq.hours / eq.nextHours) * 100);
     const qrData = `معدة: ${eq.name}\nكود: ${eq.code}\nعداد: ${eq.hours} ساعة\nالصيانة عند: ${eq.nextHours} ساعة`;
-    const filtersHtml = Object.entries(eq.filters || {}).map(([fid, f]) => {
-      const total = filterTotalQty(f);
-      return `<div class="filter-card ${total === 0 ? 'critical' : total < (f.usedPerService || 1) * 2 ? 'low' : ''}">
-        <div style="display:flex; justify-content:space-between">
-          <div><div style="font-weight:700">${f.type}</div><div style="font-size:11px">P/N: ${f.partNo}</div></div>
-          ${currentUser?.role === 'admin' ? `<button onclick="deleteFilter('${id}','${fid}')" style="background:#fee2e2; border:none; border-radius:8px; padding:4px 8px">🗑️</button>` : ''}
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
-          <div><button onclick="adjustFilterQty('${id}','${fid}',-1)" class="qty-btn" style="background:var(--danger); color:white; width:28px; height:28px">-</button>
-          <span style="margin:0 10px">${f.qty || 0}</span>
-          <button onclick="adjustFilterQty('${id}','${fid}',1)" class="qty-btn" style="background:var(--success); color:white; width:28px; height:28px">+</button></div>
-          <div style="font-size:12px">يستخدم: ${f.usedPerService || 1}/صيانة | إجمالي: ${total}</div>
-        </div>
-      </div>`;
-    }).join('');
+    
     document.getElementById('detail-title').innerHTML = eq.name;
     document.getElementById('detail-content').innerHTML = `
       ${eq.image ? `<img src="${eq.image}" style="width:100%; border-radius:18px; margin-bottom:16px" onerror="this.src='https://placehold.co/400x200?text=No+Image'">` : ''}
@@ -1165,7 +1422,7 @@
         <div><div class="detail-label">كود المعدة</div><div class="detail-value">${eq.code}</div></div>
         <div><div class="detail-label">النوع</div><div class="detail-value">${eq.type}</div></div>
         <div><div class="detail-label">الموقع</div><div class="detail-value">${eq.location || '—'}</div></div>
-        <div><div class="detail-label">رقم الشاسيه</div><div class="detail-value">${eq.chassis || '—'}</div></div>
+        <div><div class="detail-label">سعر الإيجار اليومي</div><div class="detail-value">${eq.dailyRate || 0} ر.س</div></div>
         <div><div class="detail-label">تكلفة الشراء</div><div class="detail-value">${(eq.purchaseCost || 0).toLocaleString()} ر.س</div></div>
         <div><div class="detail-label">تكاليف الصيانة</div><div class="detail-value">${(eq.totalMaintenanceCost || 0).toLocaleString()} ر.س</div></div>
       </div></div>
@@ -1176,7 +1433,6 @@
         <div style="margin-top:8px"><div class="detail-label">⏳ المتبقي</div><div class="detail-value" style="color: ${rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981'}">${rem <= 0 ? '⚠️ تجاوز الموعد' : `${rem} ساعة`}</div></div>
       </div>
       <div class="qr-container"><div class="detail-label" style="margin-bottom:8px">رمز QR</div><div id="qr-code"></div></div>
-      <div class="detail-section"><div class="section-title" style="margin-bottom:10px">🔧 الفلاتر</div>${filtersHtml || '<div class="empty-state">لا توجد فلاتر</div>'}${currentUser?.role === 'admin' ? `<button class="save-btn" style="margin:10px 0 0 0" onclick="openAddFilterModal('${id}')">+ إضافة فلتر</button>` : ''}</div>
       ${eq.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${eq.notes}</div></div>` : ''}
       ${currentUser?.role === 'admin' ? `<div class="grid-2" style="margin:12px 14px; gap:10px">
         <button class="save-btn" style="margin:0" onclick="showRecordForm('maintenance', '${id}')">🔧 صيانة</button>
@@ -1185,7 +1441,6 @@
         <button class="save-btn" style="margin:0; background:var(--accent)" onclick="openEditEquipmentModal('${id}')">✏️ تعديل</button>
         <button class="save-btn" style="margin:0; background:#ef4444" onclick="deleteFromFirebase('equipment','${id}')">🗑️ حذف</button>
       </div>` : ''}
-      ${eq.maintenanceLogs?.length ? `<div class="detail-section"><div class="detail-label">📋 سجل الصيانة</div>${eq.maintenanceLogs.slice(-5).reverse().map(l => `<div style="font-size:12px; padding:5px 0">🔧 ${l.type} - ${l.date} (عداد: ${l.hours}) - ${l.cost || 0} ر.س</div>`).join('')}</div>` : ''}
     `;
     document.getElementById('detail-modal').classList.add('active');
     setTimeout(() => { const qrDiv = document.getElementById('qr-code'); if (qrDiv && typeof QRCode !== 'undefined') new QRCode(qrDiv, { text: qrData, width: 120, height: 120 }); }, 100);
@@ -1249,7 +1504,7 @@
   }
   
   // ============================================
-  // UI RENDERING - الصفحة الرئيسية المحسنة
+  // UI RENDERING
   // ============================================
   function refreshUI() {
     const working = equipmentData.filter(e => e.status === 'يعمل').length;
@@ -1270,7 +1525,6 @@
     
     document.getElementById('equipment-count').innerHTML = `(${equipmentData.length} معدة)`;
     
-    // عرض جميع المعدات في الصفحة الرئيسية مع شريط التقدم وعداد الساعات
     const allEqHtml = equipmentData.map(eq => {
       const rem = hoursRemaining(eq);
       const percent = Math.min(100, Math.max(0, (eq.hours / (eq.nextHours || 1)) * 100));
@@ -1279,7 +1533,7 @@
       else if (rem <= 100 && rem > 50) remainingClass = 'warning';
       
       return `
-        <div class="equipment-main-card" onclick="event.stopPropagation()">
+        <div class="equipment-card" onclick="event.stopPropagation()">
           <div class="card-header">
             <div>
               <div class="card-title">${eq.name}</div>
@@ -1287,26 +1541,22 @@
             </div>
             <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span>
           </div>
-          
           <div class="progress-bar" style="margin: 12px 0 8px 0">
             <div class="progress-fill" style="width: ${percent}%; background: ${rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981'}"></div>
           </div>
-          
-          <div class="remaining-hours ${remainingClass}">
+          <div class="remaining-hours ${remainingClass}" style="background:#f8fafc; padding:8px; border-radius:12px; margin-bottom:10px">
             <div style="display: flex; justify-content: space-between;">
-              <span>⏱️ الساعات الحالية: <strong>${eq.hours.toLocaleString()}</strong></span>
-              <span>🔧 الصيانة عند: <strong>${eq.nextHours.toLocaleString()}</strong></span>
+              <span>⏱️ الحالية: <strong>${eq.hours.toLocaleString()}</strong></span>
+              <span>🔧 الصيانة: <strong>${eq.nextHours.toLocaleString()}</strong></span>
             </div>
             <div style="margin-top: 5px;">
               ${rem <= 0 ? '⚠️ تجاوز موعد الصيانة!' : `⏳ المتبقي: <strong>${rem.toLocaleString()}</strong> ساعة`}
             </div>
           </div>
-          
           <div class="hours-input-group">
             <input type="number" id="home-meter-${eq.id}" class="hours-input" placeholder="العداد الجديد" value="${eq.hours}">
             <button class="update-hours-btn" onclick="updateSingleMeter('${eq.id}')">تحديث</button>
           </div>
-          
           <div class="quick-actions">
             <button class="quick-btn" onclick="openDetailModal('${eq.id}')">🔍 تفاصيل</button>
             <button class="quick-btn maintenance" onclick="showRecordForm('maintenance', '${eq.id}')">🔧 صيانة</button>
@@ -1316,9 +1566,8 @@
       `;
     }).join('');
     
-    document.getElementById('all-equipment-list').innerHTML = allEqHtml || '<div class="empty-state">لا توجد معدات مسجلة. أضف معدة جديدة</div>';
+    document.getElementById('all-equipment-list').innerHTML = allEqHtml || '<div class="empty-state">لا توجد معدات مسجلة</div>';
     
-    // تحديث باقي الواجهات
     if (statusChart) statusChart.destroy();
     const ctx = document.getElementById('status-chart');
     if (ctx) {
@@ -1344,29 +1593,38 @@
     renderInventory();
     generateOrderForAll();
     renderReports();
+    renderRentalContracts();
   }
   
   function renderReports() {
     const maintenanceLogs = equipmentData.flatMap(eq => (eq.maintenanceLogs || []).map(l => ({ ...l, eqName: eq.name })));
     const issues = equipmentData.flatMap(eq => (eq.issues || []).map(i => ({ ...i, eqName: eq.name })));
     const totalMaintenanceCost = maintenanceLogs.reduce((s, l) => s + (l.cost || 0), 0);
+    const totalRentalRevenue = rentalContracts.reduce((sum, c) => {
+      const { revenue } = calculateContractTotal(c);
+      return sum + revenue;
+    }, 0);
+    
     document.getElementById('reports-content').innerHTML = `
       <div style="margin:0 0 16px 0; background:linear-gradient(135deg,#065f46,#0e7490); color:white; padding:14px; border-radius:18px">
         <div class="grid-3">
           <div><div class="detail-label">💰 تكاليف الصيانة</div><div class="detail-value">${totalMaintenanceCost.toLocaleString()} ر.س</div></div>
-          <div><div class="detail-label">⚠️ عدد الأعطال</div><div class="detail-value">${issues.length}</div></div>
-          <div><div class="detail-label">🔧 عدد الصيانات</div><div class="detail-value">${maintenanceLogs.length}</div></div>
+          <div><div class="detail-label">🚛 إيرادات التأجير</div><div class="detail-value">${totalRentalRevenue.toLocaleString()} ر.س</div></div>
+          <div><div class="detail-label">📊 صافي الربح</div><div class="detail-value">${(totalRentalRevenue - totalMaintenanceCost).toLocaleString()} ر.س</div></div>
         </div>
       </div>
       <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px">
         <div style="font-weight:800">🔧 سجل الصيانة</div>
         ${maintenanceLogs.slice(-10).reverse().map(l => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">📌 ${l.eqName} - ${l.type} (${l.date}) - ${l.cost || 0} ر.س</div>`).join('') || '<div class="empty-state">لا توجد سجلات</div>'}
       </div>
-      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px">
-        <div style="font-weight:800">⚠️ سجل الأعطال</div>
-        ${issues.slice(-10).reverse().map(i => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">⚠️ ${i.eqName} - ${i.description} (${i.date}) - ${i.cost || 0} ر.س</div>`).join('') || '<div class="empty-state">لا توجد أعطال</div>'}
-      </div>
     `;
+  }
+  
+  function calculateContractTotal(contract) {
+    const totalHours = (contract.dailyHours || []).reduce((sum, d) => sum + (d.hours || 0), 0);
+    const totalOvertime = (contract.dailyHours || []).reduce((sum, d) => sum + (d.overtime || 0), 0);
+    const revenue = (totalHours * (contract.dailyRate || 0)) + (totalOvertime * (contract.dailyRate || 0) * 1.5);
+    return { totalHours, totalOvertime, revenue };
   }
   
   // ============================================
@@ -1379,23 +1637,12 @@
   }
   
   function exportToExcel() {
-    const data = equipmentData.map(e => ({ الكود: e.code, الاسم: e.name, النوع: e.type, الموقع: e.location, 'العداد': e.hours, 'الصيانة القادمة': e.nextHours, الحالة: e.status, 'تكلفة الشراء': e.purchaseCost, 'تكاليف الصيانة': e.totalMaintenanceCost }));
+    const data = equipmentData.map(e => ({ الكود: e.code, الاسم: e.name, النوع: e.type, الموقع: e.location, 'العداد': e.hours, 'الصيانة القادمة': e.nextHours, الحالة: e.status, 'سعر الإيجار اليومي': e.dailyRate, 'تكلفة الشراء': e.purchaseCost, 'تكاليف الصيانة': e.totalMaintenanceCost }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'المعدات');
     XLSX.writeFile(wb, `تقرير_المعدات_${new Date().toISOString().split('T')[0]}.xlsx`);
     showToast('تم تصدير Excel');
-  }
-  
-  function exportToCSV() {
-    let csv = "الكود,الاسم,النوع,الموقع,العداد,الصيانة القادمة,الحالة,تكلفة الشراء,تكاليف الصيانة\n";
-    equipmentData.forEach(e => { csv += `"${e.code}","${e.name}","${e.type}","${e.location || ''}",${e.hours},${e.nextHours},"${e.status}",${e.purchaseCost || 0},${e.totalMaintenanceCost || 0}\n`; });
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `تقرير_المعدات_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    showToast('تم تصدير CSV');
   }
   
   // ============================================
@@ -1405,6 +1652,7 @@
     document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
     document.getElementById('view-equipment').style.display = view === 'equipment' ? 'block' : 'none';
     document.getElementById('view-inventory').style.display = view === 'inventory' ? 'block' : 'none';
+    document.getElementById('view-rental').style.display = view === 'rental' ? 'block' : 'none';
     document.getElementById('view-orders').style.display = view === 'orders' ? 'block' : 'none';
     document.getElementById('view-reports').style.display = view === 'reports' ? 'block' : 'none';
     document.querySelectorAll('.bottom-tab').forEach(btn => {
@@ -1413,6 +1661,7 @@
     });
     const fab = document.getElementById('fab-btn');
     if (view === 'inventory') fab.onclick = () => openInvModal(null);
+    else if (view === 'rental') fab.onclick = () => openRentalContractModal(null);
     else fab.onclick = () => openAddEquipmentModal();
     refreshUI();
   }
@@ -1441,14 +1690,79 @@
   window.openQuickMeterUpdate = openQuickMeterUpdate;
   window.saveQuickMeters = saveQuickMeters;
   window.updateSingleMeter = updateSingleMeter;
-  window.openAddFilterModal = openAddFilterModal;
-  window.addAltField = addAltField;
-  window.saveFilterToEquipment = saveFilterToEquipment;
-  window.deleteFilter = deleteFilter;
-  window.adjustFilterQty = adjustFilterQty;
+  window.openRentalContractModal = openRentalContractModal;
+  window.openDailyHoursModal = openDailyHoursModal;
+  window.saveDailyHours = saveDailyHours;
+  window.completeRentalContract = completeRentalContract;
+  window.filterRentalContracts = filterRentalContracts;
+  window.viewContractDetails = viewContractDetails;
+  window.exportRentalReport = exportRentalReport;
   window.exportToPDF = exportToPDF;
   window.exportToExcel = exportToExcel;
-  window.exportToCSV = exportToCSV;
+  
+  // Filter functions for equipment
+  window.openAddFilterModal = (eqId) => {
+    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
+    currentEqForFilter = eqId;
+    editingFilterId = null;
+    document.getElementById('filter-modal-title').innerHTML = 'إضافة فلتر للمعدة';
+    ['filter-type', 'filter-partno', 'filter-qty', 'filter-used-per'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('filter-interval').value = 250;
+    document.getElementById('filter-alts-container').innerHTML = '';
+    altCount = 0;
+    document.getElementById('filter-modal').classList.add('active');
+  };
+  
+  window.addAltField = () => {
+    altCount++;
+    const container = document.getElementById('filter-alts-container');
+    const div = document.createElement('div');
+    div.id = `filter-alt-${altCount}`;
+    div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px';
+    div.innerHTML = `
+      <input class="form-input" id="filter-alt-pn-${altCount}" placeholder="رقم بديل" style="background:white; border-radius:8px; padding:8px">
+      <input class="form-input" type="number" id="filter-alt-qty-${altCount}" placeholder="كميته" style="background:white; border-radius:8px; padding:8px">
+      <button onclick="document.getElementById('filter-alt-${altCount}').remove()" style="background:#fee2e2; border:none; border-radius:8px; padding:8px 12px">×</button>
+    `;
+    container.appendChild(div);
+  };
+  
+  window.saveFilterToEquipment = () => {
+    const alts = [];
+    for (let i = 1; i <= altCount; i++) {
+      const pn = document.getElementById(`filter-alt-pn-${i}`);
+      const qty = document.getElementById(`filter-alt-qty-${i}`);
+      if (pn && pn.value.trim()) alts.push({ partNo: pn.value.trim(), qty: parseInt(qty?.value) || 0 });
+    }
+    const filter = {
+      type: document.getElementById('filter-type').value.trim(),
+      partNo: document.getElementById('filter-partno').value.trim(),
+      qty: parseInt(document.getElementById('filter-qty').value) || 0,
+      usedPerService: parseInt(document.getElementById('filter-used-per').value) || 1,
+      interval: parseInt(document.getElementById('filter-interval').value) || 250,
+      alts: alts
+    };
+    if (!filter.type || !filter.partNo) { showToast('يرجى إدخال نوع الفلتر ورقم القطعة'); return; }
+    saveToFirebase(`equipment/${currentEqForFilter}/filters`, filter);
+    closeModal('filter-modal');
+    showToast('تم إضافة الفلتر');
+  };
+  
+  window.deleteFilter = (eqId, filterId) => {
+    if (currentUser?.role !== 'admin') return;
+    if (confirm('هل أنت متأكد؟')) fbDb.ref(`equipment/${eqId}/filters/${filterId}`).remove();
+  };
+  
+  window.adjustFilterQty = (eqId, filterId, delta) => {
+    const eq = equipmentData.find(e => e.id === eqId);
+    if (eq && eq.filters && eq.filters[filterId]) {
+      const newQty = Math.max(0, (eq.filters[filterId].qty || 0) + delta);
+      fbDb.ref(`equipment/${eqId}/filters/${filterId}/qty`).set(newQty);
+    }
+  };
+  
+  let currentEqForFilter = null;
+  let editingFilterId = null;
 </script>
 </body>
 </html>
