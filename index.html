@@ -7,13 +7,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0d1b2a">
   <title>نظام إدارة صيانة الأسطول المتكامل</title>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- html2pdf -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- SheetJS for Excel -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-  <!-- QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -129,7 +125,6 @@
     .badge-maintenance { background: #fef3c7; color: #78350f; }
     .badge-stopped { background: #fee2e2; color: #7f1d1d; }
     .badge-rented { background: #dbeafe; color: #1e40af; }
-    .badge-available { background: #d1fae5; color: #065f46; }
 
     .bottom-tab-bar {
       position: fixed;
@@ -306,12 +301,62 @@
       border-right: 3px solid var(--danger);
     }
     .order-card.ok { border-right-color: var(--success); }
-    .rental-card {
+    
+    /* أنماط ساعات العمل */
+    .hours-card {
       background: white;
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 14px;
       margin-bottom: 12px;
       border-right: 3px solid var(--info);
+    }
+    .hours-summary {
+      background: linear-gradient(135deg, #065f46, #0e7490);
+      color: white;
+      padding: 14px;
+      border-radius: 18px;
+      margin: 12px 14px;
+      text-align: center;
+    }
+    .month-selector {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 12px 14px;
+    }
+    .month-btn {
+      background: var(--info);
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .hours-table {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef2f6;
+      font-size: 12px;
+    }
+    .hours-row.header {
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+    }
+    .attendance-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #eef2f6;
+      font-size: 13px;
     }
     .hours-input-group {
       display: flex;
@@ -328,6 +373,16 @@
       font-family: inherit;
       text-align: center;
     }
+    .update-hours-btn {
+      background: linear-gradient(135deg, var(--info), #0f5c73);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
     .daily-meter-btn {
       background: linear-gradient(135deg, var(--info), var(--primary));
       border: none;
@@ -339,18 +394,25 @@
       width: calc(100% - 28px);
       cursor: pointer;
     }
-    .rental-stats {
+    .quick-actions {
       display: flex;
-      gap: 10px;
-      margin: 12px 14px;
+      gap: 8px;
+      margin-top: 12px;
     }
-    .rental-stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 12px;
+    .quick-btn {
       flex: 1;
-      text-align: center;
+      padding: 8px;
+      border-radius: 12px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f1f5f9;
+      color: var(--primary);
     }
+    .quick-btn.maintenance { background: #fef3c7; color: #b45309; }
+    .quick-btn.edit { background: #e0e7ff; color: #4338ca; }
+    .quick-btn.hours { background: #dbeafe; color: #1e40af; }
   </style>
 </head>
 <body>
@@ -363,7 +425,7 @@
   <div style="text-align:center; width:100%; max-width:320px">
     <div style="font-size:60px; margin-bottom:20px">🏗️</div>
     <div style="font-size:28px; font-weight:800; margin-bottom:10px; color:white">نظام الصيانة المتكامل</div>
-    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">إدارة متكاملة للمعدات - فلاتر - تأجير - تقارير</div>
+    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">إدارة متكاملة للمعدات - فلاتر - طلبيات - ساعات العمل</div>
     <input type="text" id="login-username" placeholder="اسم المستخدم" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:12px; text-align:center; font-size:14px">
     <input type="password" id="login-password" placeholder="كلمة المرور" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:20px; text-align:center; font-size:14px">
     <button onclick="performLogin()" style="width:100%; background:var(--accent); color:var(--primary); border:none; padding:14px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer">دخول</button>
@@ -388,7 +450,6 @@
       <div class="header-sub" id="sync-status">مزامنة فورية مع السحابة</div>
     </div>
     <div class="stats-grid" id="stats-summary"></div>
-    <button class="daily-meter-btn" onclick="openQuickMeterUpdate()">⏱️ تحديث العدادات اليومي لجميع المعدات</button>
     <div class="section">
       <div class="section-title">🚜 جميع المعدات <span id="equipment-count"></span></div>
       <div id="all-equipment-list"></div>
@@ -407,6 +468,28 @@
     </div>
   </div>
 
+  <!-- Hours Tracking View - متابعة ساعات العمل للمعدات المؤجرة -->
+  <div id="view-hours" style="display:none">
+    <div class="header">
+      <div class="header-title">⏱️ متابعة ساعات العمل</div>
+      <div class="header-sub">تسجيل الحضور والانصراف - ساعات العمل الرسمية والإضافية</div>
+    </div>
+
+    <div class="month-selector">
+      <button class="month-btn" onclick="changeMonth(-1)">◀ السابق</button>
+      <span id="current-month-display" style="font-weight:700; background:white; padding:8px 20px; border-radius:25px"></span>
+      <button class="month-btn" onclick="changeMonth(1)">التالي ▶</button>
+    </div>
+
+    <div class="hours-summary" id="month-summary"></div>
+
+    <div style="padding:0 14px">
+      <button class="daily-meter-btn" onclick="openDailyAttendanceModal()" style="margin:0 0 16px 0; background:linear-gradient(135deg, var(--info), var(--primary))">📝 تسجيل حضور وانصراف يومي</button>
+    </div>
+
+    <div id="hours-equipment-list"></div>
+  </div>
+
   <!-- Inventory View -->
   <div id="view-inventory" style="display:none">
     <div class="header" style="padding:20px">
@@ -416,26 +499,6 @@
       </div>
     </div>
     <div id="inv-list" style="padding:14px"></div>
-  </div>
-
-  <!-- Rental View - صفحة تأجير المعدات الجديدة -->
-  <div id="view-rental" style="display:none">
-    <div class="header" style="padding:20px">
-      <div class="header-title">🚛 تأجير المعدات</div>
-      <div class="header-sub">متابعة عقود الإيجار وساعات العمل</div>
-    </div>
-    
-    <div class="rental-stats">
-      <div class="rental-stat-card"><div class="stat-number" id="rented-count">0</div><div class="stat-label">معدات مؤجرة</div></div>
-      <div class="rental-stat-card"><div class="stat-number" id="available-count">0</div><div class="stat-label">معدات متاحة</div></div>
-      <div class="rental-stat-card"><div class="stat-number" id="monthly-hours">0</div><div class="stat-label">ساعات الشهر</div></div>
-    </div>
-    
-    <div style="padding:14px">
-      <button onclick="openRentalContractModal()" class="save-btn" style="margin:0 0 12px 0; background:linear-gradient(135deg, var(--info), var(--primary))">➕ عقد إيجار جديد</button>
-      <input type="text" id="search-rental" placeholder="🔍 بحث باسم المعدة أو المستأجر..." style="width:100%; padding:12px 16px; border-radius:30px; border:1px solid #e2e8f0; background:white; font-family:inherit; font-size:14px; margin-bottom:12px" onkeyup="filterRentalContracts()">
-      <div id="rental-contracts-list"></div>
-    </div>
   </div>
 
   <!-- Orders View -->
@@ -460,7 +523,7 @@
       <div class="grid-2" style="margin-bottom:12px">
         <button onclick="exportToPDF()" class="save-btn" style="margin:0">📄 PDF</button>
         <button onclick="exportToExcel()" class="save-btn" style="margin:0; background:var(--success)">📊 Excel</button>
-        <button onclick="exportRentalReport()" class="save-btn" style="margin:0; background:var(--info)">📋 تقرير التأجير</button>
+        <button onclick="exportHoursReport()" class="save-btn" style="margin:0; background:var(--info)">⏱️ تقرير ساعات العمل</button>
         <button onclick="window.print()" class="save-btn" style="margin:0; background:var(--warning)">🖨️ طباعة</button>
       </div>
       <div id="reports-content"></div>
@@ -471,8 +534,8 @@
   <div class="bottom-tab-bar">
     <button class="bottom-tab" data-view="home" onclick="switchView('home')"><span class="tab-icon">📊</span><span>الرئيسية</span></button>
     <button class="bottom-tab" data-view="equipment" onclick="switchView('equipment')"><span class="tab-icon">🏗️</span><span>المعدات</span></button>
+    <button class="bottom-tab" data-view="hours" onclick="switchView('hours')"><span class="tab-icon">⏱️</span><span>ساعات العمل</span></button>
     <button class="bottom-tab" data-view="inventory" onclick="switchView('inventory')"><span class="tab-icon">📦</span><span>المخزن</span></button>
-    <button class="bottom-tab" data-view="rental" onclick="switchView('rental')"><span class="tab-icon">🚛</span><span>التأجير</span></button>
     <button class="bottom-tab" data-view="orders" onclick="switchView('orders')"><span class="tab-icon">📋</span><span>الطلبيات</span></button>
     <button class="bottom-tab" data-view="reports" onclick="switchView('reports')"><span class="tab-icon">📊</span><span>التقارير</span></button>
   </div>
@@ -480,15 +543,15 @@
   <button class="fab" id="fab-btn" onclick="openAddEquipmentModal()">+</button>
 </div>
 
-<!-- Daily Meter Update Overlay -->
-<div class="modal-overlay" id="quick-meter-modal">
-  <div class="modal-header" style="background:linear-gradient(135deg, #065f46, #0e7490)">
-    <div class="modal-title">⏱️ تحديث العدادات اليومي</div>
-    <button class="modal-close" onclick="closeModal('quick-meter-modal')">✕</button>
+<!-- Daily Attendance Modal - تسجيل الحضور والانصراف اليومي -->
+<div class="modal-overlay" id="attendance-modal">
+  <div class="modal-header" style="background:linear-gradient(135deg, var(--info), var(--primary))">
+    <div class="modal-title">📝 تسجيل الحضور والانصراف</div>
+    <button class="modal-close" onclick="closeModal('attendance-modal')">✕</button>
   </div>
-  <div id="quick-meter-list" style="padding:14px; padding-bottom:100px"></div>
-  <div style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:calc(100% - 28px); max-width:472px">
-    <button class="save-btn" style="margin:0" onclick="saveQuickMeters()">✅ حفظ جميع العدادات</button>
+  <div id="attendance-content" style="padding:14px"></div>
+  <div style="position:sticky; bottom:0; background:var(--light); padding:14px">
+    <button class="save-btn" onclick="saveDailyAttendance()">✅ حفظ الساعات</button>
   </div>
 </div>
 
@@ -508,46 +571,13 @@
       <div class="form-field"><label class="form-label">⏱️ العداد الحالي (ساعة)</label><input class="form-input" type="number" id="eq-hours" value="0"></div>
       <div class="form-field"><label class="form-label">🔧 عداد الصيانة القادمة (ساعة)</label><input class="form-input" type="number" id="eq-next-hours" value="250"></div>
       <div class="form-field"><label class="form-label">دورة الصيانة (ساعة)</label><input class="form-input" type="number" id="eq-interval" value="250"></div>
-      <div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="eq-status"><option>يعمل</option><option>صيانة</option><option>متوقف</option></select></div>
-      <div class="form-field"><label class="form-label">سعر الإيجار اليومي (ر.س)</label><input class="form-input" type="number" id="eq-daily-rate" value="0" placeholder="سعر الإيجار اليومي"></div>
+      <div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="eq-status"><option>يعمل</option><option>صيانة</option><option>متوقف</option><option>مؤجر</option></select></div>
+      <div class="form-field"><label class="form-label">سعر الإيجار اليومي (ر.س)</label><input class="form-input" type="number" id="eq-daily-rate" value="0" placeholder="للحسابات المالية"></div>
       <div class="form-field"><label class="form-label">تكلفة الشراء</label><input class="form-input" type="number" id="eq-purchase-cost" value="0"></div>
       <div class="form-field"><label class="form-label">رابط صورة المعدة</label><input class="form-input" id="eq-image" placeholder="https://..."></div>
       <div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="eq-notes" placeholder="أي ملاحظات"></textarea></div>
     </div>
     <button class="save-btn" onclick="saveEquipment()">✅ حفظ المعدة</button>
-  </div>
-</div>
-
-<!-- Rental Contract Modal -->
-<div class="modal-overlay" id="rental-modal">
-  <div class="modal-header">
-    <div class="modal-title" id="rental-modal-title">عقد إيجار جديد</div>
-    <button class="modal-close" onclick="closeModal('rental-modal')">✕</button>
-  </div>
-  <div>
-    <div class="form-group">
-      <div class="form-field"><label class="form-label">اختر المعدة *</label><select class="form-select" id="rental-equipment-id"></select></div>
-      <div class="form-field"><label class="form-label">اسم المستأجر *</label><input class="form-input" id="rental-tenant" placeholder="اسم الشركة أو الشخص"></div>
-      <div class="form-field"><label class="form-label">جهة الاتصال</label><input class="form-input" id="rental-contact" placeholder="رقم الهاتف"></div>
-      <div class="form-field"><label class="form-label">تاريخ بدء الإيجار *</label><input class="form-input" type="date" id="rental-start-date"></div>
-      <div class="form-field"><label class="form-label">تاريخ انتهاء الإيجار</label><input class="form-input" type="date" id="rental-end-date"></div>
-      <div class="form-field"><label class="form-label">السعر اليومي (ر.س)</label><input class="form-input" type="number" id="rental-daily-rate" value="0"></div>
-      <div class="form-field"><label class="form-label">العداد عند التسليم</label><input class="form-input" type="number" id="rental-start-hours" value="0"></div>
-      <div class="form-field"><label class="form-label">ملاحظات العقد</label><textarea class="form-textarea" id="rental-notes" placeholder="أي شروط أو ملاحظات"></textarea></div>
-    </div>
-    <button class="save-btn" onclick="saveRentalContract()">✅ حفظ العقد</button>
-  </div>
-</div>
-
-<!-- Add Daily Hours Modal -->
-<div class="modal-overlay" id="daily-hours-modal">
-  <div class="modal-header" style="background:linear-gradient(135deg, var(--info), var(--primary))">
-    <div class="modal-title">⏱️ تسجيل ساعات العمل اليومية</div>
-    <button class="modal-close" onclick="closeModal('daily-hours-modal')">✕</button>
-  </div>
-  <div id="daily-hours-content" style="padding:14px"></div>
-  <div style="position:sticky; bottom:0; background:var(--light); padding:14px">
-    <button class="save-btn" onclick="saveDailyHours()">💾 حفظ الساعات</button>
   </div>
 </div>
 
@@ -642,16 +672,15 @@
   let fbDb = null;
   let equipmentData = [];
   let inventoryFilters = [];
-  let rentalContracts = [];
   let currentUser = null;
   let statusChart = null;
   let editingEquipmentId = null;
   let editingInvId = null;
   let linkingInvId = null;
-  let editingContractId = null;
-  let currentDailyHoursContract = null;
   let altCount = 0;
   let invAltCount = 0;
+  let currentSelectedYear = new Date().getFullYear();
+  let currentSelectedMonth = new Date().getMonth();
   
   function showToast(msg) {
     const toast = document.getElementById('toast');
@@ -706,17 +735,11 @@
       const data = snap.val();
       equipmentData = data ? Object.entries(data).map(([id, eq]) => ({ ...eq, id })) : [];
       refreshUI();
-      updateRentalEquipmentSelect();
     });
     fbDb.ref('inventoryFilters').on('value', (snap) => {
       const data = snap.val();
       inventoryFilters = data ? Object.entries(data).map(([id, f]) => ({ ...f, id })) : [];
       refreshUI();
-    });
-    fbDb.ref('rentalContracts').on('value', (snap) => {
-      const data = snap.val();
-      rentalContracts = data ? Object.entries(data).map(([id, c]) => ({ ...c, id })) : [];
-      renderRentalContracts();
     });
     firebase.auth().signInAnonymously().catch(err => console.error('Auth error:', err));
   }
@@ -761,359 +784,344 @@
   }
   
   // ============================================
-  // RENTAL CONTRACTS FUNCTIONS
+  // HOURS TRACKING FUNCTIONS (للحضور والانصراف)
   // ============================================
-  function updateRentalEquipmentSelect() {
-    const select = document.getElementById('rental-equipment-id');
-    if (select) {
-      select.innerHTML = '<option value="">اختر المعدة</option>' + 
-        equipmentData.map(eq => `<option value="${eq.id}">${eq.name} (${eq.code})</option>`).join('');
-    }
+  function formatMonthYear(year, month) {
+    const monthNames = ['يناير', 'فبراير', 'مارس', 'إبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    return `${monthNames[month]} ${year}`;
   }
   
-  function openRentalContractModal(contractId = null) {
-    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
-    editingContractId = contractId;
-    document.getElementById('rental-modal-title').innerHTML = contractId ? '✏️ تعديل عقد إيجار' : '➕ عقد إيجار جديد';
+  function changeMonth(delta) {
+    let newMonth = currentSelectedMonth + delta;
+    let newYear = currentSelectedYear;
+    if (newMonth < 0) {
+      newMonth = 11;
+      newYear--;
+    } else if (newMonth > 11) {
+      newMonth = 0;
+      newYear++;
+    }
+    currentSelectedYear = newYear;
+    currentSelectedMonth = newMonth;
+    renderHoursTracking();
+  }
+  
+  function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+  
+  function getEquipmentHoursForMonth(eq, year, month) {
+    const attendanceLog = eq.attendanceLog || [];
+    const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
     
-    if (contractId) {
-      const contract = rentalContracts.find(c => c.id === contractId);
-      if (contract) {
-        document.getElementById('rental-equipment-id').value = contract.equipmentId || '';
-        document.getElementById('rental-tenant').value = contract.tenant || '';
-        document.getElementById('rental-contact').value = contract.contact || '';
-        document.getElementById('rental-start-date').value = contract.startDate || '';
-        document.getElementById('rental-end-date').value = contract.endDate || '';
-        document.getElementById('rental-daily-rate').value = contract.dailyRate || 0;
-        document.getElementById('rental-start-hours').value = contract.startHours || 0;
-        document.getElementById('rental-notes').value = contract.notes || '';
-      }
-    } else {
-      ['rental-equipment-id', 'rental-tenant', 'rental-contact', 'rental-start-date', 'rental-end-date', 'rental-notes'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
+    const monthLogs = attendanceLog.filter(log => log.date.startsWith(monthStr));
+    
+    let totalRegularHours = 0;
+    let totalOvertimeHours = 0;
+    let dailyRecords = [];
+    
+    monthLogs.forEach(log => {
+      totalRegularHours += log.regularHours || 0;
+      totalOvertimeHours += log.overtimeHours || 0;
+      dailyRecords.push({
+        date: log.date,
+        checkIn: log.checkIn || '',
+        checkOut: log.checkOut || '',
+        regularHours: log.regularHours || 0,
+        overtimeHours: log.overtimeHours || 0,
+        notes: log.notes || ''
       });
-      document.getElementById('rental-daily-rate').value = 0;
-      document.getElementById('rental-start-hours').value = 0;
-      document.getElementById('rental-start-date').value = new Date().toISOString().split('T')[0];
-    }
-    updateRentalEquipmentSelect();
-    document.getElementById('rental-modal').classList.add('active');
+    });
+    
+    return { totalRegularHours, totalOvertimeHours, totalHours: totalRegularHours + totalOvertimeHours, dailyRecords };
   }
   
-  function saveRentalContract() {
-    const equipmentId = document.getElementById('rental-equipment-id').value;
-    const tenant = document.getElementById('rental-tenant').value.trim();
-    
-    if (!equipmentId || !tenant) {
-      showToast('يرجى اختيار المعدة وإدخال اسم المستأجر');
-      return;
-    }
-    
-    const contract = {
-      equipmentId: equipmentId,
-      tenant: tenant,
-      contact: document.getElementById('rental-contact').value,
-      startDate: document.getElementById('rental-start-date').value,
-      endDate: document.getElementById('rental-end-date').value,
-      dailyRate: parseInt(document.getElementById('rental-daily-rate').value) || 0,
-      startHours: parseInt(document.getElementById('rental-start-hours').value) || 0,
-      notes: document.getElementById('rental-notes').value,
-      status: 'active',
-      dailyHours: [],
-      updatedAt: new Date().toISOString()
-    };
-    
-    if (editingContractId) {
-      saveToFirebase('rentalContracts', { ...contract, id: editingContractId });
-    } else {
-      contract.createdAt = new Date().toISOString();
-      saveToFirebase('rentalContracts', contract);
-    }
-    
-    closeModal('rental-modal');
-    showToast(editingContractId ? 'تم تحديث العقد' : 'تم إضافة العقد');
-  }
-  
-  function openDailyHoursModal(contractId) {
-    currentDailyHoursContract = contractId;
-    const contract = rentalContracts.find(c => c.id === contractId);
-    if (!contract) return;
-    
-    const eq = equipmentData.find(e => e.id === contract.equipmentId);
+  function openDailyAttendanceModal() {
     const today = new Date().toISOString().split('T')[0];
-    const todayHours = (contract.dailyHours || []).find(h => h.date === today);
     
-    const content = document.getElementById('daily-hours-content');
+    const content = document.getElementById('attendance-content');
     content.innerHTML = `
-      <div style="background:white; border-radius:16px; padding:16px; margin-bottom:12px">
-        <div style="font-weight:700">${eq?.name || 'معدة غير معروفة'}</div>
-        <div style="font-size:12px; color:var(--gray)">المستأجر: ${contract.tenant}</div>
-        <div style="font-size:12px; color:var(--gray)">العداد عند التسليم: ${contract.startHours} ساعة</div>
-      </div>
       <div class="form-group">
         <div class="form-field">
           <label class="form-label">التاريخ</label>
-          <input class="form-input" type="date" id="hours-date" value="${today}">
-        </div>
-        <div class="form-field">
-          <label class="form-label">عدد ساعات العمل اليومية</label>
-          <input class="form-input" type="number" id="daily-hours" step="0.5" value="${todayHours?.hours || ''}" placeholder="أدخل عدد الساعات">
-        </div>
-        <div class="form-field">
-          <label class="form-label">العداد الحالي (ساعة)</label>
-          <input class="form-input" type="number" id="current-hours" value="${eq?.hours || ''}" placeholder="القراءة الحالية">
-        </div>
-        <div class="form-field">
-          <label class="form-label">ساعات العمل الإضافي</label>
-          <input class="form-input" type="number" id="overtime-hours" step="0.5" value="${todayHours?.overtime || 0}" placeholder="ساعات إضافية">
-        </div>
-        <div class="form-field">
-          <label class="form-label">ملاحظات</label>
-          <textarea class="form-textarea" id="hours-notes" placeholder="أي ملاحظات عن اليوم">${todayHours?.notes || ''}</textarea>
+          <input class="form-input" type="date" id="attendance-date" value="${today}">
         </div>
       </div>
+      <div id="attendance-equipment-list"></div>
     `;
-    document.getElementById('daily-hours-modal').classList.add('active');
-  }
-  
-  function saveDailyHours() {
-    const contract = rentalContracts.find(c => c.id === currentDailyHoursContract);
-    if (!contract) return;
     
-    const date = document.getElementById('hours-date').value;
-    const hours = parseFloat(document.getElementById('daily-hours').value) || 0;
-    const overtime = parseFloat(document.getElementById('overtime-hours').value) || 0;
-    const notes = document.getElementById('hours-notes').value;
-    const currentHours = parseInt(document.getElementById('current-hours').value);
-    
-    const dailyHours = contract.dailyHours || [];
-    const existingIndex = dailyHours.findIndex(h => h.date === date);
-    
-    const record = { date, hours, overtime, notes, recordedAt: new Date().toISOString() };
-    
-    if (existingIndex >= 0) {
-      dailyHours[existingIndex] = record;
-    } else {
-      dailyHours.push(record);
-    }
-    
-    contract.dailyHours = dailyHours.sort((a, b) => a.date.localeCompare(b.date));
-    
-    // تحديث عداد المعدة إذا تم إدخال قيمة
-    if (currentHours && !isNaN(currentHours)) {
-      const eq = equipmentData.find(e => e.id === contract.equipmentId);
-      if (eq && currentHours !== eq.hours) {
-        eq.hours = currentHours;
-        saveToFirebase('equipment', eq);
-      }
-    }
-    
-    saveToFirebase('rentalContracts', contract);
-    closeModal('daily-hours-modal');
-    showToast('تم تسجيل ساعات العمل');
-  }
-  
-  function completeRentalContract(contractId) {
-    if (confirm('هل أنت متأكد من إنهاء هذا العقد؟')) {
-      const contract = rentalContracts.find(c => c.id === contractId);
-      if (contract) {
-        contract.status = 'completed';
-        contract.endDateActual = new Date().toISOString().split('T')[0];
-        saveToFirebase('rentalContracts', contract);
-        showToast('تم إنهاء العقد');
-      }
-    }
-  }
-  
-  function filterRentalContracts() {
-    renderRentalContracts();
-  }
-  
-  function calculateContractTotal(contract) {
-    const totalHours = (contract.dailyHours || []).reduce((sum, d) => sum + (d.hours || 0), 0);
-    const totalOvertime = (contract.dailyHours || []).reduce((sum, d) => sum + (d.overtime || 0), 0);
-    const revenue = (totalHours * (contract.dailyRate || 0)) + (totalOvertime * (contract.dailyRate || 0) * 1.5);
-    return { totalHours, totalOvertime, revenue };
-  }
-  
-  function renderRentalContracts() {
-    const searchTerm = (document.getElementById('search-rental')?.value || '').toLowerCase();
-    const activeContracts = rentalContracts.filter(c => c.status === 'active');
-    const completedContracts = rentalContracts.filter(c => c.status === 'completed');
-    const filtered = [...activeContracts, ...completedContracts].filter(c => {
-      const eq = equipmentData.find(e => e.id === c.equipmentId);
-      return (eq?.name || '').toLowerCase().includes(searchTerm) || 
-             c.tenant.toLowerCase().includes(searchTerm);
-    });
-    
-    document.getElementById('rented-count').innerHTML = activeContracts.length;
-    document.getElementById('available-count').innerHTML = equipmentData.filter(eq => 
-      !activeContracts.some(c => c.equipmentId === eq.id)
-    ).length;
-    
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const monthlyHours = activeContracts.reduce((sum, c) => {
-      const monthHours = (c.dailyHours || []).filter(h => {
-        const hDate = new Date(h.date);
-        return hDate.getMonth() === currentMonth && hDate.getFullYear() === currentYear;
-      }).reduce((s, h) => s + (h.hours || 0), 0);
-      return sum + monthHours;
-    }, 0);
-    document.getElementById('monthly-hours').innerHTML = monthlyHours;
-    
-    const container = document.getElementById('rental-contracts-list');
-    container.innerHTML = filtered.map(contract => {
-      const eq = equipmentData.find(e => e.id === contract.equipmentId);
-      const { totalHours, totalOvertime, revenue } = calculateContractTotal(contract);
-      const isActive = contract.status === 'active';
-      
+    const equipmentContainer = document.getElementById('attendance-equipment-list');
+    equipmentContainer.innerHTML = equipmentData.map(eq => {
+      const todayLog = (eq.attendanceLog || []).find(l => l.date === today);
       return `
-        <div class="rental-card" style="border-right-color: ${isActive ? 'var(--info)' : 'var(--gray)'}">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start">
-            <div>
-              <div class="card-title">${eq?.name || 'معدة غير معروفة'}</div>
-              <div class="card-code">${eq?.code || ''}</div>
+        <div class="hours-card" style="margin-bottom:12px">
+          <div class="card-title">${eq.name} (${eq.code})</div>
+          <div class="grid-2" style="margin-top:10px; gap:8px">
+            <div class="form-field" style="padding:0">
+              <label class="form-label">⏰ وقت الحضور</label>
+              <input type="time" id="checkin-${eq.id}" class="form-input" value="${todayLog?.checkIn || '07:00'}" style="border:1px solid #e2e8f0; border-radius:12px; padding:8px">
             </div>
-            <span class="badge ${isActive ? 'badge-rented' : 'badge-stopped'}">${isActive ? 'مؤجرة' : 'منتهي'}</span>
-          </div>
-          <div style="margin-top:8px">
-            <div><span class="detail-label">المستأجر:</span> ${contract.tenant}</div>
-            <div><span class="detail-label">جهة الاتصال:</span> ${contract.contact || '—'}</div>
-            <div><span class="detail-label">فترة الإيجار:</span> ${contract.startDate} → ${contract.endDate || 'مفتوح'}</div>
-            <div><span class="detail-label">السعر اليومي:</span> ${contract.dailyRate} ر.س</div>
-          </div>
-          <div class="grid-3" style="margin-top:10px">
-            <div><div class="detail-label">إجمالي الساعات</div><div class="detail-value">${totalHours}</div></div>
-            <div><div class="detail-label">ساعات إضافية</div><div class="detail-value">${totalOvertime}</div></div>
-            <div><div class="detail-label">الإيرادات</div><div class="detail-value">${revenue.toLocaleString()} ر.س</div></div>
-          </div>
-          <div class="quick-actions" style="margin-top:12px">
-            <button class="quick-btn" onclick="openDailyHoursModal('${contract.id}')">⏱️ ساعات يومية</button>
-            <button class="quick-btn maintenance" onclick="viewContractDetails('${contract.id}')">📋 تفاصيل</button>
-            ${isActive && currentUser?.role === 'admin' ? `<button class="quick-btn edit" onclick="completeRentalContract('${contract.id}')">✅ إنهاء</button>` : ''}
-            ${currentUser?.role === 'admin' ? `<button class="quick-btn" style="background:#fee2e2" onclick="deleteFromFirebase('rentalContracts','${contract.id}')">🗑️</button>` : ''}
+            <div class="form-field" style="padding:0">
+              <label class="form-label">⏰ وقت الانصراف</label>
+              <input type="time" id="checkout-${eq.id}" class="form-input" value="${todayLog?.checkOut || '15:00'}" style="border:1px solid #e2e8f0; border-radius:12px; padding:8px">
+            </div>
+            <div class="form-field" style="padding:0">
+              <label class="form-label">🕐 ساعات إضافية</label>
+              <input type="number" step="0.5" id="overtime-${eq.id}" class="form-input" value="${todayLog?.overtimeHours || '0'}" placeholder="ساعات إضافية" style="border:1px solid #e2e8f0; border-radius:12px; padding:8px">
+            </div>
+            <div class="form-field" style="padding:0">
+              <label class="form-label">📝 ملاحظات</label>
+              <input type="text" id="notes-${eq.id}" class="form-input" value="${todayLog?.notes || ''}" placeholder="ملاحظات" style="border:1px solid #e2e8f0; border-radius:12px; padding:8px">
+            </div>
           </div>
         </div>
       `;
     }).join('');
     
-    if (filtered.length === 0) {
-      container.innerHTML = '<div class="empty-state">لا توجد عقود إيجار</div>';
-    }
+    document.getElementById('attendance-modal').classList.add('active');
   }
   
-  function viewContractDetails(contractId) {
-    const contract = rentalContracts.find(c => c.id === contractId);
-    if (!contract) return;
-    const eq = equipmentData.find(e => e.id === contract.equipmentId);
-    const { totalHours, totalOvertime, revenue } = calculateContractTotal(contract);
+  function saveDailyAttendance() {
+    const date = document.getElementById('attendance-date').value;
+    if (!date) return;
     
-    let hoursHtml = '<div class="detail-label" style="margin-top:12px">📅 سجل الساعات اليومية</div>';
-    (contract.dailyHours || []).slice(-14).reverse().forEach(h => {
-      hoursHtml += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eef2f6">
-        <span>${h.date}</span>
-        <span>${h.hours || 0} ساعة</span>
-        <span style="color:var(--warning)">+${h.overtime || 0}</span>
-        <span style="font-size:11px">${h.notes || ''}</span>
-      </div>`;
-    });
-    
-    document.getElementById('detail-title').innerHTML = `📄 تفاصيل عقد الإيجار`;
-    document.getElementById('detail-content').innerHTML = `
-      <div class="detail-section">
-        <div class="grid-2">
-          <div><div class="detail-label">المعدة</div><div class="detail-value">${eq?.name} (${eq?.code})</div></div>
-          <div><div class="detail-label">المستأجر</div><div class="detail-value">${contract.tenant}</div></div>
-          <div><div class="detail-label">جهة الاتصال</div><div class="detail-value">${contract.contact || '—'}</div></div>
-          <div><div class="detail-label">السعر اليومي</div><div class="detail-value">${contract.dailyRate} ر.س</div></div>
-          <div><div class="detail-label">بدء الإيجار</div><div class="detail-value">${contract.startDate}</div></div>
-          <div><div class="detail-label">نهاية الإيجار</div><div class="detail-value">${contract.endDate || 'مفتوح'}</div></div>
-          <div><div class="detail-label">عداد التسليم</div><div class="detail-value">${contract.startHours} ساعة</div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="grid-3">
-          <div><div class="detail-label">إجمالي الساعات</div><div class="detail-value">${totalHours}</div></div>
-          <div><div class="detail-label">ساعات إضافية</div><div class="detail-value">${totalOvertime}</div></div>
-          <div><div class="detail-label">الإيرادات</div><div class="detail-value">${revenue.toLocaleString()} ر.س</div></div>
-        </div>
-      </div>
-      ${hoursHtml}
-      ${contract.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات العقد</div><div class="detail-value">${contract.notes}</div></div>` : ''}
-    `;
-    document.getElementById('detail-modal').classList.add('active');
-  }
-  
-  function exportRentalReport() {
-    const data = rentalContracts.map(c => {
-      const eq = equipmentData.find(e => e.id === c.equipmentId);
-      const { totalHours, totalOvertime, revenue } = calculateContractTotal(c);
-      return {
-        'المعدة': eq?.name || '',
-        'الكود': eq?.code || '',
-        'المستأجر': c.tenant,
-        'جهة الاتصال': c.contact,
-        'تاريخ البداية': c.startDate,
-        'تاريخ النهاية': c.endDate || 'مستمر',
-        'الحالة': c.status === 'active' ? 'مؤجرة' : 'منتهي',
-        'إجمالي الساعات': totalHours,
-        'ساعات إضافية': totalOvertime,
-        'الإيرادات (ر.س)': revenue
-      };
-    });
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'عقود الإيجار');
-    XLSX.writeFile(wb, `تقرير_التأجير_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showToast('تم تصدير تقرير التأجير');
-  }
-  
-  // ============================================
-  // QUICK METER UPDATE
-  // ============================================
-  function openQuickMeterUpdate() {
-    const container = document.getElementById('quick-meter-list');
-    container.innerHTML = equipmentData.map(eq => `
-      <div style="background:white; border-radius:16px; padding:14px; margin-bottom:10px">
-        <div style="font-weight:700">${eq.name}</div>
-        <div style="font-size:12px; color:var(--gray)">العداد الحالي: ${eq.hours} ساعة</div>
-        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (eq.hours / (eq.nextHours || 1)) * 100)}%"></div></div>
-        <input type="number" id="quick-meter-${eq.id}" value="${eq.hours}" placeholder="القراءة الجديدة" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:12px; margin-top:10px">
-      </div>
-    `).join('');
-    document.getElementById('quick-meter-modal').classList.add('active');
-  }
-  
-  function saveQuickMeters() {
     equipmentData.forEach(eq => {
-      const input = document.getElementById(`quick-meter-${eq.id}`);
-      if (input && input.value) {
-        const newHours = parseInt(input.value);
-        if (newHours !== eq.hours && !isNaN(newHours)) {
-          eq.hours = newHours;
-          saveToFirebase('equipment', eq);
+      const checkIn = document.getElementById(`checkin-${eq.id}`)?.value;
+      const checkOut = document.getElementById(`checkout-${eq.id}`)?.value;
+      const overtimeHours = parseFloat(document.getElementById(`overtime-${eq.id}`)?.value) || 0;
+      const notes = document.getElementById(`notes-${eq.id}`)?.value || '';
+      
+      if (checkIn && checkOut) {
+        // حساب ساعات العمل الرسمية
+        const [checkInHour, checkInMin] = checkIn.split(':').map(Number);
+        const [checkOutHour, checkOutMin] = checkOut.split(':').map(Number);
+        let regularHours = (checkOutHour + checkOutMin/60) - (checkInHour + checkInMin/60);
+        if (regularHours < 0) regularHours += 24;
+        regularHours = Math.round(regularHours * 2) / 2;
+        
+        const attendanceLog = eq.attendanceLog || [];
+        const existingIndex = attendanceLog.findIndex(l => l.date === date);
+        
+        const record = {
+          date,
+          checkIn,
+          checkOut,
+          regularHours,
+          overtimeHours,
+          notes,
+          updatedAt: new Date().toISOString()
+        };
+        
+        if (existingIndex >= 0) {
+          attendanceLog[existingIndex] = record;
+        } else {
+          attendanceLog.push(record);
+        }
+        
+        eq.attendanceLog = attendanceLog.sort((a, b) => a.date.localeCompare(b.date));
+        
+        // تحديث العداد إذا تم إدخال ساعات إضافية في حقل خاص
+        saveToFirebase('equipment', eq);
+      }
+    });
+    
+    closeModal('attendance-modal');
+    showToast('تم تسجيل الحضور والانصراف بنجاح');
+    renderHoursTracking();
+  }
+  
+  function renderHoursTracking() {
+    document.getElementById('current-month-display').innerHTML = formatMonthYear(currentSelectedYear, currentSelectedMonth);
+    
+    let totalRegularAll = 0;
+    let totalOvertimeAll = 0;
+    
+    const container = document.getElementById('hours-equipment-list');
+    container.innerHTML = equipmentData.map(eq => {
+      const { totalRegularHours, totalOvertimeHours, totalHours, dailyRecords } = getEquipmentHoursForMonth(eq, currentSelectedYear, currentSelectedMonth);
+      totalRegularAll += totalRegularHours;
+      totalOvertimeAll += totalOvertimeHours;
+      
+      const rem = hoursRemaining(eq);
+      const percent = Math.min(100, (eq.hours / (eq.nextHours || 1)) * 100);
+      
+      let daysHtml = '';
+      dailyRecords.slice(-14).reverse().forEach(day => {
+        daysHtml += `
+          <div class="attendance-row">
+            <span>${day.date}</span>
+            <span>${day.checkIn || '-'} → ${day.checkOut || '-'}</span>
+            <span style="color:var(--success)">${day.regularHours || 0} س</span>
+            <span style="color:var(--warning)">+${day.overtimeHours || 0}</span>
+          </div>
+        `;
+      });
+      
+      return `
+        <div class="hours-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">${eq.name}</div>
+              <div class="card-code">${eq.code} | ${eq.type}</div>
+            </div>
+            <span class="badge ${eq.status === 'مؤجر' ? 'badge-rented' : eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span>
+          </div>
+          
+          <div class="progress-bar" style="margin: 12px 0 8px 0">
+            <div class="progress-fill" style="width: ${percent}%; background: ${rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981'}"></div>
+          </div>
+          
+          <div class="grid-3" style="margin: 12px 0">
+            <div><div class="detail-label">ساعات رسمية</div><div class="detail-value" style="color:var(--success)">${totalRegularHours}</div></div>
+            <div><div class="detail-label">ساعات إضافية</div><div class="detail-value" style="color:var(--warning)">${totalOvertimeHours}</div></div>
+            <div><div class="detail-label">الإجمالي</div><div class="detail-value" style="color:var(--info)">${totalHours}</div></div>
+          </div>
+          
+          ${daysHtml ? `<div class="hours-table"><div class="hours-row header"><span>التاريخ</span><span>الحضور/الانصراف</span><span>رسمي</span><span>إضافي</span></div>${daysHtml}</div>` : '<div class="empty-state" style="padding:20px">لا توجد ساعات مسجلة هذا الشهر</div>'}
+          
+          <button class="save-btn" style="margin:12px 0 0 0; background:var(--info)" onclick="openSingleEquipmentAttendance('${eq.id}')">✏️ تعديل ساعات ${eq.name}</button>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('month-summary').innerHTML = `
+      <div class="grid-3">
+        <div><div class="detail-label">📊 إجمالي الساعات الرسمية</div><div class="detail-value">${totalRegularAll}</div></div>
+        <div><div class="detail-label">⏱️ إجمالي الساعات الإضافية</div><div class="detail-value">${totalOvertimeAll}</div></div>
+        <div><div class="detail-label">🎯 المجموع الكلي</div><div class="detail-value">${totalRegularAll + totalOvertimeAll}</div></div>
+      </div>
+    `;
+    
+    if (equipmentData.length === 0) {
+      container.innerHTML = '<div class="empty-state">لا توجد معدات مسجلة</div>';
+    }
+  }
+  
+  function openSingleEquipmentAttendance(eqId) {
+    const eq = equipmentData.find(e => e.id === eqId);
+    if (!eq) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const todayLog = (eq.attendanceLog || []).find(l => l.date === today);
+    
+    const content = document.getElementById('attendance-content');
+    content.innerHTML = `
+      <div class="form-group">
+        <div class="form-field">
+          <label class="form-label">المعدة</label>
+          <div style="font-weight:700; padding:8px 0">${eq.name} (${eq.code})</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">التاريخ</label>
+          <input class="form-input" type="date" id="attendance-date" value="${today}">
+        </div>
+        <div class="form-field">
+          <label class="form-label">⏰ وقت الحضور</label>
+          <input class="form-input" type="time" id="single-checkin" value="${todayLog?.checkIn || '07:00'}">
+        </div>
+        <div class="form-field">
+          <label class="form-label">⏰ وقت الانصراف</label>
+          <input class="form-input" type="time" id="single-checkout" value="${todayLog?.checkOut || '15:00'}">
+        </div>
+        <div class="form-field">
+          <label class="form-label">🕐 ساعات إضافية</label>
+          <input class="form-input" type="number" step="0.5" id="single-overtime" value="${todayLog?.overtimeHours || '0'}">
+        </div>
+        <div class="form-field">
+          <label class="form-label">العداد الحالي (ساعة)</label>
+          <input class="form-input" type="number" id="current-hours" value="${eq.hours}">
+        </div>
+        <div class="form-field">
+          <label class="form-label">ملاحظات</label>
+          <textarea class="form-textarea" id="single-notes">${todayLog?.notes || ''}</textarea>
+        </div>
+      </div>
+    `;
+    
+    window.currentAttendanceEqId = eqId;
+    document.getElementById('attendance-modal').classList.add('active');
+    
+    // تغيير زر الحفظ لاستخدام دالة مختلفة
+    const saveBtn = document.querySelector('#attendance-modal .save-btn');
+    if (saveBtn) {
+      saveBtn.onclick = () => saveSingleEquipmentAttendance(eqId);
+    }
+  }
+  
+  function saveSingleEquipmentAttendance(eqId) {
+    const eq = equipmentData.find(e => e.id === eqId);
+    if (!eq) return;
+    
+    const date = document.getElementById('attendance-date').value;
+    const checkIn = document.getElementById('single-checkin').value;
+    const checkOut = document.getElementById('single-checkout').value;
+    const overtimeHours = parseFloat(document.getElementById('single-overtime').value) || 0;
+    const notes = document.getElementById('single-notes').value || '';
+    const currentHours = parseInt(document.getElementById('current-hours').value);
+    
+    if (checkIn && checkOut) {
+      const [checkInHour, checkInMin] = checkIn.split(':').map(Number);
+      const [checkOutHour, checkOutMin] = checkOut.split(':').map(Number);
+      let regularHours = (checkOutHour + checkOutMin/60) - (checkInHour + checkInMin/60);
+      if (regularHours < 0) regularHours += 24;
+      regularHours = Math.round(regularHours * 2) / 2;
+      
+      const attendanceLog = eq.attendanceLog || [];
+      const existingIndex = attendanceLog.findIndex(l => l.date === date);
+      
+      const record = {
+        date,
+        checkIn,
+        checkOut,
+        regularHours,
+        overtimeHours,
+        notes,
+        updatedAt: new Date().toISOString()
+      };
+      
+      if (existingIndex >= 0) {
+        attendanceLog[existingIndex] = record;
+      } else {
+        attendanceLog.push(record);
+      }
+      
+      eq.attendanceLog = attendanceLog.sort((a, b) => a.date.localeCompare(b.date));
+      
+      if (currentHours && !isNaN(currentHours) && currentHours !== eq.hours) {
+        eq.hours = currentHours;
+      }
+      
+      saveToFirebase('equipment', eq);
+    }
+    
+    closeModal('attendance-modal');
+    showToast('تم تسجيل الساعات بنجاح');
+    renderHoursTracking();
+  }
+  
+  function exportHoursReport() {
+    const reportData = [];
+    equipmentData.forEach(eq => {
+      for (let m = 0; m < 12; m++) {
+        const { totalRegularHours, totalOvertimeHours, totalHours } = getEquipmentHoursForMonth(eq, currentSelectedYear, m);
+        if (totalHours > 0) {
+          reportData.push({
+            'المعدة': eq.name,
+            'الكود': eq.code,
+            'الشهر': formatMonthYear(currentSelectedYear, m),
+            'ساعات رسمية': totalRegularHours,
+            'ساعات إضافية': totalOvertimeHours,
+            'الإجمالي': totalHours
+          });
         }
       }
     });
-    closeModal('quick-meter-modal');
-    showToast('تم تحديث العدادات');
-  }
-  
-  function updateSingleMeter(eqId) {
-    const input = document.getElementById(`home-meter-${eqId}`);
-    if (input && input.value) {
-      const eq = equipmentData.find(e => e.id === eqId);
-      if (eq) {
-        const newHours = parseInt(input.value);
-        if (!isNaN(newHours) && newHours !== eq.hours) {
-          eq.hours = newHours;
-          saveToFirebase('equipment', eq);
-          showToast(`تم تحديث عداد ${eq.name} إلى ${newHours} ساعة`);
-        }
-      }
-    }
+    
+    const ws = XLSX.utils.json_to_sheet(reportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'ساعات_العمل');
+    XLSX.writeFile(wb, `تقرير_ساعات_العمل_${currentSelectedYear}.xlsx`);
+    showToast('تم تصدير تقرير الساعات');
   }
   
   // ============================================
@@ -1151,7 +1159,6 @@
       const needed = getFilterTotalNeeded(f);
       const shortage = Math.max(0, needed - totalQtyVal);
       
-      // عرض المعدات المرتبطة بهذا الفلتر
       const linkedEqs = equipmentData.filter(eq => 
         Object.values(eq.filters || {}).some(lf => lf.invId === f.id)
       );
@@ -1390,6 +1397,7 @@
       equipment.fuelLogs = existing?.fuelLogs || [];
       equipment.totalMaintenanceCost = existing?.totalMaintenanceCost || 0;
       equipment.hoursLog = existing?.hoursLog || [];
+      equipment.attendanceLog = existing?.attendanceLog || [];
       saveToFirebase('equipment', { ...equipment, id: editingEquipmentId });
     } else {
       equipment.createdAt = new Date().toISOString();
@@ -1399,6 +1407,7 @@
       equipment.fuelLogs = [];
       equipment.totalMaintenanceCost = 0;
       equipment.hoursLog = [];
+      equipment.attendanceLog = [];
       saveToFirebase('equipment', equipment);
     }
     closeModal('equipment-modal');
@@ -1414,6 +1423,22 @@
     const rem = hoursRemaining(eq);
     const remPercent = Math.min(100, (eq.hours / eq.nextHours) * 100);
     const qrData = `معدة: ${eq.name}\nكود: ${eq.code}\nعداد: ${eq.hours} ساعة\nالصيانة عند: ${eq.nextHours} ساعة`;
+    
+    const filtersHtml = Object.entries(eq.filters || {}).map(([fid, f]) => {
+      const total = filterTotalQty(f);
+      return `<div class="filter-card ${total === 0 ? 'critical' : total < (f.usedPerService || 1) * 2 ? 'low' : ''}">
+        <div style="display:flex; justify-content:space-between">
+          <div><div style="font-weight:700">${f.type}</div><div style="font-size:11px">P/N: ${f.partNo}</div></div>
+          ${currentUser?.role === 'admin' ? `<button onclick="deleteFilter('${id}','${fid}')" style="background:#fee2e2; border:none; border-radius:8px; padding:4px 8px">🗑️</button>` : ''}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+          <div><button onclick="adjustFilterQty('${id}','${fid}',-1)" class="qty-btn" style="background:var(--danger); color:white; width:28px; height:28px">-</button>
+          <span style="margin:0 10px">${f.qty || 0}</span>
+          <button onclick="adjustFilterQty('${id}','${fid}',1)" class="qty-btn" style="background:var(--success); color:white; width:28px; height:28px">+</button></div>
+          <div style="font-size:12px">يستخدم: ${f.usedPerService || 1}/صيانة | إجمالي: ${total}</div>
+        </div>
+      </div>`;
+    }).join('');
     
     document.getElementById('detail-title').innerHTML = eq.name;
     document.getElementById('detail-content').innerHTML = `
@@ -1433,14 +1458,16 @@
         <div style="margin-top:8px"><div class="detail-label">⏳ المتبقي</div><div class="detail-value" style="color: ${rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981'}">${rem <= 0 ? '⚠️ تجاوز الموعد' : `${rem} ساعة`}</div></div>
       </div>
       <div class="qr-container"><div class="detail-label" style="margin-bottom:8px">رمز QR</div><div id="qr-code"></div></div>
+      <div class="detail-section"><div class="section-title" style="margin-bottom:10px">🔧 الفلاتر</div>${filtersHtml || '<div class="empty-state">لا توجد فلاتر</div>'}${currentUser?.role === 'admin' ? `<button class="save-btn" style="margin:10px 0 0 0" onclick="openAddFilterModal('${id}')">+ إضافة فلتر</button>` : ''}</div>
       ${eq.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${eq.notes}</div></div>` : ''}
-      ${currentUser?.role === 'admin' ? `<div class="grid-2" style="margin:12px 14px; gap:10px">
+      <div class="grid-2" style="margin:12px 14px; gap:10px">
         <button class="save-btn" style="margin:0" onclick="showRecordForm('maintenance', '${id}')">🔧 صيانة</button>
         <button class="save-btn" style="margin:0; background:#ef4444" onclick="showRecordForm('issue', '${id}')">⚠️ عطل</button>
         <button class="save-btn" style="margin:0; background:#0e7490" onclick="showRecordForm('fuel', '${id}')">⛽ تزود</button>
         <button class="save-btn" style="margin:0; background:var(--accent)" onclick="openEditEquipmentModal('${id}')">✏️ تعديل</button>
         <button class="save-btn" style="margin:0; background:#ef4444" onclick="deleteFromFirebase('equipment','${id}')">🗑️ حذف</button>
-      </div>` : ''}
+      </div>
+      ${eq.maintenanceLogs?.length ? `<div class="detail-section"><div class="detail-label">📋 سجل الصيانة</div>${eq.maintenanceLogs.slice(-5).reverse().map(l => `<div style="font-size:12px; padding:5px 0">🔧 ${l.type} - ${l.date} (عداد: ${l.hours}) - ${l.cost || 0} ر.س</div>`).join('')}</div>` : ''}
     `;
     document.getElementById('detail-modal').classList.add('active');
     setTimeout(() => { const qrDiv = document.getElementById('qr-code'); if (qrDiv && typeof QRCode !== 'undefined') new QRCode(qrDiv, { text: qrData, width: 120, height: 120 }); }, 100);
@@ -1504,204 +1531,12 @@
   }
   
   // ============================================
-  // UI RENDERING
+  // FILTER FUNCTIONS FOR EQUIPMENT
   // ============================================
-  function refreshUI() {
-    const working = equipmentData.filter(e => e.status === 'يعمل').length;
-    const maintenance = equipmentData.filter(e => e.status === 'صيانة').length;
-    const stopped = equipmentData.filter(e => e.status === 'متوقف').length;
-    const urgent = equipmentData.filter(e => {
-      const rem = hoursRemaining(e);
-      return rem <= 50 && rem > 0;
-    }).length;
-    const totalCost = equipmentData.reduce((s, e) => s + (e.totalMaintenanceCost || 0) + (e.purchaseCost || 0), 0);
-    
-    document.getElementById('stats-summary').innerHTML = `
-      <div class="stat-card"><div class="stat-number">${equipmentData.length}</div><div class="stat-label">المجموع</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:#10b981">${working}</div><div class="stat-label">يعمل</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:#f59e0b">${maintenance}</div><div class="stat-label">صيانة</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:#ef4444">${urgent}</div><div class="stat-label">تنبيهات</div></div>
-    `;
-    
-    document.getElementById('equipment-count').innerHTML = `(${equipmentData.length} معدة)`;
-    
-    const allEqHtml = equipmentData.map(eq => {
-      const rem = hoursRemaining(eq);
-      const percent = Math.min(100, Math.max(0, (eq.hours / (eq.nextHours || 1)) * 100));
-      let remainingClass = 'good';
-      if (rem <= 50 && rem > 0) remainingClass = 'urgent';
-      else if (rem <= 100 && rem > 50) remainingClass = 'warning';
-      
-      return `
-        <div class="equipment-card" onclick="event.stopPropagation()">
-          <div class="card-header">
-            <div>
-              <div class="card-title">${eq.name}</div>
-              <div class="card-code">${eq.code} | ${eq.type}</div>
-            </div>
-            <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span>
-          </div>
-          <div class="progress-bar" style="margin: 12px 0 8px 0">
-            <div class="progress-fill" style="width: ${percent}%; background: ${rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981'}"></div>
-          </div>
-          <div class="remaining-hours ${remainingClass}" style="background:#f8fafc; padding:8px; border-radius:12px; margin-bottom:10px">
-            <div style="display: flex; justify-content: space-between;">
-              <span>⏱️ الحالية: <strong>${eq.hours.toLocaleString()}</strong></span>
-              <span>🔧 الصيانة: <strong>${eq.nextHours.toLocaleString()}</strong></span>
-            </div>
-            <div style="margin-top: 5px;">
-              ${rem <= 0 ? '⚠️ تجاوز موعد الصيانة!' : `⏳ المتبقي: <strong>${rem.toLocaleString()}</strong> ساعة`}
-            </div>
-          </div>
-          <div class="hours-input-group">
-            <input type="number" id="home-meter-${eq.id}" class="hours-input" placeholder="العداد الجديد" value="${eq.hours}">
-            <button class="update-hours-btn" onclick="updateSingleMeter('${eq.id}')">تحديث</button>
-          </div>
-          <div class="quick-actions">
-            <button class="quick-btn" onclick="openDetailModal('${eq.id}')">🔍 تفاصيل</button>
-            <button class="quick-btn maintenance" onclick="showRecordForm('maintenance', '${eq.id}')">🔧 صيانة</button>
-            ${currentUser?.role === 'admin' ? `<button class="quick-btn edit" onclick="openEditEquipmentModal('${eq.id}')">✏️ تعديل</button>` : ''}
-          </div>
-        </div>
-      `;
-    }).join('');
-    
-    document.getElementById('all-equipment-list').innerHTML = allEqHtml || '<div class="empty-state">لا توجد معدات مسجلة</div>';
-    
-    if (statusChart) statusChart.destroy();
-    const ctx = document.getElementById('status-chart');
-    if (ctx) {
-      const newCtx = ctx.getContext('2d');
-      statusChart = new Chart(newCtx, {
-        type: 'doughnut',
-        data: { labels: ['يعمل', 'صيانة', 'متوقف'], datasets: [{ data: [working, maintenance, stopped], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-      });
-    }
-    
-    const search = document.getElementById('search-equipment')?.value || '';
-    const filtered = equipmentData.filter(e => e.name.includes(search) || e.code.includes(search));
-    document.getElementById('equipment-list').innerHTML = filtered.map(eq => `
-      <div class="equipment-card" onclick="openDetailModal('${eq.id}')">
-        <div class="card-header"><div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code}</div></div>
-        <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span></div>
-        <div><span>⏱️ ${eq.hours} ساعة</span> | <span>🔧 عند ${eq.nextHours} ساعة</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (eq.hours / eq.nextHours) * 100)}%"></div></div>
-      </div>`).join('');
-    
-    document.getElementById('eq-count').innerHTML = `${equipmentData.length} معدة`;
-    renderInventory();
-    generateOrderForAll();
-    renderReports();
-    renderRentalContracts();
-  }
+  let currentEqForFilter = null;
+  let editingFilterId = null;
   
-  function renderReports() {
-    const maintenanceLogs = equipmentData.flatMap(eq => (eq.maintenanceLogs || []).map(l => ({ ...l, eqName: eq.name })));
-    const issues = equipmentData.flatMap(eq => (eq.issues || []).map(i => ({ ...i, eqName: eq.name })));
-    const totalMaintenanceCost = maintenanceLogs.reduce((s, l) => s + (l.cost || 0), 0);
-    const totalRentalRevenue = rentalContracts.reduce((sum, c) => {
-      const { revenue } = calculateContractTotal(c);
-      return sum + revenue;
-    }, 0);
-    
-    document.getElementById('reports-content').innerHTML = `
-      <div style="margin:0 0 16px 0; background:linear-gradient(135deg,#065f46,#0e7490); color:white; padding:14px; border-radius:18px">
-        <div class="grid-3">
-          <div><div class="detail-label">💰 تكاليف الصيانة</div><div class="detail-value">${totalMaintenanceCost.toLocaleString()} ر.س</div></div>
-          <div><div class="detail-label">🚛 إيرادات التأجير</div><div class="detail-value">${totalRentalRevenue.toLocaleString()} ر.س</div></div>
-          <div><div class="detail-label">📊 صافي الربح</div><div class="detail-value">${(totalRentalRevenue - totalMaintenanceCost).toLocaleString()} ر.س</div></div>
-        </div>
-      </div>
-      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px">
-        <div style="font-weight:800">🔧 سجل الصيانة</div>
-        ${maintenanceLogs.slice(-10).reverse().map(l => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">📌 ${l.eqName} - ${l.type} (${l.date}) - ${l.cost || 0} ر.س</div>`).join('') || '<div class="empty-state">لا توجد سجلات</div>'}
-      </div>
-    `;
-  }
-  
-  function calculateContractTotal(contract) {
-    const totalHours = (contract.dailyHours || []).reduce((sum, d) => sum + (d.hours || 0), 0);
-    const totalOvertime = (contract.dailyHours || []).reduce((sum, d) => sum + (d.overtime || 0), 0);
-    const revenue = (totalHours * (contract.dailyRate || 0)) + (totalOvertime * (contract.dailyRate || 0) * 1.5);
-    return { totalHours, totalOvertime, revenue };
-  }
-  
-  // ============================================
-  // EXPORTS
-  // ============================================
-  function exportToPDF() {
-    const element = document.getElementById('reports-content');
-    html2pdf().set({ margin: 0.5, filename: 'تقرير_الصيانة.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(element).save();
-    showToast('جاري إنشاء PDF...');
-  }
-  
-  function exportToExcel() {
-    const data = equipmentData.map(e => ({ الكود: e.code, الاسم: e.name, النوع: e.type, الموقع: e.location, 'العداد': e.hours, 'الصيانة القادمة': e.nextHours, الحالة: e.status, 'سعر الإيجار اليومي': e.dailyRate, 'تكلفة الشراء': e.purchaseCost, 'تكاليف الصيانة': e.totalMaintenanceCost }));
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'المعدات');
-    XLSX.writeFile(wb, `تقرير_المعدات_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showToast('تم تصدير Excel');
-  }
-  
-  // ============================================
-  // VIEW SWITCHING
-  // ============================================
-  function switchView(view) {
-    document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
-    document.getElementById('view-equipment').style.display = view === 'equipment' ? 'block' : 'none';
-    document.getElementById('view-inventory').style.display = view === 'inventory' ? 'block' : 'none';
-    document.getElementById('view-rental').style.display = view === 'rental' ? 'block' : 'none';
-    document.getElementById('view-orders').style.display = view === 'orders' ? 'block' : 'none';
-    document.getElementById('view-reports').style.display = view === 'reports' ? 'block' : 'none';
-    document.querySelectorAll('.bottom-tab').forEach(btn => {
-      if (btn.dataset.view === view) btn.classList.add('active');
-      else btn.classList.remove('active');
-    });
-    const fab = document.getElementById('fab-btn');
-    if (view === 'inventory') fab.onclick = () => openInvModal(null);
-    else if (view === 'rental') fab.onclick = () => openRentalContractModal(null);
-    else fab.onclick = () => openAddEquipmentModal();
-    refreshUI();
-  }
-  
-  // Initialize
-  window.addEventListener('online', updateConnectionStatus);
-  window.addEventListener('offline', updateConnectionStatus);
-  
-  window.performLogin = performLogin;
-  window.logout = logout;
-  window.switchView = switchView;
-  window.openAddEquipmentModal = openAddEquipmentModal;
-  window.openEditEquipmentModal = openEditEquipmentModal;
-  window.saveEquipment = saveEquipment;
-  window.deleteFromFirebase = deleteFromFirebase;
-  window.openDetailModal = openDetailModal;
-  window.closeModal = closeModal;
-  window.showRecordForm = showRecordForm;
-  window.saveRecord = saveRecord;
-  window.openInvModal = openInvModal;
-  window.openLinkModal = openLinkModal;
-  window.saveLinkFilter = saveLinkFilter;
-  window.adjustInvQty = adjustInvQty;
-  window.addInvAltField = addInvAltField;
-  window.generateOrderForAll = generateOrderForAll;
-  window.openQuickMeterUpdate = openQuickMeterUpdate;
-  window.saveQuickMeters = saveQuickMeters;
-  window.updateSingleMeter = updateSingleMeter;
-  window.openRentalContractModal = openRentalContractModal;
-  window.openDailyHoursModal = openDailyHoursModal;
-  window.saveDailyHours = saveDailyHours;
-  window.completeRentalContract = completeRentalContract;
-  window.filterRentalContracts = filterRentalContracts;
-  window.viewContractDetails = viewContractDetails;
-  window.exportRentalReport = exportRentalReport;
-  window.exportToPDF = exportToPDF;
-  window.exportToExcel = exportToExcel;
-  
-  // Filter functions for equipment
-  window.openAddFilterModal = (eqId) => {
+  function openAddFilterModal(eqId) {
     if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
     currentEqForFilter = eqId;
     editingFilterId = null;
@@ -1711,9 +1546,9 @@
     document.getElementById('filter-alts-container').innerHTML = '';
     altCount = 0;
     document.getElementById('filter-modal').classList.add('active');
-  };
+  }
   
-  window.addAltField = () => {
+  function addAltField() {
     altCount++;
     const container = document.getElementById('filter-alts-container');
     const div = document.createElement('div');
@@ -1725,9 +1560,9 @@
       <button onclick="document.getElementById('filter-alt-${altCount}').remove()" style="background:#fee2e2; border:none; border-radius:8px; padding:8px 12px">×</button>
     `;
     container.appendChild(div);
-  };
+  }
   
-  window.saveFilterToEquipment = () => {
+  function saveFilterToEquipment() {
     const alts = [];
     for (let i = 1; i <= altCount; i++) {
       const pn = document.getElementById(`filter-alt-pn-${i}`);
@@ -1746,23 +1581,218 @@
     saveToFirebase(`equipment/${currentEqForFilter}/filters`, filter);
     closeModal('filter-modal');
     showToast('تم إضافة الفلتر');
-  };
+  }
   
-  window.deleteFilter = (eqId, filterId) => {
+  function deleteFilter(eqId, filterId) {
     if (currentUser?.role !== 'admin') return;
     if (confirm('هل أنت متأكد؟')) fbDb.ref(`equipment/${eqId}/filters/${filterId}`).remove();
-  };
+  }
   
-  window.adjustFilterQty = (eqId, filterId, delta) => {
+  function adjustFilterQty(eqId, filterId, delta) {
     const eq = equipmentData.find(e => e.id === eqId);
     if (eq && eq.filters && eq.filters[filterId]) {
       const newQty = Math.max(0, (eq.filters[filterId].qty || 0) + delta);
       fbDb.ref(`equipment/${eqId}/filters/${filterId}/qty`).set(newQty);
     }
-  };
+  }
   
-  let currentEqForFilter = null;
-  let editingFilterId = null;
+  // ============================================
+  // UI RENDERING
+  // ============================================
+  function refreshUI() {
+    const working = equipmentData.filter(e => e.status === 'يعمل').length;
+    const maintenance = equipmentData.filter(e => e.status === 'صيانة').length;
+    const stopped = equipmentData.filter(e => e.status === 'متوقف').length;
+    const rented = equipmentData.filter(e => e.status === 'مؤجر').length;
+    const urgent = equipmentData.filter(e => {
+      const rem = hoursRemaining(e);
+      return rem <= 50 && rem > 0;
+    }).length;
+    const totalCost = equipmentData.reduce((s, e) => s + (e.totalMaintenanceCost || 0) + (e.purchaseCost || 0), 0);
+    
+    document.getElementById('stats-summary').innerHTML = `
+      <div class="stat-card"><div class="stat-number">${equipmentData.length}</div><div class="stat-label">المجموع</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#10b981">${working}</div><div class="stat-label">يعمل</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#f59e0b">${maintenance}</div><div class="stat-label">صيانة</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#dbeafe">${rented}</div><div class="stat-label">مؤجر</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#ef4444">${urgent}</div><div class="stat-label">تنبيهات</div></div>
+    `;
+    
+    document.getElementById('equipment-count').innerHTML = `(${equipmentData.length} معدة)`;
+    
+    const allEqHtml = equipmentData.map(eq => {
+      const rem = hoursRemaining(eq);
+      const percent = Math.min(100, Math.max(0, (eq.hours / (eq.nextHours || 1)) * 100));
+      return `
+        <div class="equipment-card" onclick="openDetailModal('${eq.id}')">
+          <div class="card-header">
+            <div>
+              <div class="card-title">${eq.name}</div>
+              <div class="card-code">${eq.code} | ${eq.type}</div>
+            </div>
+            <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : eq.status === 'مؤجر' ? 'badge-rented' : 'badge-stopped'}">${eq.status}</span>
+          </div>
+          <div class="progress-bar" style="margin: 12px 0 8px 0">
+            <div class="progress-fill" style="width: ${percent}%; background: ${rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981'}"></div>
+          </div>
+          <div style="margin-top:8px"><span>⏱️ ${eq.hours} ساعة</span> | <span>🔧 بعد ${rem} ساعة</span></div>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('all-equipment-list').innerHTML = allEqHtml || '<div class="empty-state">لا توجد معدات مسجلة</div>';
+    
+    if (statusChart) statusChart.destroy();
+    const ctx = document.getElementById('status-chart');
+    if (ctx) {
+      const newCtx = ctx.getContext('2d');
+      statusChart = new Chart(newCtx, {
+        type: 'doughnut',
+        data: { labels: ['يعمل', 'صيانة', 'متوقف', 'مؤجر'], datasets: [{ data: [working, maintenance, stopped, rented], backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#dbeafe'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+    
+    const search = document.getElementById('search-equipment')?.value || '';
+    const filtered = equipmentData.filter(e => e.name.includes(search) || e.code.includes(search));
+    document.getElementById('equipment-list').innerHTML = filtered.map(eq => `
+      <div class="equipment-card" onclick="openDetailModal('${eq.id}')">
+        <div class="card-header"><div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code}</div></div>
+        <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : eq.status === 'مؤجر' ? 'badge-rented' : 'badge-stopped'}">${eq.status}</span></div>
+        <div><span>⏱️ ${eq.hours} ساعة</span> | <span>🔧 عند ${eq.nextHours} ساعة</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (eq.hours / eq.nextHours) * 100)}%"></div></div>
+      </div>`).join('');
+    
+    document.getElementById('eq-count').innerHTML = `${equipmentData.length} معدة`;
+    renderInventory();
+    generateOrderForAll();
+    renderReports();
+    renderHoursTracking();
+  }
+  
+  function renderReports() {
+    const maintenanceLogs = equipmentData.flatMap(eq => (eq.maintenanceLogs || []).map(l => ({ ...l, eqName: eq.name })));
+    const issues = equipmentData.flatMap(eq => (eq.issues || []).map(i => ({ ...i, eqName: eq.name })));
+    const totalMaintenanceCost = maintenanceLogs.reduce((s, l) => s + (l.cost || 0), 0);
+    
+    // حساب إجمالي ساعات العمل للسنة الحالية
+    let totalYearRegular = 0;
+    let totalYearOvertime = 0;
+    equipmentData.forEach(eq => {
+      for (let m = 0; m < 12; m++) {
+        const { totalRegularHours, totalOvertimeHours } = getEquipmentHoursForMonth(eq, currentSelectedYear, m);
+        totalYearRegular += totalRegularHours;
+        totalYearOvertime += totalOvertimeHours;
+      }
+    });
+    
+    document.getElementById('reports-content').innerHTML = `
+      <div style="margin:0 0 16px 0; background:linear-gradient(135deg,#065f46,#0e7490); color:white; padding:14px; border-radius:18px">
+        <div class="grid-3">
+          <div><div class="detail-label">💰 تكاليف الصيانة</div><div class="detail-value">${totalMaintenanceCost.toLocaleString()} ر.س</div></div>
+          <div><div class="detail-label">⚠️ عدد الأعطال</div><div class="detail-value">${issues.length}</div></div>
+          <div><div class="detail-label">🔧 عدد الصيانات</div><div class="detail-value">${maintenanceLogs.length}</div></div>
+        </div>
+      </div>
+      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px">
+        <div style="font-weight:800">📊 إجمالي ساعات العمل (${currentSelectedYear})</div>
+        <div class="grid-3" style="margin-top:10px">
+          <div><div class="detail-label">ساعات رسمية</div><div class="detail-value">${totalYearRegular}</div></div>
+          <div><div class="detail-label">ساعات إضافية</div><div class="detail-value">${totalYearOvertime}</div></div>
+          <div><div class="detail-label">الإجمالي</div><div class="detail-value">${totalYearRegular + totalYearOvertime}</div></div>
+        </div>
+      </div>
+      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px">
+        <div style="font-weight:800">🔧 سجل الصيانة</div>
+        ${maintenanceLogs.slice(-10).reverse().map(l => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">📌 ${l.eqName} - ${l.type} (${l.date}) - ${l.cost || 0} ر.س</div>`).join('') || '<div class="empty-state">لا توجد سجلات</div>'}
+      </div>
+    `;
+  }
+  
+  // ============================================
+  // EXPORTS
+  // ============================================
+  function exportToPDF() {
+    const element = document.getElementById('reports-content');
+    html2pdf().set({ margin: 0.5, filename: 'تقرير_الصيانة.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(element).save();
+    showToast('جاري إنشاء PDF...');
+  }
+  
+  function exportToExcel() {
+    const data = equipmentData.map(e => ({ 
+      الكود: e.code, 
+      الاسم: e.name, 
+      النوع: e.type, 
+      الموقع: e.location, 
+      'العداد': e.hours, 
+      'الصيانة القادمة': e.nextHours, 
+      الحالة: e.status, 
+      'سعر الإيجار اليومي': e.dailyRate, 
+      'تكلفة الشراء': e.purchaseCost, 
+      'تكاليف الصيانة': e.totalMaintenanceCost 
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'المعدات');
+    XLSX.writeFile(wb, `تقرير_المعدات_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('تم تصدير Excel');
+  }
+  
+  // ============================================
+  // VIEW SWITCHING
+  // ============================================
+  function switchView(view) {
+    document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
+    document.getElementById('view-equipment').style.display = view === 'equipment' ? 'block' : 'none';
+    document.getElementById('view-hours').style.display = view === 'hours' ? 'block' : 'none';
+    document.getElementById('view-inventory').style.display = view === 'inventory' ? 'block' : 'none';
+    document.getElementById('view-orders').style.display = view === 'orders' ? 'block' : 'none';
+    document.getElementById('view-reports').style.display = view === 'reports' ? 'block' : 'none';
+    document.querySelectorAll('.bottom-tab').forEach(btn => {
+      if (btn.dataset.view === view) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+    const fab = document.getElementById('fab-btn');
+    if (view === 'inventory') fab.onclick = () => openInvModal(null);
+    else fab.onclick = () => openAddEquipmentModal();
+    refreshUI();
+  }
+  
+  // Initialize
+  window.addEventListener('online', updateConnectionStatus);
+  window.addEventListener('offline', updateConnectionStatus);
+  
+  // Expose globals
+  window.performLogin = performLogin;
+  window.logout = logout;
+  window.switchView = switchView;
+  window.openAddEquipmentModal = openAddEquipmentModal;
+  window.openEditEquipmentModal = openEditEquipmentModal;
+  window.saveEquipment = saveEquipment;
+  window.deleteFromFirebase = deleteFromFirebase;
+  window.openDetailModal = openDetailModal;
+  window.closeModal = closeModal;
+  window.showRecordForm = showRecordForm;
+  window.saveRecord = saveRecord;
+  window.openInvModal = openInvModal;
+  window.openLinkModal = openLinkModal;
+  window.saveLinkFilter = saveLinkFilter;
+  window.adjustInvQty = adjustInvQty;
+  window.addInvAltField = addInvAltField;
+  window.generateOrderForAll = generateOrderForAll;
+  window.openAddFilterModal = openAddFilterModal;
+  window.addAltField = addAltField;
+  window.saveFilterToEquipment = saveFilterToEquipment;
+  window.deleteFilter = deleteFilter;
+  window.adjustFilterQty = adjustFilterQty;
+  window.exportToPDF = exportToPDF;
+  window.exportToExcel = exportToExcel;
+  window.exportHoursReport = exportHoursReport;
+  window.changeMonth = changeMonth;
+  window.openDailyAttendanceModal = openDailyAttendanceModal;
+  window.saveDailyAttendance = saveDailyAttendance;
+  window.openSingleEquipmentAttendance = openSingleEquipmentAttendance;
+  window.saveSingleEquipmentAttendance = saveSingleEquipmentAttendance;
 </script>
 </body>
 </html>
