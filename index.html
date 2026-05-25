@@ -6,20 +6,17 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0d1b2a">
-  <title>نظام إدارة صيانة الأسطول - متزامن</title>
+  <title>نظام إدارة صيانة الأسطول المتكامل</title>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <!-- html2pdf -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- SheetJS for Excel -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <!-- QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     :root {
       --primary: #0d1b2a;
@@ -47,7 +44,6 @@
       padding-bottom: 80px;
     }
 
-    /* Connection Status */
     .connection-status {
       position: fixed;
       top: 0;
@@ -64,16 +60,9 @@
       transform: translateY(-100%);
       transition: transform 0.3s;
     }
-    .connection-status.offline {
-      background: var(--danger);
-      transform: translateY(0);
-    }
-    .connection-status.online {
-      background: var(--success);
-      transform: translateY(0);
-    }
+    .connection-status.offline { background: var(--danger); transform: translateY(0); }
+    .connection-status.online { background: var(--success); transform: translateY(0); }
 
-    /* Header */
     .status-bar {
       background: var(--primary);
       color: white;
@@ -84,25 +73,14 @@
       font-size: 12px;
       margin-top: 24px;
     }
-
     .header {
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       padding: 20px 18px;
       color: white;
     }
+    .header-title { font-size: 24px; font-weight: 800; }
+    .header-sub { font-size: 11px; opacity: 0.7; margin-top: 4px; }
 
-    .header-title {
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .header-sub {
-      font-size: 11px;
-      opacity: 0.7;
-      margin-top: 4px;
-    }
-
-    /* Stats Cards */
     .stats-grid {
       display: flex;
       gap: 10px;
@@ -122,7 +100,6 @@
     .stat-number { font-size: 26px; font-weight: 800; }
     .stat-label { font-size: 11px; color: var(--gray); margin-top: 4px; }
 
-    /* Sections */
     .section { padding: 0 14px; margin-top: 20px; }
     .section-title {
       font-size: 13px;
@@ -131,10 +108,8 @@
       margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
 
-    /* Cards */
     .equipment-card {
       background: var(--white);
       border-radius: 18px;
@@ -153,9 +128,9 @@
     .badge-working { background: #d1fae5; color: #065f46; }
     .badge-maintenance { background: #fef3c7; color: #78350f; }
     .badge-stopped { background: #fee2e2; color: #7f1d1d; }
+    .badge-urgent { background: #fee2e2; color: #dc2626; }
 
-    /* Tab Bar */
-    .tab-bar {
+    .bottom-tab-bar {
       position: fixed;
       bottom: 0;
       left: 50%;
@@ -170,7 +145,7 @@
       padding: 8px 0 20px;
       z-index: 100;
     }
-    .tab-btn {
+    .bottom-tab {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -181,12 +156,10 @@
       cursor: pointer;
       font-size: 11px;
       color: var(--gray);
-      transition: all 0.2s;
     }
-    .tab-btn.active { color: var(--accent); font-weight: 600; }
+    .bottom-tab.active { color: var(--accent); font-weight: 600; }
     .tab-icon { font-size: 22px; }
 
-    /* FAB */
     .fab {
       position: fixed;
       bottom: 85px;
@@ -204,11 +177,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
     }
-    .fab:active { transform: scale(0.95); }
 
-    /* Modals */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -274,12 +244,9 @@
       cursor: pointer;
       width: calc(100% - 28px);
       margin: 20px 14px;
-      transition: all 0.2s;
     }
-    .save-btn:active { transform: scale(0.98); }
     .danger-btn { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
 
-    /* Toast */
     .toast {
       position: fixed;
       top: 80px;
@@ -295,12 +262,12 @@
       opacity: 0;
       transition: opacity 0.2s;
       pointer-events: none;
-      white-space: nowrap;
     }
     .toast.show { opacity: 1; }
 
     .empty-state { text-align: center; padding: 50px 20px; color: var(--gray); }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .detail-section {
       background: var(--white);
       border-radius: 18px;
@@ -312,7 +279,32 @@
     .detail-value { font-size: 14px; font-weight: 600; color: var(--primary); }
     .qr-container { text-align: center; padding: 20px; background: white; border-radius: 18px; margin: 12px 14px; }
     .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 8px; }
-    .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+    .filter-card {
+      background: white;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-right: 3px solid var(--success);
+    }
+    .filter-card.low { border-right-color: var(--warning); }
+    .filter-card.critical { border-right-color: var(--danger); }
+    .qty-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 15px;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .order-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border-right: 3px solid var(--danger);
+    }
+    .order-card.ok { border-right-color: var(--success); }
   </style>
 </head>
 <body>
@@ -324,8 +316,8 @@
 <div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, var(--primary), var(--secondary)); z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px;">
   <div style="text-align:center; width:100%; max-width:320px">
     <div style="font-size:60px; margin-bottom:20px">🏗️</div>
-    <div style="font-size:28px; font-weight:800; margin-bottom:10px; color:white">نظام الصيانة</div>
-    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">إدارة متكاملة للمعدات - متزامن أونلاين</div>
+    <div style="font-size:28px; font-weight:800; margin-bottom:10px; color:white">نظام الصيانة المتكامل</div>
+    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">إدارة متكاملة للمعدات - فلاتر - طلبيات - تقارير</div>
     <input type="text" id="login-username" placeholder="اسم المستخدم" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:12px; text-align:center; font-size:14px">
     <input type="password" id="login-password" placeholder="كلمة المرور" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:20px; text-align:center; font-size:14px">
     <button onclick="performLogin()" style="width:100%; background:var(--accent); color:var(--primary); border:none; padding:14px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer">دخول</button>
@@ -343,6 +335,7 @@
     </div>
   </div>
 
+  <!-- Dashboard View -->
   <div id="view-home">
     <div class="header">
       <div class="header-title">📊 لوحة القيادة</div>
@@ -360,11 +353,20 @@
       <div id="alerts-list"></div>
     </div>
     <div class="section">
+      <div class="section-title">💰 ملخص التكاليف</div>
+      <div style="background:linear-gradient(135deg, #065f46, #0e7490); border-radius:18px; padding:14px; margin-bottom:16px; color:white" id="cost-summary"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">📦 ملخص الطلبيات</div>
+      <div id="order-summary" style="margin-bottom:16px"></div>
+    </div>
+    <div class="section">
       <div class="section-title">🔄 أحدث المعدات</div>
       <div id="recent-equipment"></div>
     </div>
   </div>
 
+  <!-- Equipment View -->
   <div id="view-equipment" style="display:none">
     <div class="header" style="padding:20px">
       <div class="header-title">🏗️ إدارة المعدات</div>
@@ -376,24 +378,68 @@
     </div>
   </div>
 
-  <div id="view-reports" style="display:none">
+  <!-- Inventory View (Central Filter Store) -->
+  <div id="view-inventory" style="display:none">
     <div class="header" style="padding:20px">
-      <div class="header-title">📋 التقارير والإحصائيات</div>
-      <div class="header-sub">تقارير شاملة ومفصلة</div>
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <div><div class="header-title">📦 مخزن الفلاتر</div><div class="header-sub" id="inv-count"></div></div>
+        <button onclick="openInvModal(null)" style="background:var(--accent); color:var(--primary); border:none; border-radius:14px; padding:8px 16px; font-weight:700">+ إضافة فلتر</button>
+      </div>
     </div>
-    <div style="padding:14px" id="reports-container">
-      <button onclick="printReport()" class="save-btn" style="margin:0 0 12px 0">🖨️ طباعة التقرير الشامل</button>
-      <button onclick="exportBackup()" class="save-btn" style="background:var(--info); margin:0 0 20px 0">💾 تصدير نسخة احتياطية</button>
+    <div id="inv-list" style="padding:14px"></div>
+  </div>
+
+  <!-- Orders View -->
+  <div id="view-orders" style="display:none">
+    <div class="header" style="padding:20px">
+      <div class="header-title">📦 طلبيات الفلاتر</div>
+      <div class="header-sub">احتياجات 4 صيانات قادمة</div>
+    </div>
+    <div style="padding:14px">
+      <button onclick="generateOrderForAll()" class="save-btn" style="margin:0 0 12px 0">📋 طلبية لجميع المعدات</button>
+      <div id="orders-list"></div>
     </div>
   </div>
 
-  <div class="tab-bar">
-    <button class="tab-btn" data-view="home"><span class="tab-icon">📊</span><span>الرئيسية</span></button>
-    <button class="tab-btn" data-view="equipment"><span class="tab-icon">🏗️</span><span>المعدات</span></button>
-    <button class="tab-btn" data-view="reports"><span class="tab-icon">📋</span><span>التقارير</span></button>
+  <!-- Reports View -->
+  <div id="view-reports" style="display:none">
+    <div class="header" style="padding:20px">
+      <div class="header-title">📋 التقارير المتقدمة</div>
+      <div class="header-sub">إحصائيات وتقارير مفصلة</div>
+    </div>
+    <div style="padding:14px">
+      <div class="grid-2" style="margin-bottom:12px">
+        <button onclick="exportToPDF()" class="save-btn" style="margin:0">📄 PDF</button>
+        <button onclick="exportToExcel()" class="save-btn" style="margin:0; background:var(--success)">📊 Excel</button>
+        <button onclick="exportToCSV()" class="save-btn" style="margin:0; background:var(--info)">📁 CSV</button>
+        <button onclick="window.print()" class="save-btn" style="margin:0; background:var(--warning)">🖨️ طباعة</button>
+      </div>
+      <div id="reports-content"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <div class="bottom-tab-bar">
+    <button class="bottom-tab" data-view="home" onclick="switchView('home')"><span class="tab-icon">📊</span><span>الرئيسية</span></button>
+    <button class="bottom-tab" data-view="equipment" onclick="switchView('equipment')"><span class="tab-icon">🏗️</span><span>المعدات</span></button>
+    <button class="bottom-tab" data-view="inventory" onclick="switchView('inventory')"><span class="tab-icon">📦</span><span>المخزن</span></button>
+    <button class="bottom-tab" data-view="orders" onclick="switchView('orders')"><span class="tab-icon">📋</span><span>الطلبيات</span></button>
+    <button class="bottom-tab" data-view="reports" onclick="switchView('reports')"><span class="tab-icon">📊</span><span>التقارير</span></button>
   </div>
 
   <button class="fab" id="fab-btn" onclick="openAddEquipmentModal()">+</button>
+</div>
+
+<!-- Daily Meter Update Overlay -->
+<div class="modal-overlay" id="meter-overlay">
+  <div class="modal-header" style="background:linear-gradient(135deg, #065f46, #0e7490)">
+    <div class="modal-title">⏱️ تحديث العدادات اليومي</div>
+    <button class="modal-close" onclick="closeModal('meter-overlay')">✕</button>
+  </div>
+  <div id="meter-list" style="padding:14px; padding-bottom:100px"></div>
+  <div style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:calc(100% - 28px); max-width:472px">
+    <button class="save-btn" style="margin:0" onclick="saveDailyMeters()">✅ حفظ جميع العدادات</button>
+  </div>
 </div>
 
 <!-- Add/Edit Equipment Modal -->
@@ -410,12 +456,14 @@
       <div class="form-field"><label class="form-label">الموقع</label><input class="form-input" id="eq-location" placeholder="موقع المشروع"></div>
       <div class="form-field"><label class="form-label">رقم الشاسيه</label><input class="form-input" id="eq-chassis" placeholder="رقم الهيكل"></div>
       <div class="form-field"><label class="form-label">⏱️ العداد الحالي (ساعة)</label><input class="form-input" type="number" id="eq-hours" value="0"></div>
-      <div class="form-field"><label class="form-label">🔧 الصيانة القادمة عند (ساعة)</label><input class="form-input" type="number" id="eq-next-hours" value="250"></div>
+      <div class="form-field"><label class="form-label">🔧 عداد الصيانة القادمة (ساعة)</label><input class="form-input" type="number" id="eq-next-hours" value="250"></div>
+      <div class="form-field"><label class="form-label">دورة الصيانة (ساعة)</label><input class="form-input" type="number" id="eq-interval" value="250"></div>
       <div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="eq-status"><option>يعمل</option><option>صيانة</option><option>متوقف</option></select></div>
-      <div class="form-field"><label class="form-label">رابط صورة المعدة</label><input class="form-input" id="eq-image" placeholder="https://... (اختياري)"></div>
-      <div class="form-field"><label class="form-label">ملاحظات إضافية</label><textarea class="form-textarea" id="eq-notes" placeholder="أي ملاحظات حول المعدة"></textarea></div>
+      <div class="form-field"><label class="form-label">تكلفة الشراء</label><input class="form-input" type="number" id="eq-purchase-cost" value="0"></div>
+      <div class="form-field"><label class="form-label">رابط صورة المعدة</label><input class="form-input" id="eq-image" placeholder="https://..."></div>
+      <div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="eq-notes" placeholder="أي ملاحظات"></textarea></div>
     </div>
-    <button class="save-btn" id="save-equipment-btn" onclick="saveEquipment()">✅ حفظ المعدة</button>
+    <button class="save-btn" onclick="saveEquipment()">✅ حفظ المعدة</button>
   </div>
 </div>
 
@@ -437,6 +485,60 @@
   <div id="record-form-container" style="padding:14px"></div>
 </div>
 
+<!-- Filter Modal (Add/Edit Filter) -->
+<div class="modal-overlay" id="filter-modal">
+  <div class="modal-header">
+    <div class="modal-title" id="filter-modal-title">إضافة فلتر</div>
+    <button class="modal-close" onclick="closeModal('filter-modal')">✕</button>
+  </div>
+  <div>
+    <div class="form-group">
+      <div class="form-field"><label class="form-label">نوع الفلتر *</label><input class="form-input" id="filter-type" placeholder="مثال: فلتر زيت المحرك"></div>
+      <div class="form-field"><label class="form-label">رقم القطعة *</label><input class="form-input" id="filter-partno" placeholder="مثال: 1R-0739"></div>
+      <div class="form-field"><label class="form-label">الكمية في المخزن</label><input class="form-input" type="number" id="filter-qty" value="0"></div>
+      <div class="form-field"><label class="form-label">يستخدم لكل صيانة</label><input class="form-input" type="number" id="filter-used-per" value="1"></div>
+      <div class="form-field"><label class="form-label">دورة التغيير (ساعة)</label><select class="form-select" id="filter-interval"><option value="250">كل 250 ساعة</option><option value="500">كل 500 ساعة</option><option value="1000">كل 1000 ساعة</option></select></div>
+    </div>
+    <div id="filter-alts-container" style="margin:0 14px"></div>
+    <button onclick="addAltField()" class="save-btn" style="margin:10px 14px; background:var(--info)">➕ إضافة رقم بديل</button>
+    <button class="save-btn" onclick="saveFilterToEquipment()">✅ حفظ الفلتر</button>
+  </div>
+</div>
+
+<!-- Inventory Filter Modal (Central Store) -->
+<div class="modal-overlay" id="inv-modal">
+  <div class="modal-header">
+    <div class="modal-title" id="inv-modal-title">إضافة فلتر للمخزن المركزي</div>
+    <button class="modal-close" onclick="closeModal('inv-modal')">✕</button>
+  </div>
+  <div>
+    <div class="form-group">
+      <div class="form-field"><label class="form-label">نوع الفلتر *</label><input class="form-input" id="inv-type" placeholder="مثال: فلتر زيت المحرك"></div>
+      <div class="form-field"><label class="form-label">رقم القطعة *</label><input class="form-input" id="inv-partno" placeholder="مثال: 1R-0739"></div>
+      <div class="form-field"><label class="form-label">الكمية في المخزن</label><input class="form-input" type="number" id="inv-qty" value="0"></div>
+      <div class="form-field"><label class="form-label">دورة التغيير (ساعة)</label><select class="form-select" id="inv-interval"><option value="250">كل 250 ساعة</option><option value="500">كل 500 ساعة</option><option value="1000">كل 1000 ساعة</option></select></div>
+    </div>
+    <div id="inv-alts-container" style="margin:0 14px"></div>
+    <button onclick="addInvAltField()" class="save-btn" style="margin:10px 14px; background:var(--info)">➕ إضافة رقم بديل بكميته</button>
+    <div class="form-group" style="margin-top:10px">
+      <div class="form-field"><label class="form-label">ربط بالمعدات (اختر المعدات التي تستخدم هذا الفلتر)</label></div>
+      <div id="inv-eq-list" style="padding:10px"></div>
+    </div>
+    <button class="save-btn" onclick="saveInventoryFilter()">✅ حفظ الفلتر</button>
+  </div>
+</div>
+
+<!-- Link Filter Modal -->
+<div class="modal-overlay" id="link-modal">
+  <div class="modal-header">
+    <div class="modal-title">🔗 ربط فلتر بالمعدات</div>
+    <button class="modal-close" onclick="closeModal('link-modal')">✕</button>
+  </div>
+  <div id="link-filter-info" style="margin:14px"></div>
+  <div id="link-eq-list" style="margin:14px"></div>
+  <button class="save-btn" onclick="saveLinkFilter()">✅ ربط</button>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
@@ -444,10 +546,8 @@
 
 <script>
   // ============================================
-  // FIREBASE CONFIGURATION - REPLACE WITH YOUR OWN
+  // FIREBASE CONFIGURATION
   // ============================================
-  // 🔴 هام جداً: استبدل هذه البيانات ببيانات مشروعك من Firebase Console
-  // اذهب إلى https://console.firebase.google.com/ -> إعدادات المشروع -> عام
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyD3eWEZZDXCfHtJ6xdD9VwW8hT5vZzV0W4",
     authDomain: "hah-pmv.firebaseapp.com",
@@ -455,157 +555,20 @@
     projectId: "hah-pmv"
   };
   
-  // Firebase globals
+  // Global variables
   let fbDb = null;
   let equipmentData = [];
+  let inventoryFilters = [];
   let currentUser = null;
   let statusChart = null;
-  let isOnline = navigator.onLine;
+  let editingEquipmentId = null;
+  let editingFilterId = null;
+  let editingInvId = null;
+  let linkingInvId = null;
+  let altCount = 0;
+  let invAltCount = 0;
   
-  // ============================================
-  // CONNECTION STATUS
-  // ============================================
-  function updateConnectionStatus() {
-    isOnline = navigator.onLine;
-    const statusDiv = document.getElementById('connection-status');
-    const dot = document.getElementById('online-status-dot');
-    if (isOnline && fbDb) {
-      statusDiv.className = 'connection-status online';
-      statusDiv.innerHTML = '🟢 متصل - مزامنة فورية';
-      if (dot) dot.style.background = '#10b981';
-      setTimeout(() => statusDiv.style.transform = 'translateY(-100%)', 2000);
-    } else if (!isOnline) {
-      statusDiv.className = 'connection-status offline';
-      statusDiv.innerHTML = '🔴 غير متصل - البيانات متاحة محلياً مؤقتاً';
-      if (dot) dot.style.background = '#ef4444';
-    }
-  }
-  
-  window.addEventListener('online', () => { updateConnectionStatus(); showToast('تم استعادة الاتصال - المزامنة تعمل'); });
-  window.addEventListener('offline', () => { updateConnectionStatus(); showToast('انقطع الاتصال - البيانات متاحة محلياً'); });
-  
-  // ============================================
-  // FIREBASE INITIALIZATION
-  // ============================================
-  function initFirebase() {
-    try {
-      // Check if already initialized
-      if (firebase.apps.length) {
-        firebase.app().delete().then(() => {
-          firebase.initializeApp(FIREBASE_CONFIG);
-          fbDb = firebase.database();
-          setupFirebaseListeners();
-        });
-      } else {
-        firebase.initializeApp(FIREBASE_CONFIG);
-        fbDb = firebase.database();
-        setupFirebaseListeners();
-      }
-    } catch (e) {
-      console.error('Firebase init error:', e);
-      document.getElementById('sync-status').innerHTML = '⚠️ وضع تجريبي - بيانات محلية فقط';
-    }
-  }
-  
-  function setupFirebaseListeners() {
-    // Monitor connection state
-    fbDb.ref('.info/connected').on('value', (snap) => {
-      if (snap.val() === true) {
-        console.log('Connected to Firebase');
-        updateConnectionStatus();
-      } else {
-        console.log('Disconnected from Firebase');
-        updateConnectionStatus();
-      }
-    });
-    
-    // Listen to equipment changes in realtime
-    fbDb.ref('equipment').on('value', (snapshot) => {
-      const data = snapshot.val();
-      equipmentData = data ? Object.entries(data).map(([id, eq]) => ({ ...eq, id })) : [];
-      refreshUI();
-      checkAlerts();
-    });
-    
-    firebase.auth().signInAnonymously()
-      .then(() => {
-        console.log('Firebase authenticated');
-        document.getElementById('sync-status').innerHTML = '✅ متزامن مع السحابة - تحديث فوري';
-      })
-      .catch((err) => {
-        console.error('Auth error:', err);
-        document.getElementById('sync-status').innerHTML = '⚠️ خطأ في الاتصال - سيتم المحاولة مرة أخرى';
-      });
-  }
-  
-  // ============================================
-  // CRUD OPERATIONS WITH FIREBASE
-  // ============================================
-  function saveEquipmentToFirebase(equipment) {
-    if (!fbDb) {
-      showToast('لا يوجد اتصال - سيتم الحفظ محلياً');
-      return;
-    }
-    
-    if (equipment.id) {
-      const { id, ...data } = equipment;
-      fbDb.ref(`equipment/${id}`).update(data)
-        .then(() => showToast('تم تحديث المعدة'))
-        .catch(err => showToast('خطأ: ' + err.message));
-    } else {
-      const newId = fbDb.ref('equipment').push().key;
-      const newEquipment = { ...equipment, id: newId, createdAt: new Date().toISOString() };
-      fbDb.ref(`equipment/${newId}`).set(newEquipment)
-        .then(() => showToast('تم إضافة المعدة'))
-        .catch(err => showToast('خطأ: ' + err.message));
-    }
-  }
-  
-  function deleteEquipmentFromFirebase(id) {
-    if (!fbDb) return;
-    if (confirm('هل أنت متأكد من حذف هذه المعدة؟')) {
-      fbDb.ref(`equipment/${id}`).remove()
-        .then(() => showToast('تم حذف المعدة'))
-        .catch(err => showToast('خطأ: ' + err.message));
-    }
-  }
-  
-  // ============================================
-  // AUTHENTICATION
-  // ============================================
-  function performLogin() {
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    
-    if (username === 'admin' && password === 'admin123') {
-      currentUser = { username: 'admin', role: 'admin', name: 'المدير' };
-    } else if (username === 'viewer' && password === 'viewer123') {
-      currentUser = { username: 'viewer', role: 'viewer', name: 'مشاهد' };
-    } else {
-      showToast('بيانات الدخول غير صحيحة');
-      return;
-    }
-    
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
-    document.getElementById('user-name-display').innerHTML = `${currentUser.name} (${currentUser.role === 'admin' ? 'مدير' : 'مشاهد'})`;
-    
-    initFirebase();
-    setInterval(checkAlerts, 60000);
-    if ('Notification' in window) Notification.requestPermission();
-  }
-  
-  function logout() {
-    currentUser = null;
-    document.getElementById('app-container').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('login-username').value = '';
-    document.getElementById('login-password').value = '';
-  }
-  
-  // ============================================
-  // HELPER FUNCTIONS
-  // ============================================
+  // Helper functions
   function showToast(msg) {
     const toast = document.getElementById('toast');
     toast.textContent = msg;
@@ -621,102 +584,472 @@
     return (eq.nextHours || 0) - (eq.hours || 0);
   }
   
-  // ============================================
-  // UI RENDERING
-  // ============================================
-  function refreshUI() {
-    const working = equipmentData.filter(e => e.status === 'يعمل').length;
-    const maintenance = equipmentData.filter(e => e.status === 'صيانة').length;
-    const stopped = equipmentData.filter(e => e.status === 'متوقف').length;
-    const urgent = equipmentData.filter(e => hoursRemaining(e) <= 50 && hoursRemaining(e) > 0).length;
-    
-    document.getElementById('stats-summary').innerHTML = `
-      <div class="stat-card"><div class="stat-number">${equipmentData.length}</div><div class="stat-label">المجموع</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:#10b981">${working}</div><div class="stat-label">يعمل</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:#f59e0b">${maintenance}</div><div class="stat-label">صيانة</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:#ef4444">${urgent}</div><div class="stat-label">تنبيهات</div></div>
-    `;
-    
-    // Chart
-    if (statusChart) statusChart.destroy();
-    const ctx = document.getElementById('status-chart').getContext('2d');
-    statusChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: { labels: ['يعمل', 'صيانة', 'متوقف'], datasets: [{ data: [working, maintenance, stopped], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-    });
-    
-    // Alerts
-    const alertEq = equipmentData.filter(e => hoursRemaining(e) <= 50 && hoursRemaining(e) > 0);
-    const alertsHtml = alertEq.length ? alertEq.map(e => `
-      <div style="background:#fff7ed; border-right:3px solid #f59e0b; border-radius:14px; padding:12px; margin-bottom:8px" onclick="openDetailModal('${e.id}')">
-        <div style="font-weight:700">⚠️ ${e.name}</div>
-        <div style="font-size:12px; color:#78350f">متبقي ${hoursRemaining(e)} ساعة على الصيانة</div>
-        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (e.hours / e.nextHours) * 100)}%"></div></div>
-      </div>
-    `).join('') : '<div style="background:#ecfdf5; border-radius:14px; padding:12px; color:#065f46">✅ لا توجد تنبيهات عاجلة</div>';
-    document.getElementById('alerts-list').innerHTML = alertsHtml;
-    
-    // Recent
-    const recent = [...equipmentData].reverse().slice(0, 5);
-    document.getElementById('recent-equipment').innerHTML = recent.map(eq => `
-      <div class="equipment-card" onclick="openDetailModal('${eq.id}')">
-        <div class="card-header">
-          <div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code} • ${eq.type}</div></div>
-          <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:12px">
-          <span>⏱️ ${eq.hours} ساعة</span>
-          <span>📍 ${eq.location || '—'}</span>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (eq.hours / eq.nextHours) * 100)}%"></div></div>
-      </div>
-    `).join('');
-    
-    // Equipment List
-    const search = document.getElementById('search-equipment')?.value || '';
-    const filtered = equipmentData.filter(e => e.name.includes(search) || e.code.includes(search));
-    document.getElementById('equipment-list').innerHTML = filtered.map(eq => `
-      <div class="equipment-card" onclick="openDetailModal('${eq.id}')">
-        <div class="card-header">
-          <div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code}</div></div>
-          <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px">
-          <span>⏱️ ${eq.hours} ساعة</span>
-          <span>🔧 عند ${eq.nextHours} ساعة</span>
-        </div>
-      </div>
-    `).join('');
-    if (!filtered.length) document.getElementById('equipment-list').innerHTML = '<div class="empty-state">📭 لا توجد معدات</div>';
-    document.getElementById('eq-count').innerHTML = `${equipmentData.length} معدة مسجلة`;
-    
-    // Reports
-    renderReports();
+  function updateConnectionStatus() {
+    const isOnline = navigator.onLine;
+    const statusDiv = document.getElementById('connection-status');
+    const dot = document.getElementById('online-status-dot');
+    if (isOnline && fbDb) {
+      statusDiv.className = 'connection-status online';
+      statusDiv.innerHTML = '🟢 متصل - مزامنة فورية';
+      if (dot) dot.style.background = '#10b981';
+      setTimeout(() => statusDiv.style.transform = 'translateY(-100%)', 2000);
+    } else if (!isOnline) {
+      statusDiv.className = 'connection-status offline';
+      statusDiv.innerHTML = '🔴 غير متصل - البيانات محلية';
+      if (dot) dot.style.background = '#ef4444';
+    }
   }
   
-  function renderReports() {
-    const maintenanceLogs = equipmentData.flatMap(eq => (eq.maintenanceLogs || []).map(log => ({ ...log, eqName: eq.name, eqCode: eq.code })));
-    const issues = equipmentData.flatMap(eq => (eq.issues || []).map(issue => ({ ...issue, eqName: eq.name, eqCode: eq.code })));
-    const fuelLogs = equipmentData.flatMap(eq => (eq.fuelLogs || []).map(fuel => ({ ...fuel, eqName: eq.name, eqCode: eq.code })));
-    
-    const reportsHtml = `
-      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px; box-shadow:var(--shadow-sm)">
-        <div style="font-weight:800; margin-bottom:12px">🔧 سجل الصيانة (زيوت/فلاتر)</div>
-        ${maintenanceLogs.length ? maintenanceLogs.slice(-10).reverse().map(l => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">📌 ${l.eqName} - ${l.type} : ${l.date} (عداد: ${l.hours} ساعة)</div>`).join('') : '<div class="empty-state">لا توجد سجلات صيانة</div>'}
-      </div>
-      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px; box-shadow:var(--shadow-sm)">
-        <div style="font-weight:800; margin-bottom:12px">⚠️ سجل الأعطال</div>
-        ${issues.length ? issues.slice(-10).reverse().map(i => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">⚠️ ${i.eqName} - ${i.description} (التكلفة: ${i.cost || 0} ر.س)</div>`).join('') : '<div class="empty-state">لا توجد أعطال مسجلة</div>'}
-      </div>
-      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px; box-shadow:var(--shadow-sm)">
-        <div style="font-weight:800; margin-bottom:12px">⛽ سجل التزود بالوقود</div>
-        ${fuelLogs.length ? fuelLogs.slice(-10).reverse().map(f => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">🚛 ${f.eqName} - ${f.amount} لتر (${f.date})</div>`).join('') : '<div class="empty-state">لا توجد عمليات تزود</div>'}
-      </div>
+  // ============================================
+  // FIREBASE INITIALIZATION
+  // ============================================
+  function initFirebase() {
+    try {
+      if (firebase.apps.length) {
+        firebase.app().delete().then(() => {
+          firebase.initializeApp(FIREBASE_CONFIG);
+          fbDb = firebase.database();
+          setupListeners();
+        });
+      } else {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        fbDb = firebase.database();
+        setupListeners();
+      }
+    } catch (e) { console.error('Firebase init error:', e); }
+  }
+  
+  function setupListeners() {
+    fbDb.ref('.info/connected').on('value', () => updateConnectionStatus());
+    fbDb.ref('equipment').on('value', (snap) => {
+      const data = snap.val();
+      equipmentData = data ? Object.entries(data).map(([id, eq]) => ({ ...eq, id })) : [];
+      refreshUI();
+      checkAlerts();
+    });
+    fbDb.ref('inventoryFilters').on('value', (snap) => {
+      const data = snap.val();
+      inventoryFilters = data ? Object.entries(data).map(([id, f]) => ({ ...f, id })) : [];
+      refreshUI();
+    });
+    firebase.auth().signInAnonymously().catch(err => console.error('Auth error:', err));
+  }
+  
+  function saveToFirebase(path, data) {
+    if (!fbDb) return;
+    if (data.id) { const { id, ...rest } = data; fbDb.ref(`${path}/${id}`).update(rest); }
+    else { const newId = fbDb.ref(path).push().key; fbDb.ref(`${path}/${newId}`).set({ ...data, id: newId }); }
+  }
+  
+  function deleteFromFirebase(path, id) {
+    if (!fbDb) return;
+    if (confirm('هل أنت متأكد؟')) fbDb.ref(`${path}/${id}`).remove();
+  }
+  
+  // ============================================
+  // AUTHENTICATION
+  // ============================================
+  function performLogin() {
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    if (username === 'admin' && password === 'admin123') {
+      currentUser = { username: 'admin', role: 'admin', name: 'المدير' };
+    } else if (username === 'viewer' && password === 'viewer123') {
+      currentUser = { username: 'viewer', role: 'viewer', name: 'مشاهد' };
+    } else { showToast('بيانات الدخول غير صحيحة'); return; }
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    document.getElementById('user-name-display').innerHTML = `${currentUser.name} (${currentUser.role === 'admin' ? 'مدير' : 'مشاهد'})`;
+    initFirebase();
+    setInterval(checkAlerts, 60000);
+    if ('Notification' in window) Notification.requestPermission();
+  }
+  
+  function logout() {
+    currentUser = null;
+    document.getElementById('app-container').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+  
+  // ============================================
+  // ALERTS
+  // ============================================
+  function checkAlerts() {
+    equipmentData.forEach(eq => {
+      const rem = hoursRemaining(eq);
+      if (rem <= 50 && rem > 0 && Notification.permission === 'granted') {
+        new Notification(`⚠️ تنبيه صيانة: ${eq.name}`, { body: `متبقي ${rem} ساعة على الصيانة!`, icon: '🏗️' });
+      }
+    });
+  }
+  
+  // ============================================
+  // INVENTORY FILTER FUNCTIONS
+  // ============================================
+  function totalQty(filter) {
+    const altQty = (filter.alts || []).reduce((s, a) => s + (a.qty || 0), 0);
+    return (filter.qty || 0) + altQty;
+  }
+  
+  function calcNeededForEquipment(filter, eq) {
+    const interval = parseInt(filter.interval) || 250;
+    const eqInterval = parseInt(eq.interval) || 250;
+    const ratio = interval / eqInterval;
+    return Math.ceil(4 / ratio);
+  }
+  
+  function getFilterTotalNeeded(filter) {
+    let total = 0;
+    equipmentData.forEach(eq => {
+      const linked = Object.values(eq.filters || {}).find(f => f.invId === filter.id);
+      if (linked) total += calcNeededForEquipment(filter, eq);
+    });
+    return total;
+  }
+  
+  function renderInventory() {
+    const list = inventoryFilters;
+    document.getElementById('inv-count').innerHTML = `${list.length} نوع فلتر`;
+    document.getElementById('inv-list').innerHTML = list.map(f => {
+      const totalQtyVal = totalQty(f);
+      const needed = getFilterTotalNeeded(f);
+      const shortage = Math.max(0, needed - totalQtyVal);
+      const linkedEqs = equipmentData.filter(eq => Object.values(eq.filters || {}).some(lf => lf.invId === f.id));
+      return `
+        <div class="filter-card ${shortage > 0 ? 'critical' : totalQtyVal < needed * 1.5 ? 'low' : ''}" style="margin-bottom:12px">
+          <div style="display:flex; justify-content:space-between">
+            <div><div style="font-weight:700">${f.type}</div><div style="font-size:11px; color:var(--gray)">P/N: ${f.partNo}</div></div>
+            <div><button class="qty-btn" style="background:var(--accent); width:auto; padding:4px 12px" onclick="openLinkModal('${f.id}')">🔗 ربط</button></div>
+          </div>
+          <div class="grid-3" style="margin-top:10px">
+            <div><div class="detail-label">المتوفر</div><div class="detail-value">${totalQtyVal}</div></div>
+            <div><div class="detail-label">المطلوب</div><div class="detail-value">${needed}</div></div>
+            <div><div class="detail-label">النقص</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${shortage>0?shortage:'✓'}</div></div>
+          </div>
+          <div style="margin-top:8px">
+            <button onclick="adjustInvQty('${f.id}', -1)" class="qty-btn" style="background:var(--danger); color:white">-</button>
+            <span style="margin:0 10px">الأصلي: ${f.qty || 0}</span>
+            <button onclick="adjustInvQty('${f.id}', 1)" class="qty-btn" style="background:var(--success); color:white">+</button>
+          </div>
+          ${linkedEqs.length ? `<div style="margin-top:8px; font-size:11px; color:var(--gray)">مرتبط بـ: ${linkedEqs.map(e => e.code).join(', ')}</div>` : ''}
+          ${currentUser?.role === 'admin' ? `<button onclick="deleteFromFirebase('inventoryFilters','${f.id}')" class="save-btn" style="margin:10px 0 0 0; background:#fee2e2; color:var(--danger)">🗑️ حذف</button>` : ''}
+        </div>`;
+    }).join('') || '<div class="empty-state">لا توجد فلاتر في المخزن</div>';
+  }
+  
+  function adjustInvQty(id, delta) {
+    const f = inventoryFilters.find(f => f.id === id);
+    if (f) {
+      f.qty = Math.max(0, (f.qty || 0) + delta);
+      saveToFirebase('inventoryFilters', f);
+    }
+  }
+  
+  function openInvModal(editId) {
+    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
+    editingInvId = editId;
+    document.getElementById('inv-modal-title').innerHTML = editId ? '✏️ تعديل فلتر' : '➕ إضافة فلتر للمخزن';
+    if (editId) {
+      const f = inventoryFilters.find(f => f.id === editId);
+      if (f) {
+        document.getElementById('inv-type').value = f.type || '';
+        document.getElementById('inv-partno').value = f.partNo || '';
+        document.getElementById('inv-qty').value = f.qty || 0;
+        document.getElementById('inv-interval').value = f.interval || 250;
+      }
+    } else {
+      ['inv-type', 'inv-partno', 'inv-qty'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('inv-interval').value = 250;
+    }
+    document.getElementById('inv-alts-container').innerHTML = '';
+    invAltCount = 0;
+    renderEqChecklistForInv();
+    document.getElementById('inv-modal').classList.add('active');
+  }
+  
+  function renderEqChecklistForInv() {
+    const container = document.getElementById('inv-eq-list');
+    container.innerHTML = equipmentData.map(eq => `
+      <label style="display:flex; align-items:center; gap:8px; padding:6px 0">
+        <input type="checkbox" id="inv-eq-${eq.id}" value="${eq.id}" style="width:18px; height:18px">
+        <span>${eq.name} (${eq.code})</span>
+      </label>
+    `).join('') || '<div class="empty-state">لا توجد معدات</div>';
+  }
+  
+  function addInvAltField() {
+    invAltCount++;
+    const container = document.getElementById('inv-alts-container');
+    const div = document.createElement('div');
+    div.id = `inv-alt-${invAltCount}`;
+    div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:8px; background:var(--bg); padding:8px; border-radius:12px';
+    div.innerHTML = `
+      <input class="form-input" id="inv-alt-pn-${invAltCount}" placeholder="رقم بديل" style="background:white; border-radius:8px; padding:8px">
+      <input class="form-input" type="number" id="inv-alt-qty-${invAltCount}" placeholder="كميته" style="background:white; border-radius:8px; padding:8px">
+      <button onclick="document.getElementById('inv-alt-${invAltCount}').remove()" style="background:#fee2e2; border:none; border-radius:8px; padding:8px 12px">×</button>
     `;
-    const container = document.getElementById('reports-container');
-    const originalButtons = container.innerHTML.split('</div>')[0] + '</div>';
-    container.innerHTML = originalButtons + reportsHtml;
+    container.appendChild(div);
+  }
+  
+  function saveInventoryFilter() {
+    const alts = [];
+    for (let i = 1; i <= invAltCount; i++) {
+      const pn = document.getElementById(`inv-alt-pn-${i}`);
+      const qty = document.getElementById(`inv-alt-qty-${i}`);
+      if (pn && pn.value.trim()) alts.push({ partNo: pn.value.trim(), qty: parseInt(qty?.value) || 0 });
+    }
+    const filter = {
+      type: document.getElementById('inv-type').value.trim(),
+      partNo: document.getElementById('inv-partno').value.trim(),
+      qty: parseInt(document.getElementById('inv-qty').value) || 0,
+      interval: parseInt(document.getElementById('inv-interval').value) || 250,
+      alts: alts,
+      updatedAt: new Date().toISOString()
+    };
+    if (!filter.type || !filter.partNo) { showToast('يرجى إدخال نوع الفلتر ورقم القطعة'); return; }
+    let filterId = editingInvId;
+    if (filterId) saveToFirebase('inventoryFilters', { ...filter, id: filterId });
+    else { const newId = fbDb.ref('inventoryFilters').push().key; saveToFirebase('inventoryFilters', { ...filter, id: newId }); filterId = newId; }
+    equipmentData.forEach(eq => {
+      const checked = document.getElementById(`inv-eq-${eq.id}`)?.checked;
+      const existingLink = Object.entries(eq.filters || {}).find(([, f]) => f.invId === filterId);
+      if (checked && !existingLink) {
+        const newFilter = { invId: filterId, type: filter.type, partNo: filter.partNo, qty: 0, usedPerService: 1 };
+        fbDb.ref(`equipment/${eq.id}/filters`).push(newFilter);
+      } else if (!checked && existingLink) {
+        fbDb.ref(`equipment/${eq.id}/filters/${existingLink[0]}`).remove();
+      }
+    });
+    closeModal('inv-modal');
+    showToast(editingInvId ? 'تم تحديث الفلتر' : 'تم إضافة الفلتر');
+  }
+  
+  function openLinkModal(invId) {
+    linkingInvId = invId;
+    const f = inventoryFilters.find(f => f.id === invId);
+    if (f) document.getElementById('link-filter-info').innerHTML = `<div style="background:white; border-radius:14px; padding:14px"><div style="font-weight:700">${f.type}</div><div>P/N: ${f.partNo}</div></div>`;
+    const container = document.getElementById('link-eq-list');
+    container.innerHTML = equipmentData.map(eq => {
+      const isLinked = Object.values(eq.filters || {}).some(f => f.invId === invId);
+      return `<label style="display:flex; align-items:center; gap:8px; padding:8px; background:white; margin-bottom:6px; border-radius:12px">
+        <input type="checkbox" id="link-eq-${eq.id}" ${isLinked ? 'checked' : ''} style="width:18px; height:18px">
+        <span>${eq.name} (${eq.code})</span>
+      </label>`;
+    }).join('');
+    document.getElementById('link-modal').classList.add('active');
+  }
+  
+  function saveLinkFilter() {
+    const f = inventoryFilters.find(f => f.id === linkingInvId);
+    if (!f) return;
+    equipmentData.forEach(eq => {
+      const checked = document.getElementById(`link-eq-${eq.id}`)?.checked;
+      const existingLink = Object.entries(eq.filters || {}).find(([, lf]) => lf.invId === linkingInvId);
+      if (checked && !existingLink) {
+        fbDb.ref(`equipment/${eq.id}/filters`).push({ invId: linkingInvId, type: f.type, partNo: f.partNo, qty: 0, usedPerService: 1 });
+      } else if (!checked && existingLink) {
+        fbDb.ref(`equipment/${eq.id}/filters/${existingLink[0]}`).remove();
+      }
+    });
+    closeModal('link-modal');
+    showToast('تم ربط الفلتر بالمعدات');
+  }
+  
+  // ============================================
+  // ORDER FUNCTIONS
+  // ============================================
+  function filterTotalQty(f) {
+    if (f.invId && inventoryFilters.find(inv => inv.id === f.invId)) {
+      const inv = inventoryFilters.find(inv => inv.id === f.invId);
+      const altQty = (inv.alts || []).reduce((s, a) => s + (a.qty || 0), 0);
+      return (inv.qty || 0) + altQty;
+    }
+    const altQty = (f.alts || []).reduce((s, a) => s + (a.qty || 0), 0);
+    return (f.qty || 0) + altQty;
+  }
+  
+  function calcOrderForEquipment(eq) {
+    return Object.values(eq.filters || {}).map(f => {
+      const needed = (f.usedPerService || 1) * 4;
+      const totalQty = filterTotalQty(f);
+      const shortage = Math.max(0, needed - totalQty);
+      return { ...f, needed, totalQty, shortage, sufficient: shortage === 0 };
+    });
+  }
+  
+  function generateOrderForAll() {
+    let ordersHtml = '';
+    equipmentData.forEach(eq => {
+      const items = calcOrderForEquipment(eq);
+      const hasShortage = items.some(i => i.shortage > 0);
+      if (!hasShortage) {
+        ordersHtml += `<div class="order-card ok"><div class="card-title">${eq.name}</div><div style="font-size:12px">✅ جميع الفلاتر كافية</div></div>`;
+      } else {
+        ordersHtml += `<div class="order-card"><div class="card-title">${eq.name} (${eq.code})</div>`;
+        items.filter(i => i.shortage > 0).forEach(i => {
+          ordersHtml += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eef2f6">
+            <div><div style="font-weight:600">${i.type}</div><div style="font-size:10px">P/N: ${i.partNo}</div></div>
+            <div style="color:var(--danger)">يحتاج: ${i.shortage}</div>
+          </div>`;
+        });
+        ordersHtml += `</div>`;
+      }
+    });
+    document.getElementById('orders-list').innerHTML = ordersHtml || '<div class="empty-state">لا توجد معدات</div>';
+  }
+  
+  // ============================================
+  // DAILY METER UPDATE
+  // ============================================
+  function openMeterOverlay() {
+    const today = new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('meter-list').innerHTML = `
+      <div style="padding:8px 0; text-align:center; color:var(--gray)">📅 ${today}</div>
+      ${equipmentData.filter(e => e.status !== 'متوقف').map(eq => `
+        <div style="background:white; border-radius:16px; padding:14px; margin-bottom:10px">
+          <div style="font-weight:700">${eq.name}</div>
+          <div style="font-size:12px; color:var(--gray)">العداد الحالي: ${eq.hours} ساعة</div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (eq.hours / eq.nextHours) * 100)}%"></div></div>
+          <input type="number" id="meter-${eq.id}" value="${eq.hours}" placeholder="القراءة الجديدة" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:12px; margin-top:10px; font-family:inherit">
+        </div>
+      `).join('')}
+    `;
+    document.getElementById('meter-overlay').classList.add('active');
+  }
+  
+  function saveDailyMeters() {
+    equipmentData.forEach(eq => {
+      const input = document.getElementById(`meter-${eq.id}`);
+      if (input && input.value) {
+        const newHours = parseInt(input.value);
+        if (newHours !== eq.hours) {
+          const log = { date: new Date().toISOString().split('T')[0], old: eq.hours, new: newHours };
+          eq.hours = newHours;
+          eq.hoursLog = [...(eq.hoursLog || []), log];
+          saveToFirebase('equipment', eq);
+        }
+      }
+    });
+    closeModal('meter-overlay');
+    showToast('تم تحديث العدادات');
+  }
+  
+  // ============================================
+  // EQUIPMENT CRUD
+  // ============================================
+  function openAddEquipmentModal() {
+    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
+    editingEquipmentId = null;
+    document.getElementById('modal-title-equipment').innerHTML = 'إضافة معدة جديدة';
+    ['eq-code', 'eq-name', 'eq-location', 'eq-chassis', 'eq-hours', 'eq-next-hours', 'eq-interval', 'eq-purchase-cost', 'eq-image', 'eq-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('eq-type').value = 'حفارة';
+    document.getElementById('eq-status').value = 'يعمل';
+    document.getElementById('equipment-modal').classList.add('active');
+  }
+  
+  function saveEquipment() {
+    const equipment = {
+      code: document.getElementById('eq-code').value.trim(),
+      name: document.getElementById('eq-name').value.trim(),
+      type: document.getElementById('eq-type').value,
+      location: document.getElementById('eq-location').value,
+      chassis: document.getElementById('eq-chassis').value,
+      hours: parseInt(document.getElementById('eq-hours').value) || 0,
+      nextHours: parseInt(document.getElementById('eq-next-hours').value) || 250,
+      interval: parseInt(document.getElementById('eq-interval').value) || 250,
+      status: document.getElementById('eq-status').value,
+      purchaseCost: parseInt(document.getElementById('eq-purchase-cost').value) || 0,
+      image: document.getElementById('eq-image').value,
+      notes: document.getElementById('eq-notes').value,
+      updatedAt: new Date().toISOString()
+    };
+    if (!equipment.code || !equipment.name) { showToast('يرجى إدخال الكود والاسم'); return; }
+    if (editingEquipmentId) {
+      const existing = equipmentData.find(e => e.id === editingEquipmentId);
+      equipment.filters = existing?.filters || {};
+      equipment.maintenanceLogs = existing?.maintenanceLogs || [];
+      equipment.issues = existing?.issues || [];
+      equipment.fuelLogs = existing?.fuelLogs || [];
+      equipment.totalMaintenanceCost = existing?.totalMaintenanceCost || 0;
+      equipment.hoursLog = existing?.hoursLog || [];
+      saveToFirebase('equipment', { ...equipment, id: editingEquipmentId });
+    } else {
+      equipment.createdAt = new Date().toISOString();
+      equipment.filters = {};
+      equipment.maintenanceLogs = [];
+      equipment.issues = [];
+      equipment.fuelLogs = [];
+      equipment.totalMaintenanceCost = 0;
+      equipment.hoursLog = [];
+      saveToFirebase('equipment', equipment);
+    }
+    closeModal('equipment-modal');
+    showToast(editingEquipmentId ? 'تم تحديث المعدة' : 'تم إضافة المعدة');
+  }
+  
+  // ============================================
+  // FILTER FUNCTIONS FOR EQUIPMENT
+  // ============================================
+  let currentEqForFilter = null;
+  
+  function openAddFilterModal(eqId) {
+    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك'); return; }
+    currentEqForFilter = eqId;
+    editingFilterId = null;
+    document.getElementById('filter-modal-title').innerHTML = 'إضافة فلتر للمعدة';
+    ['filter-type', 'filter-partno', 'filter-qty', 'filter-used-per'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('filter-interval').value = 250;
+    document.getElementById('filter-alts-container').innerHTML = '';
+    altCount = 0;
+    document.getElementById('filter-modal').classList.add('active');
+  }
+  
+  function addAltField() {
+    altCount++;
+    const container = document.getElementById('filter-alts-container');
+    const div = document.createElement('div');
+    div.id = `filter-alt-${altCount}`;
+    div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:8px; background:var(--bg); padding:8px; border-radius:12px';
+    div.innerHTML = `
+      <input class="form-input" id="filter-alt-pn-${altCount}" placeholder="رقم بديل" style="background:white; border-radius:8px; padding:8px">
+      <input class="form-input" type="number" id="filter-alt-qty-${altCount}" placeholder="كميته" style="background:white; border-radius:8px; padding:8px">
+      <button onclick="document.getElementById('filter-alt-${altCount}').remove()" style="background:#fee2e2; border:none; border-radius:8px; padding:8px 12px">×</button>
+    `;
+    container.appendChild(div);
+  }
+  
+  function saveFilterToEquipment() {
+    const alts = [];
+    for (let i = 1; i <= altCount; i++) {
+      const pn = document.getElementById(`filter-alt-pn-${i}`);
+      const qty = document.getElementById(`filter-alt-qty-${i}`);
+      if (pn && pn.value.trim()) alts.push({ partNo: pn.value.trim(), qty: parseInt(qty?.value) || 0 });
+    }
+    const filter = {
+      type: document.getElementById('filter-type').value.trim(),
+      partNo: document.getElementById('filter-partno').value.trim(),
+      qty: parseInt(document.getElementById('filter-qty').value) || 0,
+      usedPerService: parseInt(document.getElementById('filter-used-per').value) || 1,
+      interval: parseInt(document.getElementById('filter-interval').value) || 250,
+      alts: alts
+    };
+    if (!filter.type || !filter.partNo) { showToast('يرجى إدخال نوع الفلتر ورقم القطعة'); return; }
+    saveToFirebase(`equipment/${currentEqForFilter}/filters`, filter);
+    closeModal('filter-modal');
+    showToast('تم إضافة الفلتر');
+  }
+  
+  function deleteFilter(eqId, filterId) {
+    if (currentUser?.role !== 'admin') return;
+    if (confirm('هل أنت متأكد؟')) fbDb.ref(`equipment/${eqId}/filters/${filterId}`).remove();
+  }
+  
+  function adjustFilterQty(eqId, filterId, delta) {
+    const eq = equipmentData.find(e => e.id === eqId);
+    if (eq && eq.filters && eq.filters[filterId]) {
+      const newQty = Math.max(0, (eq.filters[filterId].qty || 0) + delta);
+      fbDb.ref(`equipment/${eqId}/filters/${filterId}/qty`).set(newQty);
+    }
   }
   
   // ============================================
@@ -725,67 +1058,55 @@
   function openDetailModal(id) {
     const eq = equipmentData.find(e => e.id === id);
     if (!eq) return;
-    
     const rem = hoursRemaining(eq);
     const remPercent = Math.min(100, (eq.hours / eq.nextHours) * 100);
     const qrData = `معدة: ${eq.name}\nكود: ${eq.code}\nعداد: ${eq.hours} ساعة\nالصيانة عند: ${eq.nextHours} ساعة`;
-    
+    const filtersHtml = Object.entries(eq.filters || {}).map(([fid, f]) => {
+      const total = filterTotalQty(f);
+      return `<div class="filter-card ${total === 0 ? 'critical' : total < (f.usedPerService || 1) * 2 ? 'low' : ''}">
+        <div style="display:flex; justify-content:space-between">
+          <div><div style="font-weight:700">${f.type}</div><div style="font-size:11px">P/N: ${f.partNo}</div></div>
+          ${currentUser?.role === 'admin' ? `<button onclick="deleteFilter('${id}','${fid}')" style="background:#fee2e2; border:none; border-radius:8px; padding:4px 8px">🗑️</button>` : ''}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+          <div><button onclick="adjustFilterQty('${id}','${fid}',-1)" class="qty-btn" style="background:var(--danger); color:white; width:28px; height:28px">-</button>
+          <span style="margin:0 10px">${f.qty || 0}</span>
+          <button onclick="adjustFilterQty('${id}','${fid}',1)" class="qty-btn" style="background:var(--success); color:white; width:28px; height:28px">+</button></div>
+          <div style="font-size:12px">يستخدم: ${f.usedPerService || 1}/صيانة | إجمالي: ${total}</div>
+        </div>
+      </div>`;
+    }).join('');
     document.getElementById('detail-title').innerHTML = eq.name;
     document.getElementById('detail-content').innerHTML = `
       ${eq.image ? `<img src="${eq.image}" style="width:100%; border-radius:18px; margin-bottom:16px" onerror="this.src='https://placehold.co/400x200?text=No+Image'">` : ''}
+      <div class="detail-section"><div class="grid-2">
+        <div><div class="detail-label">كود المعدة</div><div class="detail-value">${eq.code}</div></div>
+        <div><div class="detail-label">النوع</div><div class="detail-value">${eq.type}</div></div>
+        <div><div class="detail-label">الموقع</div><div class="detail-value">${eq.location || '—'}</div></div>
+        <div><div class="detail-label">رقم الشاسيه</div><div class="detail-value">${eq.chassis || '—'}</div></div>
+        <div><div class="detail-label">تكلفة الشراء</div><div class="detail-value">${(eq.purchaseCost || 0).toLocaleString()} ر.س</div></div>
+        <div><div class="detail-label">تكاليف الصيانة</div><div class="detail-value">${(eq.totalMaintenanceCost || 0).toLocaleString()} ر.س</div></div>
+      </div></div>
       <div class="detail-section">
-        <div class="grid-2">
-          <div><div class="detail-label">كود المعدة</div><div class="detail-value">${eq.code}</div></div>
-          <div><div class="detail-label">النوع</div><div class="detail-value">${eq.type}</div></div>
-          <div><div class="detail-label">الموقع</div><div class="detail-value">${eq.location || '—'}</div></div>
-          <div><div class="detail-label">رقم الشاسيه</div><div class="detail-value">${eq.chassis || '—'}</div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div><div class="detail-label">⏱️ العداد الحالي</div><div class="detail-value">${eq.hours.toLocaleString('ar')} ساعة</div></div>
-        <div><div class="detail-label">🔧 الصيانة القادمة عند</div><div class="detail-value">${eq.nextHours.toLocaleString('ar')} ساعة</div></div>
+        <div><div class="detail-label">⏱️ العداد الحالي</div><div class="detail-value">${eq.hours.toLocaleString()} ساعة</div></div>
+        <div><div class="detail-label">🔧 الصيانة القادمة عند</div><div class="detail-value">${eq.nextHours.toLocaleString()} ساعة</div></div>
         <div class="progress-bar"><div class="progress-fill" style="width: ${remPercent}%"></div></div>
         <div style="margin-top:8px"><div class="detail-label">⏳ المتبقي</div><div class="detail-value" style="color: ${rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981'}">${rem <= 0 ? '⚠️ تجاوز الموعد' : `${rem} ساعة`}</div></div>
       </div>
-      <div class="qr-container">
-        <div class="detail-label" style="margin-bottom:8px">رمز QR للمعدة</div>
-        <div id="qr-code"></div>
-      </div>
+      <div class="qr-container"><div class="detail-label" style="margin-bottom:8px">رمز QR</div><div id="qr-code"></div></div>
+      <div class="detail-section"><div class="section-title" style="margin-bottom:10px">🔧 الفلاتر</div>${filtersHtml || '<div class="empty-state">لا توجد فلاتر</div>'}${currentUser?.role === 'admin' ? `<button class="save-btn" style="margin:10px 0 0 0" onclick="openAddFilterModal('${id}')">+ إضافة فلتر</button>` : ''}</div>
       ${eq.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${eq.notes}</div></div>` : ''}
-      ${currentUser?.role === 'admin' ? `
-        <div class="grid-2" style="margin:12px 14px; gap:10px">
-          <button class="save-btn" style="margin:0" onclick="showRecordForm('maintenance', '${eq.id}')">🔧 إضافة صيانة</button>
-          <button class="save-btn" style="margin:0; background:#ef4444" onclick="showRecordForm('issue', '${eq.id}')">⚠️ إضافة عطل</button>
-          <button class="save-btn" style="margin:0; background:#0e7490" onclick="showRecordForm('fuel', '${eq.id}')">⛽ إضافة تزود</button>
-          <button class="save-btn" style="margin:0; background:var(--accent)" onclick="openEditEquipmentModal('${eq.id}')">✏️ تعديل</button>
-          <button class="save-btn" style="margin:0; background:#ef4444" onclick="deleteEquipmentFromFirebase('${eq.id}')">🗑️ حذف</button>
-        </div>
-      ` : ''}
-      ${eq.maintenanceLogs?.length ? `<div class="detail-section"><div class="detail-label">📋 سجل الصيانة</div>${eq.maintenanceLogs.slice(-5).reverse().map(l => `<div style="font-size:12px; padding:5px 0">🔧 ${l.type} - ${l.date} (عداد: ${l.hours})</div>`).join('')}</div>` : ''}
-      ${eq.issues?.length ? `<div class="detail-section"><div class="detail-label">⚠️ سجل الأعطال</div>${eq.issues.slice(-5).reverse().map(i => `<div style="font-size:12px; padding:5px 0">⚠️ ${i.description} - ${i.date} (${i.cost} ر.س)</div>`).join('')}</div>` : ''}
-      ${eq.fuelLogs?.length ? `<div class="detail-section"><div class="detail-label">⛽ سجل التزود</div>${eq.fuelLogs.slice(-5).reverse().map(f => `<div style="font-size:12px; padding:5px 0">⛽ ${f.amount} لتر - ${f.date}</div>`).join('')}</div>` : ''}
+      ${currentUser?.role === 'admin' ? `<div class="grid-2" style="margin:12px 14px; gap:10px">
+        <button class="save-btn" style="margin:0" onclick="showRecordForm('maintenance', '${id}')">🔧 صيانة</button>
+        <button class="save-btn" style="margin:0; background:#ef4444" onclick="showRecordForm('issue', '${id}')">⚠️ عطل</button>
+        <button class="save-btn" style="margin:0; background:#0e7490" onclick="showRecordForm('fuel', '${id}')">⛽ تزود</button>
+        <button class="save-btn" style="margin:0; background:var(--accent)" onclick="openEditEquipmentModal('${id}')">✏️ تعديل</button>
+        <button class="save-btn" style="margin:0; background:#ef4444" onclick="deleteFromFirebase('equipment','${id}')">🗑️ حذف</button>
+      </div>` : ''}
+      ${eq.maintenanceLogs?.length ? `<div class="detail-section"><div class="detail-label">📋 سجل الصيانة</div>${eq.maintenanceLogs.slice(-5).reverse().map(l => `<div style="font-size:12px; padding:5px 0">🔧 ${l.type} - ${l.date} (عداد: ${l.hours}) - ${l.cost || 0} ر.س</div>`).join('')}</div>` : ''}
     `;
-    
     document.getElementById('detail-modal').classList.add('active');
-    setTimeout(() => {
-      const qrDiv = document.getElementById('qr-code');
-      if (qrDiv && typeof QRCode !== 'undefined') new QRCode(qrDiv, { text: qrData, width: 120, height: 120 });
-    }, 100);
-  }
-  
-  // ============================================
-  // EQUIPMENT CRUD
-  // ============================================
-  let editingEquipmentId = null;
-  
-  function openAddEquipmentModal() {
-    if (currentUser?.role !== 'admin') { showToast('غير مصرح لك - صلاحيات مدير مطلوبة'); return; }
-    editingEquipmentId = null;
-    document.getElementById('modal-title-equipment').innerHTML = 'إضافة معدة جديدة';
-    ['eq-code', 'eq-name', 'eq-location', 'eq-chassis', 'eq-hours', 'eq-next-hours', 'eq-image', 'eq-notes'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('eq-type').value = 'حفارة';
-    document.getElementById('eq-status').value = 'يعمل';
-    document.getElementById('equipment-modal').classList.add('active');
+    setTimeout(() => { const qrDiv = document.getElementById('qr-code'); if (qrDiv && typeof QRCode !== 'undefined') new QRCode(qrDiv, { text: qrData, width: 120, height: 120 }); }, 100);
   }
   
   function openEditEquipmentModal(id) {
@@ -801,53 +1122,16 @@
     document.getElementById('eq-chassis').value = eq.chassis || '';
     document.getElementById('eq-hours').value = eq.hours || 0;
     document.getElementById('eq-next-hours').value = eq.nextHours || 250;
+    document.getElementById('eq-interval').value = eq.interval || 250;
     document.getElementById('eq-status').value = eq.status || 'يعمل';
+    document.getElementById('eq-purchase-cost').value = eq.purchaseCost || 0;
     document.getElementById('eq-image').value = eq.image || '';
     document.getElementById('eq-notes').value = eq.notes || '';
     document.getElementById('equipment-modal').classList.add('active');
   }
   
-  function saveEquipment() {
-    const equipment = {
-      code: document.getElementById('eq-code').value.trim(),
-      name: document.getElementById('eq-name').value.trim(),
-      type: document.getElementById('eq-type').value,
-      location: document.getElementById('eq-location').value,
-      chassis: document.getElementById('eq-chassis').value,
-      hours: parseInt(document.getElementById('eq-hours').value) || 0,
-      nextHours: parseInt(document.getElementById('eq-next-hours').value) || 250,
-      status: document.getElementById('eq-status').value,
-      image: document.getElementById('eq-image').value,
-      notes: document.getElementById('eq-notes').value,
-      updatedAt: new Date().toISOString()
-    };
-    
-    if (!equipment.code || !equipment.name) {
-      showToast('يرجى إدخال الكود والاسم');
-      return;
-    }
-    
-    if (editingEquipmentId) {
-      equipment.id = editingEquipmentId;
-      const existing = equipmentData.find(e => e.id === editingEquipmentId);
-      equipment.createdAt = existing?.createdAt;
-      equipment.maintenanceLogs = existing?.maintenanceLogs || [];
-      equipment.issues = existing?.issues || [];
-      equipment.fuelLogs = existing?.fuelLogs || [];
-      saveEquipmentToFirebase(equipment);
-    } else {
-      equipment.createdAt = new Date().toISOString();
-      equipment.maintenanceLogs = [];
-      equipment.issues = [];
-      equipment.fuelLogs = [];
-      saveEquipmentToFirebase(equipment);
-    }
-    
-    closeModal('equipment-modal');
-  }
-  
   // ============================================
-  // RECORDS
+  // RECORDS (Maintenance, Issues, Fuel)
   // ============================================
   let currentRecordEqId = null;
   let currentRecordType = null;
@@ -856,40 +1140,26 @@
     if (currentUser?.role !== 'admin') return;
     currentRecordEqId = eqId;
     currentRecordType = type;
-    
     const titles = { maintenance: 'تسجيل صيانة', issue: 'تسجيل عطل', fuel: 'تسجيل تزود بالوقود' };
     document.getElementById('record-title').innerHTML = titles[type];
-    
     let formHtml = '';
     if (type === 'maintenance') {
-      formHtml = `
-        <div class="form-group">
-          <div class="form-field"><label class="form-label">نوع الصيانة</label><input class="form-input" id="rec-type" placeholder="مثال: تغيير زيت, تغيير فلتر"></div>
-          <div class="form-field"><label class="form-label">العداد عند الصيانة (ساعة)</label><input class="form-input" type="number" id="rec-hours" placeholder="العداد الحالي"></div>
-          <div class="form-field"><label class="form-label">التاريخ</label><input class="form-input" type="date" id="rec-date"></div>
-        </div>
-        <button class="save-btn" onclick="saveRecord()">💾 حفظ</button>
-      `;
+      formHtml = `<div class="form-group"><div class="form-field"><label>نوع الصيانة</label><input class="form-input" id="rec-type" placeholder="تغيير زيت, تغيير فلتر"></div>
+        <div class="form-field"><label>العداد (ساعة)</label><input class="form-input" type="number" id="rec-hours"></div>
+        <div class="form-field"><label>التكلفة (ر.س)</label><input class="form-input" type="number" id="rec-cost" value="0"></div>
+        <div class="form-field"><label>التاريخ</label><input class="form-input" type="date" id="rec-date"></div></div>
+        <button class="save-btn" onclick="saveRecord()">💾 حفظ</button>`;
     } else if (type === 'issue') {
-      formHtml = `
-        <div class="form-group">
-          <div class="form-field"><label class="form-label">وصف العطل</label><textarea class="form-textarea" id="rec-desc" placeholder="وصف تفصيلي للعطل"></textarea></div>
-          <div class="form-field"><label class="form-label">تكلفة الإصلاح (ر.س)</label><input class="form-input" type="number" id="rec-cost" placeholder="0"></div>
-          <div class="form-field"><label class="form-label">التاريخ</label><input class="form-input" type="date" id="rec-date"></div>
-        </div>
-        <button class="save-btn" onclick="saveRecord()">💾 حفظ</button>
-      `;
+      formHtml = `<div class="form-group"><div class="form-field"><label>وصف العطل</label><textarea class="form-textarea" id="rec-desc"></textarea></div>
+        <div class="form-field"><label>تكلفة الإصلاح</label><input class="form-input" type="number" id="rec-cost" value="0"></div>
+        <div class="form-field"><label>التاريخ</label><input class="form-input" type="date" id="rec-date"></div></div>
+        <button class="save-btn" onclick="saveRecord()">💾 حفظ</button>`;
     } else if (type === 'fuel') {
-      formHtml = `
-        <div class="form-group">
-          <div class="form-field"><label class="form-label">الكمية (لتر)</label><input class="form-input" type="number" id="rec-amount" placeholder="كمية السولار"></div>
-          <div class="form-field"><label class="form-label">العداد الحالي (ساعة)</label><input class="form-input" type="number" id="rec-hours" placeholder="العداد عند التزود"></div>
-          <div class="form-field"><label class="form-label">التاريخ</label><input class="form-input" type="date" id="rec-date"></div>
-        </div>
-        <button class="save-btn" onclick="saveRecord()">💾 حفظ</button>
-      `;
+      formHtml = `<div class="form-group"><div class="form-field"><label>الكمية (لتر)</label><input class="form-input" type="number" id="rec-amount"></div>
+        <div class="form-field"><label>العداد (ساعة)</label><input class="form-input" type="number" id="rec-hours"></div>
+        <div class="form-field"><label>التاريخ</label><input class="form-input" type="date" id="rec-date"></div></div>
+        <button class="save-btn" onclick="saveRecord()">💾 حفظ</button>`;
     }
-    
     document.getElementById('record-form-container').innerHTML = formHtml;
     document.getElementById('rec-date').value = new Date().toISOString().split('T')[0];
     document.getElementById('record-modal').classList.add('active');
@@ -898,76 +1168,134 @@
   function saveRecord() {
     const eq = equipmentData.find(e => e.id === currentRecordEqId);
     if (!eq) return;
-    
     const date = document.getElementById('rec-date')?.value || new Date().toISOString().split('T')[0];
-    
     if (currentRecordType === 'maintenance') {
-      const log = {
-        type: document.getElementById('rec-type')?.value || 'صيانة دورية',
-        hours: parseInt(document.getElementById('rec-hours')?.value) || eq.hours,
-        date: date
-      };
+      const cost = parseInt(document.getElementById('rec-cost')?.value) || 0;
+      const log = { type: document.getElementById('rec-type')?.value || 'صيانة', hours: parseInt(document.getElementById('rec-hours')?.value) || eq.hours, cost: cost, date: date };
       eq.maintenanceLogs = [...(eq.maintenanceLogs || []), log];
+      eq.totalMaintenanceCost = (eq.totalMaintenanceCost || 0) + cost;
     } else if (currentRecordType === 'issue') {
-      const issue = {
-        description: document.getElementById('rec-desc')?.value || 'عطل',
-        cost: parseInt(document.getElementById('rec-cost')?.value) || 0,
-        date: date,
-        status: 'تم الإصلاح'
-      };
+      const issue = { description: document.getElementById('rec-desc')?.value || 'عطل', cost: parseInt(document.getElementById('rec-cost')?.value) || 0, date: date, status: 'تم الإصلاح' };
       eq.issues = [...(eq.issues || []), issue];
+      eq.totalMaintenanceCost = (eq.totalMaintenanceCost || 0) + issue.cost;
     } else if (currentRecordType === 'fuel') {
-      const fuel = {
-        amount: parseInt(document.getElementById('rec-amount')?.value) || 0,
-        hours: parseInt(document.getElementById('rec-hours')?.value) || eq.hours,
-        date: date
-      };
+      const fuel = { amount: parseInt(document.getElementById('rec-amount')?.value) || 0, hours: parseInt(document.getElementById('rec-hours')?.value) || eq.hours, date: date };
       eq.fuelLogs = [...(eq.fuelLogs || []), fuel];
     }
-    
-    saveEquipmentToFirebase(eq);
+    saveToFirebase('equipment', eq);
     closeModal('record-modal');
-    showToast('تم التسجيل بنجاح');
+    showToast('تم التسجيل');
   }
   
   // ============================================
-  // ALERTS & NOTIFICATIONS
+  // UI RENDERING
   // ============================================
-  function checkAlerts() {
-    equipmentData.forEach(eq => {
-      const rem = hoursRemaining(eq);
-      if (rem <= 50 && rem > 0) {
-        if (Notification.permission === 'granted') {
-          new Notification(`⚠️ تنبيه صيانة: ${eq.name}`, {
-            body: `متبقي ${rem} ساعة فقط على موعد الصيانة القادم!`,
-            icon: '🏗️'
-          });
-        }
-      }
+  function refreshUI() {
+    const working = equipmentData.filter(e => e.status === 'يعمل').length;
+    const maintenance = equipmentData.filter(e => e.status === 'صيانة').length;
+    const stopped = equipmentData.filter(e => e.status === 'متوقف').length;
+    const urgent = equipmentData.filter(e => hoursRemaining(e) <= 50 && hoursRemaining(e) > 0).length;
+    const totalCost = equipmentData.reduce((s, e) => s + (e.totalMaintenanceCost || 0) + (e.purchaseCost || 0), 0);
+    document.getElementById('stats-summary').innerHTML = `
+      <div class="stat-card"><div class="stat-number">${equipmentData.length}</div><div class="stat-label">المجموع</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#10b981">${working}</div><div class="stat-label">يعمل</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#f59e0b">${maintenance}</div><div class="stat-label">صيانة</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:#ef4444">${urgent}</div><div class="stat-label">تنبيهات</div></div>
+    `;
+    document.getElementById('cost-summary').innerHTML = `
+      <div class="grid-3">
+        <div><div class="detail-label">💰 الإجمالي</div><div class="detail-value">${totalCost.toLocaleString()} ر.س</div></div>
+        <div><div class="detail-label">🔧 الصيانة</div><div class="detail-value">${equipmentData.reduce((s, e) => s + (e.totalMaintenanceCost || 0), 0).toLocaleString()} ر.س</div></div>
+        <div><div class="detail-label">💰 الشراء</div><div class="detail-value">${equipmentData.reduce((s, e) => s + (e.purchaseCost || 0), 0).toLocaleString()} ر.س</div></div>
+      </div>
+    `;
+    if (statusChart) statusChart.destroy();
+    const ctx = document.getElementById('status-chart').getContext('2d');
+    statusChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: ['يعمل', 'صيانة', 'متوقف'], datasets: [{ data: [working, maintenance, stopped], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
     });
+    const alertEq = equipmentData.filter(e => hoursRemaining(e) <= 50 && hoursRemaining(e) > 0);
+    document.getElementById('alerts-list').innerHTML = alertEq.length ? alertEq.map(e => `
+      <div style="background:#fff7ed; border-right:3px solid #f59e0b; border-radius:14px; padding:12px; margin-bottom:8px" onclick="openDetailModal('${e.id}')">
+        <div style="font-weight:700">⚠️ ${e.name}</div><div>متبقي ${hoursRemaining(e)} ساعة</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (e.hours / e.nextHours) * 100)}%"></div></div>
+      </div>`).join('') : '<div style="background:#ecfdf5; border-radius:14px; padding:12px; color:#065f46">✅ لا توجد تنبيهات</div>';
+    const shortages = equipmentData.flatMap(eq => Object.values(eq.filters || {}).filter(f => filterTotalQty(f) < (f.usedPerService || 1) * 4));
+    document.getElementById('order-summary').innerHTML = `<div class="stat-card" style="background:${shortages.length ? '#fee2e2' : '#d1fae5'}"><div class="stat-number" style="color:${shortages.length ? '#dc2626' : '#065f46'}">${shortages.length}</div><div class="stat-label">فلاتر ناقصة</div></div>`;
+    const recent = [...equipmentData].reverse().slice(0, 5);
+    document.getElementById('recent-equipment').innerHTML = recent.map(eq => `
+      <div class="equipment-card" onclick="openDetailModal('${eq.id}')">
+        <div class="card-header"><div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code}</div></div>
+        <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span></div>
+        <div><span>⏱️ ${eq.hours} ساعة</span> | <span>🔧 عند ${eq.nextHours} ساعة</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width: ${Math.min(100, (eq.hours / eq.nextHours) * 100)}%"></div></div>
+      </div>`).join('');
+    const search = document.getElementById('search-equipment')?.value || '';
+    const filtered = equipmentData.filter(e => e.name.includes(search) || e.code.includes(search));
+    document.getElementById('equipment-list').innerHTML = filtered.map(eq => `
+      <div class="equipment-card" onclick="openDetailModal('${eq.id}')">
+        <div class="card-header"><div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code}</div></div>
+        <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span></div>
+        <div><span>⏱️ ${eq.hours} ساعة</span> | <span>🔧 عند ${eq.nextHours} ساعة</span></div>
+      </div>`).join('');
+    document.getElementById('eq-count').innerHTML = `${equipmentData.length} معدة`;
+    renderInventory();
+    generateOrderForAll();
+    renderReports();
+  }
+  
+  function renderReports() {
+    const maintenanceLogs = equipmentData.flatMap(eq => (eq.maintenanceLogs || []).map(l => ({ ...l, eqName: eq.name })));
+    const issues = equipmentData.flatMap(eq => (eq.issues || []).map(i => ({ ...i, eqName: eq.name })));
+    const totalMaintenanceCost = maintenanceLogs.reduce((s, l) => s + (l.cost || 0), 0);
+    document.getElementById('reports-content').innerHTML = `
+      <div class="cost-summary" style="margin:0 0 16px 0; background:linear-gradient(135deg,#065f46,#0e7490); color:white; padding:14px; border-radius:18px">
+        <div class="grid-3">
+          <div><div class="detail-label">💰 تكاليف الصيانة</div><div class="detail-value">${totalMaintenanceCost.toLocaleString()} ر.س</div></div>
+          <div><div class="detail-label">⚠️ عدد الأعطال</div><div class="detail-value">${issues.length}</div></div>
+          <div><div class="detail-label">🔧 عدد الصيانات</div><div class="detail-value">${maintenanceLogs.length}</div></div>
+        </div>
+      </div>
+      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px">
+        <div style="font-weight:800">🔧 سجل الصيانة</div>
+        ${maintenanceLogs.slice(-10).reverse().map(l => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">📌 ${l.eqName} - ${l.type} (${l.date}) - ${l.cost || 0} ر.س</div>`).join('') || '<div class="empty-state">لا توجد سجلات</div>'}
+      </div>
+      <div style="background:white; border-radius:18px; padding:16px; margin-bottom:16px">
+        <div style="font-weight:800">⚠️ سجل الأعطال</div>
+        ${issues.slice(-10).reverse().map(i => `<div style="padding:8px 0; border-bottom:1px solid #eef2f6">⚠️ ${i.eqName} - ${i.description} (${i.date}) - ${i.cost || 0} ر.س</div>`).join('') || '<div class="empty-state">لا توجد أعطال</div>'}
+      </div>
+    `;
   }
   
   // ============================================
-  // REPORTS & BACKUP
+  // EXPORTS
   // ============================================
-  function printReport() {
-    const element = document.getElementById('reports-container');
-    const opt = { margin: 0.5, filename: 'تقرير_صيانة_الأسطول.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-    html2pdf().set(opt).from(element).save();
-    showToast('جاري إنشاء التقرير...');
+  function exportToPDF() {
+    const element = document.getElementById('reports-content');
+    html2pdf().set({ margin: 0.5, filename: 'تقرير_الصيانة.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(element).save();
+    showToast('جاري إنشاء PDF...');
   }
   
-  function exportBackup() {
-    let csv = "ID,الكود,الاسم,النوع,الموقع,العداد الحالي,الصيانة القادمة,الحالة,تاريخ الإضافة\n";
-    equipmentData.forEach(e => {
-      csv += `"${e.id}","${e.code}","${e.name}","${e.type}","${e.location || ''}",${e.hours},${e.nextHours},"${e.status}","${e.createdAt || ''}"\n`;
-    });
+  function exportToExcel() {
+    const data = equipmentData.map(e => ({ الكود: e.code, الاسم: e.name, النوع: e.type, الموقع: e.location, 'العداد': e.hours, 'الصيانة القادمة': e.nextHours, الحالة: e.status, 'تكلفة الشراء': e.purchaseCost, 'تكاليف الصيانة': e.totalMaintenanceCost }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'المعدات');
+    XLSX.writeFile(wb, `تقرير_المعدات_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('تم تصدير Excel');
+  }
+  
+  function exportToCSV() {
+    let csv = "الكود,الاسم,النوع,الموقع,العداد,الصيانة القادمة,الحالة,تكلفة الشراء,تكاليف الصيانة\n";
+    equipmentData.forEach(e => { csv += `"${e.code}","${e.name}","${e.type}","${e.location || ''}",${e.hours},${e.nextHours},"${e.status}",${e.purchaseCost || 0},${e.totalMaintenanceCost || 0}\n`; });
     const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `backup_equipment_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `تقرير_المعدات_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-    showToast('تم تصدير النسخة الاحتياطية');
+    showToast('تم تصدير CSV');
   }
   
   // ============================================
@@ -976,19 +1304,22 @@
   function switchView(view) {
     document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
     document.getElementById('view-equipment').style.display = view === 'equipment' ? 'block' : 'none';
+    document.getElementById('view-inventory').style.display = view === 'inventory' ? 'block' : 'none';
+    document.getElementById('view-orders').style.display = view === 'orders' ? 'block' : 'none';
     document.getElementById('view-reports').style.display = view === 'reports' ? 'block' : 'none';
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.bottom-tab').forEach(btn => {
       if (btn.dataset.view === view) btn.classList.add('active');
       else btn.classList.remove('active');
     });
+    const fab = document.getElementById('fab-btn');
+    if (view === 'inventory') fab.onclick = () => openInvModal(null);
+    else fab.onclick = () => openAddEquipmentModal();
     refreshUI();
   }
   
-  // ============================================
-  // INITIALIZATION
-  // ============================================
-  updateConnectionStatus();
-  setInterval(updateConnectionStatus, 3000);
+  // Initialize
+  window.addEventListener('online', updateConnectionStatus);
+  window.addEventListener('offline', updateConnectionStatus);
   
   // Expose globals
   window.performLogin = performLogin;
@@ -997,18 +1328,27 @@
   window.openAddEquipmentModal = openAddEquipmentModal;
   window.openEditEquipmentModal = openEditEquipmentModal;
   window.saveEquipment = saveEquipment;
-  window.deleteEquipmentFromFirebase = deleteEquipmentFromFirebase;
+  window.deleteFromFirebase = deleteFromFirebase;
   window.openDetailModal = openDetailModal;
   window.closeModal = closeModal;
   window.showRecordForm = showRecordForm;
   window.saveRecord = saveRecord;
-  window.printReport = printReport;
-  window.exportBackup = exportBackup;
-  
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchView(btn.dataset.view));
-  });
-  document.getElementById('search-equipment')?.addEventListener('input', () => refreshUI());
+  window.openInvModal = openInvModal;
+  window.openLinkModal = openLinkModal;
+  window.saveLinkFilter = saveLinkFilter;
+  window.adjustInvQty = adjustInvQty;
+  window.addInvAltField = addInvAltField;
+  window.generateOrderForAll = generateOrderForAll;
+  window.openMeterOverlay = openMeterOverlay;
+  window.saveDailyMeters = saveDailyMeters;
+  window.openAddFilterModal = openAddFilterModal;
+  window.addAltField = addAltField;
+  window.saveFilterToEquipment = saveFilterToEquipment;
+  window.deleteFilter = deleteFilter;
+  window.adjustFilterQty = adjustFilterQty;
+  window.exportToPDF = exportToPDF;
+  window.exportToExcel = exportToExcel;
+  window.exportToCSV = exportToCSV;
 </script>
 </body>
 </html>
