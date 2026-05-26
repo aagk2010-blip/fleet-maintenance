@@ -10,7 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-storage-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <style>
@@ -122,8 +121,8 @@ body {
 .badge-maintenance { background: #fef3c7; color: #78350f; }
 .badge-stopped { background: #fee2e2; color: #7f1d1d; }
 .badge-active { background: #dbeafe; color: #1e40af; }
-.progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 8px; }
-.progress-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+.progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
 
 /* Tab Bar */
 .tab-bar {
@@ -284,13 +283,7 @@ body {
   width: calc(100% - 28px);
   margin: 0 14px 16px;
   cursor: pointer;
-}
-.image-preview {
-  width: 100%;
-  max-height: 150px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-top: 8px;
+  text-align: center;
 }
 .filter-card {
   background: white;
@@ -308,6 +301,23 @@ body {
   border: none;
   font-size: 18px;
   cursor: pointer;
+}
+.search-box {
+  background: white;
+  border-radius: 30px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  background: transparent;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -340,7 +350,7 @@ body {
     <div class="stats-row" id="stats-summary"></div>
     <button class="big-btn" onclick="openMeterUpdate()">⏱️ تحديث العدادات اليومي</button>
     <div class="section">
-      <div class="section-title">🚜 المعدات <span id="equipment-count"></span></div>
+      <div class="section-title">🚜 جميع المعدات <span id="equipment-count"></span></div>
       <div id="equipment-list-home"></div>
     </div>
   </div>
@@ -348,9 +358,9 @@ body {
   <!-- Equipment View -->
   <div id="view-equipment" style="display:none">
     <div style="padding:14px">
-      <div class="search-box" style="background:white; border-radius:30px; padding:10px 16px; margin-bottom:12px; display:flex; gap:8px">
+      <div class="search-box">
         <span>🔍</span>
-        <input type="text" id="search-equipment" placeholder="بحث باسم أو كود..." style="flex:1; border:none; outline:none; font-family:inherit; background:transparent">
+        <input type="text" id="search-equipment" placeholder="بحث باسم أو كود..." oninput="refreshUI()">
       </div>
       <div id="equipment-list"></div>
     </div>
@@ -359,9 +369,9 @@ body {
   <!-- Drivers View -->
   <div id="view-drivers" style="display:none">
     <div style="padding:14px">
-      <div class="search-box" style="background:white; border-radius:30px; padding:10px 16px; margin-bottom:12px; display:flex; gap:8px">
+      <div class="search-box">
         <span>🔍</span>
-        <input type="text" id="search-driver" placeholder="بحث باسم السائق..." style="flex:1; border:none; outline:none; font-family:inherit; background:transparent">
+        <input type="text" id="search-driver" placeholder="بحث باسم السائق..." oninput="refreshUI()">
       </div>
       <div id="drivers-list"></div>
     </div>
@@ -386,7 +396,10 @@ body {
 
   <!-- Inventory View -->
   <div id="view-inventory" style="display:none">
-    <div id="inv-list" style="padding:14px"></div>
+    <div style="padding:14px">
+      <button class="big-btn" style="margin-bottom:16px" onclick="openAddInventoryModal()">📦 إضافة فلتر جديد</button>
+      <div id="inv-list"></div>
+    </div>
   </div>
 
   <!-- Tab Bar -->
@@ -522,7 +535,7 @@ body {
 
 <script>
 // ============================================
-// FIREBASE CONFIGURATION - البيانات الحالية محفوظة
+// FIREBASE CONFIGURATION
 // ============================================
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD3eWEZZDXCfHtJ6xdD9VwW8hT5vZzV0W4",
@@ -543,7 +556,6 @@ let editingEquipmentId = null;
 let editingDriverId = null;
 let editingInvId = null;
 let currentDetailId = null;
-let currentDetailType = null;
 
 // ============================================
 // UTILITIES
@@ -567,8 +579,26 @@ function hoursRemaining(eq) {
   return (eq.nextHours || 0) - (eq.hours || 0);
 }
 
-function getProgressPercent(eq) {
-  return Math.min(100, Math.max(0, (eq.hours / (eq.nextHours || 1)) * 100));
+function getRemainingPercent(eq) {
+  if (!eq.nextHours || eq.nextHours <= 0) return 0;
+  const rem = hoursRemaining(eq);
+  const totalCycle = eq.interval || 250;
+  return Math.min(100, Math.max(0, (rem / totalCycle) * 100));
+}
+
+function getRemainingStatus(eq) {
+  const rem = hoursRemaining(eq);
+  if (rem <= 0) return { text: `⚠️ تجاوز ${Math.abs(rem)} ساعة`, color: 'var(--danger)' };
+  if (rem <= 10) return { text: `🔴 باقي ${rem} ساعة فقط!`, color: 'var(--danger)' };
+  if (rem <= 50) return { text: `🟡 باقي ${rem} ساعة`, color: 'var(--warning)' };
+  return { text: `✅ باقي ${rem} ساعة`, color: 'var(--success)' };
+}
+
+function getBarColor(rem) {
+  if (rem <= 0) return 'var(--danger)';
+  if (rem <= 50) return 'var(--danger)';
+  if (rem <= 100) return 'var(--warning)';
+  return 'var(--success)';
 }
 
 // ============================================
@@ -583,14 +613,12 @@ function initFirebase() {
     
     firebase.auth().signInAnonymously().catch(console.error);
     
-    // استماع للمعدات
     fbDb.ref('equipment').on('value', (snap) => {
       const data = snap.val();
       equipmentData = data ? Object.entries(data).map(([id, eq]) => ({ ...eq, id })) : [];
       refreshUI();
     });
     
-    // استماع للسائقين
     fbDb.ref('drivers').on('value', (snap) => {
       const data = snap.val();
       driversData = data ? Object.entries(data).map(([id, d]) => ({ ...d, id })) : [];
@@ -598,21 +626,18 @@ function initFirebase() {
       updateDriverSelects();
     });
     
-    // استماع للوقود
     fbDb.ref('fuelRecords').on('value', (snap) => {
       const data = snap.val();
       fuelData = data ? Object.entries(data).map(([id, f]) => ({ ...f, id })) : [];
       refreshUI();
     });
     
-    // استماع للصيانة المجدولة
     fbDb.ref('maintenanceSchedules').on('value', (snap) => {
       const data = snap.val();
       maintenanceSchedules = data ? Object.entries(data).map(([id, m]) => ({ ...m, id })) : [];
       refreshUI();
     });
     
-    // استماع للمخزن
     fbDb.ref('inventory').on('value', (snap) => {
       const data = snap.val();
       inventoryData = data ? Object.entries(data).map(([id, inv]) => ({ ...inv, id })) : [];
@@ -717,7 +742,6 @@ function saveDriver() {
 
 function openDriverDetail(id) {
   currentDetailId = id;
-  currentDetailType = 'driver';
   const driver = driversData.find(d => d.id === id);
   if (!driver) return;
   
@@ -913,14 +937,13 @@ function saveEquipment() {
 
 function openEquipmentDetail(id) {
   currentDetailId = id;
-  currentDetailType = 'equipment';
   const eq = equipmentData.find(e => e.id === id);
   if (!eq) return;
   
   const driver = driversData.find(d => d.id === eq.assignedDriver);
   const rem = hoursRemaining(eq);
-  const percent = getProgressPercent(eq);
-  const remColor = rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981';
+  const percent = getRemainingPercent(eq);
+  const remStatus = getRemainingStatus(eq);
   
   const fuelRecords = fuelData.filter(f => f.equipmentId === id).slice(-5).reverse();
   const schedules = maintenanceSchedules.filter(m => m.equipmentId === id && m.status === 'مجدول');
@@ -940,8 +963,8 @@ function openEquipmentDetail(id) {
     <div class="detail-section">
       <div><div class="detail-label">⏱️ العداد الحالي</div><div class="detail-value">${formatNumber(eq.hours)} ساعة</div></div>
       <div><div class="detail-label">🔧 الصيانة القادمة عند</div><div class="detail-value">${formatNumber(eq.nextHours)} ساعة</div></div>
-      <div class="progress-bar"><div class="progress-fill" style="width: ${percent}%; background: ${remColor}"></div></div>
-      <div style="margin-top:8px"><div class="detail-label">⏳ المتبقي</div><div class="detail-value" style="color: ${remColor}">${rem <= 0 ? '⚠️ تجاوز الموعد' : `${rem} ساعة`}</div></div>
+      <div class="progress-bar" style="margin: 8px 0"><div class="progress-fill" style="width: ${percent}%; background: ${getBarColor(rem)}"></div></div>
+      <div style="margin-top:8px"><div class="detail-label">⏳ المتبقي</div><div class="detail-value" style="color: ${remStatus.color}">${remStatus.text}</div></div>
     </div>
     ${schedules.length ? `<div class="detail-section">
       <div class="detail-label">🔧 الصيانات المجدولة</div>
@@ -994,17 +1017,21 @@ function editEquipment(id) {
 // ============================================
 function openMeterUpdate() {
   const container = document.getElementById('meter-list');
-  container.innerHTML = equipmentData.map(eq => `
-    <div style="background:white; border-radius:16px; padding:14px; margin-bottom:10px">
-      <div style="font-weight:700">${eq.name}</div>
-      <div style="font-size:12px; color:var(--gray)">العداد الحالي: ${formatNumber(eq.hours)} ساعة</div>
-      <div class="progress-bar"><div class="progress-fill" style="width: ${getProgressPercent(eq)}%"></div></div>
-      <div class="grid-2" style="margin-top:10px; gap:8px">
-        <input type="number" id="meter-${eq.id}" class="form-input" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px" value="${eq.hours}" placeholder="القراءة الجديدة">
-        <button class="save-btn" style="margin:0; padding:10px" onclick="updateSingleMeter('${eq.id}')">تحديث</button>
+  container.innerHTML = equipmentData.map(eq => {
+    const rem = hoursRemaining(eq);
+    const percent = getRemainingPercent(eq);
+    return `
+      <div style="background:white; border-radius:16px; padding:14px; margin-bottom:10px">
+        <div style="font-weight:700">${eq.name}</div>
+        <div style="font-size:12px; color:var(--gray)">العداد الحالي: ${formatNumber(eq.hours)} ساعة</div>
+        <div class="progress-bar" style="margin: 8px 0"><div class="progress-fill" style="width: ${percent}%; background: ${getBarColor(rem)}"></div></div>
+        <div class="grid-2" style="margin-top:10px; gap:8px">
+          <input type="number" id="meter-${eq.id}" class="form-input" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px" value="${eq.hours}" placeholder="القراءة الجديدة">
+          <button class="save-btn" style="margin:0; padding:10px" onclick="updateSingleMeter('${eq.id}')">تحديث</button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   document.getElementById('meter-modal').classList.add('active');
 }
 
@@ -1039,22 +1066,6 @@ function saveAllMeters() {
   });
   closeModal('meter-modal');
   showToast('تم تحديث جميع العدادات');
-}
-
-function updateSingleMeterFromHome(eqId) {
-  const input = document.getElementById(`home-meter-${eqId}`);
-  if (!input || !input.value) return;
-  const eq = equipmentData.find(e => e.id === eqId);
-  if (!eq) return;
-  const newHours = parseInt(input.value);
-  if (isNaN(newHours) || newHours === eq.hours) return;
-  
-  const log = { date: new Date().toISOString().split('T')[0], prev: eq.hours, hours: newHours };
-  eq.hours = newHours;
-  eq.hoursLog = [...(eq.hoursLog || []), log];
-  saveToFirebase('equipment', eq);
-  showToast(`تم تحديث عداد ${eq.name} إلى ${newHours} ساعة`);
-  refreshUI();
 }
 
 // ============================================
@@ -1097,8 +1108,41 @@ function adjustInvQty(id, delta) {
   }
 }
 
+function renderInventory() {
+  const container = document.getElementById('inv-list');
+  if (!inventoryData.length) {
+    container.innerHTML = '<div class="empty-state">لا توجد فلاتر في المخزن</div>';
+    return;
+  }
+  
+  container.innerHTML = inventoryData.map(inv => {
+    const linkedEqs = equipmentData.filter(eq => 
+      Object.values(eq.filters || {}).some(f => f.invId === inv.id)
+    );
+    const needed = linkedEqs.length * 4;
+    const shortage = Math.max(0, needed - (inv.qty || 0));
+    
+    return `
+      <div class="filter-card ${shortage > 0 ? 'critical' : inv.qty < needed * 1.5 ? 'low' : ''}">
+        <div><div style="font-weight:700">${inv.type}</div><div style="font-size:11px; color:var(--gray)">P/N: ${inv.partNo}</div></div>
+        <div class="grid-3" style="margin-top:10px">
+          <div><div class="detail-label">المتوفر</div><div class="detail-value">${inv.qty || 0}</div></div>
+          <div><div class="detail-label">المطلوب</div><div class="detail-value">${needed}</div></div>
+          <div><div class="detail-label">النقص</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${shortage>0?shortage:'✓'}</div></div>
+        </div>
+        <div style="margin-top:8px">
+          <button onclick="adjustInvQty('${inv.id}', -1)" class="qty-btn" style="background:var(--danger); color:white">-</button>
+          <span style="margin:0 10px">${inv.qty || 0}</span>
+          <button onclick="adjustInvQty('${inv.id}', 1)" class="qty-btn" style="background:var(--success); color:white">+</button>
+        </div>
+        <button onclick="deleteFromFirebase('inventory','${inv.id}')" class="save-btn" style="margin:10px 0 0 0; background:#fee2e2; color:var(--danger)">🗑️ حذف</button>
+      </div>
+    `;
+  }).join('');
+}
+
 // ============================================
-// UI RENDERING
+// UI RENDERING - MAIN FUNCTION
 // ============================================
 function refreshUI() {
   // Home stats
@@ -1117,34 +1161,62 @@ function refreshUI() {
     <div class="stat-card"><div class="stat-number" style="color:#10b981">${formatNumber(totalFuelCost)}</div><div class="stat-label">تكلفة الوقود</div></div>
   `;
   
-  // Equipment list home
+  // Equipment list home - بدون حقل تحديث العداد
   document.getElementById('equipment-count').innerHTML = `(${equipmentData.length})`;
   document.getElementById('equipment-list-home').innerHTML = equipmentData.map(eq => {
     const rem = hoursRemaining(eq);
-    const percent = getProgressPercent(eq);
-    const remColor = rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981';
+    const percentRemaining = getRemainingPercent(eq);
+    const remStatus = getRemainingStatus(eq);
+    const barColor = getBarColor(rem);
     const driver = driversData.find(d => d.id === eq.assignedDriver);
+    
     return `
       <div class="equipment-card" onclick="openEquipmentDetail('${eq.id}')">
         <div class="card-header">
-          <div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code} | ${eq.type}</div></div>
+          <div>
+            <div class="card-title">${eq.name}</div>
+            <div class="card-code">${eq.code} | ${eq.type}</div>
+          </div>
           <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span>
         </div>
-        <div class="progress-bar"><div class="progress-fill" style="width: ${percent}%; background: ${remColor}"></div></div>
-        <div class="grid-2" style="margin-top:8px">
-          <div><span class="detail-label">⏱️ ${formatNumber(eq.hours)} ساعة</span></div>
-          <div><span class="detail-label" style="color:${remColor}">⏳ ${rem <= 0 ? 'تجاوز' : `${rem} ساعة`}</span></div>
+        
+        <!-- شريط التقدم يعكس الساعات المتبقية -->
+        <div style="margin: 12px 0 6px 0">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px">
+            <span style="font-size: 11px; color: var(--gray)">⏱️ الساعات المتبقية</span>
+            <span style="font-size: 12px; font-weight: 700; color: ${remStatus.color}">${remStatus.text}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${percentRemaining}%; background: ${barColor}"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 4px">
+            <span style="font-size: 9px; color: var(--gray)">0 ساعة</span>
+            <span style="font-size: 9px; color: var(--gray)">الصيانة عند ${formatNumber(eq.nextHours)} س</span>
+          </div>
         </div>
-        ${driver ? `<div style="margin-top:6px; font-size:11px; color:var(--gray)">👨‍✈️ ${driver.name}</div>` : ''}
-        <div class="grid-2" style="margin-top:8px; gap:6px">
-          <input type="number" id="home-meter-${eq.id}" class="form-input" style="border:1px solid #e2e8f0; border-radius:12px; padding:8px" placeholder="عداد جديد" value="${eq.hours}">
-          <button class="save-btn" style="margin:0; padding:8px; font-size:12px" onclick="event.stopPropagation(); updateSingleMeterFromHome('${eq.id}')">تحديث</button>
+        
+        <!-- معلومات إضافية -->
+        <div class="grid-2" style="margin-top: 8px">
+          <div>
+            <span class="detail-label">⏱️ العداد الحالي</span>
+            <div class="detail-value" style="font-size: 13px">${formatNumber(eq.hours)} ساعة</div>
+          </div>
+          <div>
+            <span class="detail-label">🔧 الصيانة القادمة</span>
+            <div class="detail-value" style="font-size: 13px">${formatNumber(eq.nextHours)} ساعة</div>
+          </div>
         </div>
+        
+        ${driver ? `<div style="margin-top: 8px; font-size: 11px; color: var(--gray); padding-top: 6px; border-top: 1px solid #eef2f6">👨‍✈️ السائق: ${driver.name}</div>` : ''}
       </div>
     `;
   }).join('');
   
-  // Equipment list
+  if (equipmentData.length === 0) {
+    document.getElementById('equipment-list-home').innerHTML = '<div class="empty-state">لا توجد معدات مسجلة<br>اضغط زر + لإضافة معدة جديدة</div>';
+  }
+  
+  // Equipment list (صفحة المعدات)
   const search = document.getElementById('search-equipment')?.value || '';
   const filteredEq = equipmentData.filter(e => e.name.includes(search) || e.code.includes(search));
   document.getElementById('equipment-list').innerHTML = filteredEq.map(eq => `
@@ -1152,7 +1224,7 @@ function refreshUI() {
       <div class="card-header"><div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code}</div></div>
       <span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span></div>
       <div><span>⏱️ ${formatNumber(eq.hours)} ساعة</span> | <span>🔧 عند ${formatNumber(eq.nextHours)} ساعة</span></div>
-      <div class="progress-bar"><div class="progress-fill" style="width: ${getProgressPercent(eq)}%"></div></div>
+      <div class="progress-bar"><div class="progress-fill" style="width: ${getRemainingPercent(eq)}%; background: ${getBarColor(hoursRemaining(eq))}"></div></div>
     </div>`).join('');
   
   // Drivers list
@@ -1253,39 +1325,6 @@ function showMaintenanceDetail(id) {
   document.getElementById('detail-modal').classList.add('active');
 }
 
-function renderInventory() {
-  const container = document.getElementById('inv-list');
-  if (!inventoryData.length) {
-    container.innerHTML = `<div class="empty-state">📦 لا توجد فلاتر في المخزن<br><button class="save-btn" style="margin-top:16px" onclick="openAddInventoryModal()">+ إضافة فلتر جديد</button></div>`;
-    return;
-  }
-  
-  container.innerHTML = inventoryData.map(inv => {
-    const linkedEqs = equipmentData.filter(eq => 
-      Object.values(eq.filters || {}).some(f => f.invId === inv.id)
-    );
-    const needed = linkedEqs.length * 4;
-    const shortage = Math.max(0, needed - (inv.qty || 0));
-    
-    return `
-      <div class="filter-card ${shortage > 0 ? 'critical' : inv.qty < needed * 1.5 ? 'low' : ''}">
-        <div><div style="font-weight:700">${inv.type}</div><div style="font-size:11px; color:var(--gray)">P/N: ${inv.partNo}</div></div>
-        <div class="grid-3" style="margin-top:10px">
-          <div><div class="detail-label">المتوفر</div><div class="detail-value">${inv.qty || 0}</div></div>
-          <div><div class="detail-label">المطلوب</div><div class="detail-value">${needed}</div></div>
-          <div><div class="detail-label">النقص</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${shortage>0?shortage:'✓'}</div></div>
-        </div>
-        <div style="margin-top:8px">
-          <button onclick="adjustInvQty('${inv.id}', -1)" class="qty-btn" style="background:var(--danger); color:white">-</button>
-          <span style="margin:0 10px">${inv.qty || 0}</span>
-          <button onclick="adjustInvQty('${inv.id}', 1)" class="qty-btn" style="background:var(--success); color:white">+</button>
-        </div>
-        <button onclick="deleteFromFirebase('inventory','${inv.id}')" class="save-btn" style="margin:10px 0 0 0; background:#fee2e2; color:var(--danger)">🗑️ حذف</button>
-      </div>
-    `;
-  }).join('');
-}
-
 // ============================================
 // VIEW SWITCHING
 // ============================================
@@ -1340,7 +1379,6 @@ window.closeModal = closeModal;
 window.openMeterUpdate = openMeterUpdate;
 window.updateSingleMeter = updateSingleMeter;
 window.saveAllMeters = saveAllMeters;
-window.updateSingleMeterFromHome = updateSingleMeterFromHome;
 window.adjustInvQty = adjustInvQty;
 window.deleteFromFirebase = deleteFromFirebase;
 window.saveEquipment = saveEquipment;
