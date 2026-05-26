@@ -92,7 +92,7 @@ body {
   justify-content: space-between;
 }
 
-.equipment-card, .driver-card, .fuel-card, .maintenance-card, .inventory-item-card, .filter-card {
+.equipment-card, .driver-card, .fuel-card, .maintenance-card, .inventory-item-card {
   background: var(--white);
   border-radius: 18px;
   padding: 14px;
@@ -106,10 +106,7 @@ body {
 .fuel-card { border-right: 3px solid var(--success); }
 .maintenance-card { border-right: 3px solid var(--warning); }
 .inventory-item-card { border-right: 3px solid var(--purple); }
-.filter-card { border-right: 3px solid var(--success); }
-.filter-card.low { border-right-color: var(--warning); }
-.filter-card.critical { border-right-color: var(--danger); }
-.equipment-card:active, .driver-card:active, .inventory-item-card:active, .filter-card:active { transform: scale(0.98); }
+.equipment-card:active, .driver-card:active, .inventory-item-card:active { transform: scale(0.98); }
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
 .card-title { font-size: 15px; font-weight: 700; color: var(--primary); }
 .card-code { font-size: 11px; color: var(--gray); }
@@ -317,16 +314,6 @@ body {
   font-weight: 600;
   margin-right: 6px;
 }
-.link-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 9px;
-  font-weight: 600;
-  background: #dbeafe;
-  color: #1e40af;
-  margin-left: 4px;
-}
 </style>
 </head>
 <body>
@@ -443,12 +430,12 @@ body {
         </select>
       </div>
       <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--purple), var(--pink))" onclick="openAddInventoryItemModal()">📦 إضافة صنف جديد</button>
-      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--danger), var(--warning))" onclick="generateOrderReport()">📋 إنشاء طلبية للنواقص</button>
+      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--danger), var(--warning))" onclick="generateOrderReport()">📋 إنشاء طلبية للنواقص (1000 ساعة)</button>
       <div id="inv-list"></div>
     </div>
   </div>
 
-  <!-- Link Filter Modal - ربط الفلاتر بالمعدات -->
+  <!-- Link Filter Modal -->
   <div class="modal-overlay" id="link-filter-modal">
     <div class="modal-header" style="background:linear-gradient(135deg, var(--info), var(--primary))">
       <div class="modal-title">🔗 ربط فلتر بمعدة</div>
@@ -490,7 +477,13 @@ body {
       </div>
       <div class="form-field"><label class="form-label">اسم الصنف *</label><input class="form-input" id="inv-name" placeholder="مثال: فلتر زيت المحرك"></div>
       <div class="form-field"><label class="form-label">رقم القطعة الأصلي *</label><input class="form-input" id="inv-partno" placeholder="رقم القطعة"></div>
-      <div class="form-field"><label class="form-label">دورة التغيير (ساعة)</label><input class="form-input" type="number" id="inv-interval" value="250" placeholder="كل كم ساعة يتغير هذا الفلتر"></div>
+      <div class="form-field"><label class="form-label">دورة التغيير (ساعة)</label>
+        <select class="form-select" id="inv-interval">
+          <option value="250">كل 250 ساعة</option>
+          <option value="500">كل 500 ساعة</option>
+          <option value="1000">كل 1000 ساعة</option>
+        </select>
+      </div>
       <div class="form-field"><label class="form-label">الكمية في المخزن</label><input class="form-input" type="number" id="inv-qty" value="0"></div>
       <div class="form-field"><label class="form-label">الحد الأدنى للتنبيه</label><input class="form-input" type="number" id="inv-min-qty" value="5"></div>
       <div class="form-field"><label class="form-label">سعر الوحدة (ر.س)</label><input class="form-input" type="number" id="inv-price" value="0"></div>
@@ -617,7 +610,7 @@ body {
 <!-- Order Report Modal -->
 <div class="modal-overlay" id="order-report-modal">
   <div class="modal-header" style="background:linear-gradient(135deg, var(--danger), var(--warning))">
-    <div class="modal-title">📋 تقرير الطلبية - النواقص</div>
+    <div class="modal-title">📋 تقرير الطلبية - النواقص (لـ 1000 ساعة تشغيل)</div>
     <button class="modal-close" onclick="closeModal('order-report-modal')">✕</button>
   </div>
   <div id="order-report-content" style="padding:14px; padding-bottom:100px"></div>
@@ -645,7 +638,7 @@ let driversData = [];
 let fuelData = [];
 let maintenanceSchedules = [];
 let inventoryItems = [];
-let equipmentFilters = []; // ربط الفلاتر بالمعدات
+let equipmentFilterLinks = []; // روابط الفلاتر بالمعدات
 let currentUser = null;
 let editingEquipmentId = null;
 let editingDriverId = null;
@@ -655,21 +648,43 @@ let currentCategoryFilter = 'all';
 let invAltCount = 0;
 let currentLinkingItem = null;
 
-// بيانات الفلاتر الأولية (المسجلة مسبقاً)
+// بيانات الفلاتر الأولية مع دورات تغيير مختلفة
 const initialInventoryData = [
-  { category: "filter", name: "فلتر زيت المحرك", partNo: "1R-0739", qty: 3, minQty: 5, price: 85, unit: "قطعة", interval: 250, alts: [{partNo: "LF16015", qty: 2}, {partNo: "P550008", qty: 1}] },
-  { category: "filter", name: "فلتر الهواء", partNo: "6I-2501", qty: 2, minQty: 5, price: 120, unit: "قطعة", interval: 250, alts: [{partNo: "AF26510", qty: 1}] },
-  { category: "filter", name: "فلتر الديزل", partNo: "326-1641", qty: 2, minQty: 5, price: 95, unit: "قطعة", interval: 250, alts: [{partNo: "FF5327", qty: 1}] },
-  { category: "filter", name: "فلتر الهيدروليك", partNo: "093-7521", qty: 1, minQty: 3, price: 150, unit: "قطعة", interval: 500, alts: [] },
-  { category: "oil", name: "زيت محرك 15W40", partNo: "MO-15W40", qty: 8, minQty: 10, price: 45, unit: "لتر", interval: 250, alts: [] },
-  { category: "tire", name: "إطار 23.5R25", partNo: "TIR-235R25", qty: 4, minQty: 6, price: 3500, unit: "قطعة", interval: 0, alts: [] }
+  { category: "filter", name: "فلتر زيت المحرك", partNo: "1R-0739", qty: 3, minQty: 10, price: 85, unit: "قطعة", interval: 250, alts: [{partNo: "LF16015", qty: 2}, {partNo: "P550008", qty: 1}] },
+  { category: "filter", name: "فلتر الهواء", partNo: "6I-2501", qty: 2, minQty: 8, price: 120, unit: "قطعة", interval: 250, alts: [{partNo: "AF26510", qty: 1}] },
+  { category: "filter", name: "فلتر الديزل", partNo: "326-1641", qty: 2, minQty: 8, price: 95, unit: "قطعة", interval: 250, alts: [{partNo: "FF5327", qty: 1}] },
+  { category: "filter", name: "فلتر الهيدروليك", partNo: "093-7521", qty: 1, minQty: 5, price: 150, unit: "قطعة", interval: 500, alts: [] },
+  { category: "filter", name: "فلتر زيت ناقل الحركة", partNo: "1R-1808", qty: 0, minQty: 6, price: 95, unit: "قطعة", interval: 500, alts: [] },
+  { category: "filter", name: "فلتر هواء كابينة", partNo: "7W-2321", qty: 0, minQty: 6, price: 65, unit: "قطعة", interval: 250, alts: [] },
+  { category: "oil", name: "زيت محرك 15W40", partNo: "MO-15W40", qty: 8, minQty: 20, price: 45, unit: "لتر", interval: 250, alts: [] },
+  { category: "tire", name: "إطار 23.5R25", partNo: "TIR-235R25", qty: 4, minQty: 8, price: 3500, unit: "قطعة", interval: 0, alts: [] }
 ];
 
-// بيانات ربط الفلاتر الأولية
-const initialEquipmentFilters = [
-  { equipmentId: "eq1", filterId: null, partNo: "1R-0739", filterInterval: 250, quantityPerService: 1 },
-  { equipmentId: "eq2", filterId: null, partNo: "07000-15251", filterInterval: 250, quantityPerService: 1 },
-  { equipmentId: "eq3", filterId: null, partNo: "1R-0716", filterInterval: 250, quantityPerService: 1 }
+// بيانات المعدات الأولية
+const initialEquipmentData = [
+  { code: "EX-001", name: "حفارة كاتربيلار 320D", type: "حفارة", chassis: "CAT0320DKDP02541", location: "موقع A", hours: 4520, nextHours: 4770, interval: 250, status: "يعمل", notes: "" },
+  { code: "LD-002", name: "لودر كوماتسو WA380", type: "لودر", chassis: "WA380-6H52167", location: "موقع B", hours: 3210, nextHours: 3460, interval: 250, status: "يعمل", notes: "" },
+  { code: "BL-003", name: "بلدوزر كاتربيلار D6", type: "بلدوزر", chassis: "CAT00D6RLAR04892", location: "موقع C", hours: 6740, nextHours: 7240, interval: 500, status: "يعمل", notes: "" },
+  { code: "TR-004", name: "شاحنة فولفو FMX", type: "شاحنة", chassis: "VOLVO-FMX-4421", location: "موقع A", hours: 1850, nextHours: 2100, interval: 250, status: "يعمل", notes: "" },
+  { code: "GN-R0334", name: "مولد كهربائي كاتربيلار", type: "مولد كهربائي", chassis: "GEN-CAT-334", location: "موقع B", hours: 1250, nextHours: 1500, interval: 250, status: "يعمل", notes: "" },
+  { code: "GN/R0313", name: "مولد كهربائي كوماتسو", type: "مولد كهربائي", chassis: "GEN-KOM-313", location: "موقع C", hours: 890, nextHours: 1140, interval: 250, status: "يعمل", notes: "" }
+];
+
+// روابط الفلاتر الأولية (كل معدة تستخدم فلاتر متعددة)
+const initialFilterLinks = [
+  { equipmentId: "EX-001", filterPartNo: "1R-0739", quantityPerService: 1 },
+  { equipmentId: "EX-001", filterPartNo: "6I-2501", quantityPerService: 1 },
+  { equipmentId: "EX-001", filterPartNo: "326-1641", quantityPerService: 1 },
+  { equipmentId: "EX-001", filterPartNo: "093-7521", quantityPerService: 2 },
+  { equipmentId: "LD-002", filterPartNo: "1R-0739", quantityPerService: 1 },
+  { equipmentId: "LD-002", filterPartNo: "6I-2501", quantityPerService: 1 },
+  { equipmentId: "LD-002", filterPartNo: "326-1641", quantityPerService: 1 },
+  { equipmentId: "BL-003", filterPartNo: "1R-0739", quantityPerService: 2 },
+  { equipmentId: "BL-003", filterPartNo: "6I-2501", quantityPerService: 1 },
+  { equipmentId: "TR-004", filterPartNo: "1R-0739", quantityPerService: 1 },
+  { equipmentId: "TR-004", filterPartNo: "326-1641", quantityPerService: 1 },
+  { equipmentId: "GN-R0334", filterPartNo: "1R-0739", quantityPerService: 1 },
+  { equipmentId: "GN/R0313", filterPartNo: "1R-0739", quantityPerService: 1 }
 ];
 
 // ============================================
@@ -739,48 +754,66 @@ function totalQty(item) {
 }
 
 // ============================================
-// حساب عدد الفلاتر المطلوبة للمعدة (ذكي)
+// حساب الاحتياجات الذكي لـ 1000 ساعة تشغيل
 // ============================================
-function calculateFilterRequiredQuantity(filterItem, equipmentItem) {
-  // إذا لم يكن فلتر أو لا توجد دورة تغيير
-  if (filterItem.category !== 'filter' || !filterItem.interval || filterItem.interval <= 0) return 0;
-  
+function calculateNeededFor1000Hours(filterItem, equipmentItem, quantityPerService) {
   // دورة صيانة المعدة (كل كم ساعة تحتاج صيانة)
   const eqInterval = equipmentItem.interval || 250;
   // دورة تغيير الفلتر (كل كم ساعة يتغير هذا الفلتر)
   const filterInterval = filterItem.interval || 250;
   
-  // عدد مرات تغيير الفلتر في كل صيانة (مرة واحدة عادة)
-  const quantityPerService = 1;
+  // عدد الصيانات خلال 1000 ساعة
+  const numberOfServices = Math.ceil(1000 / eqInterval);
   
-  // عدد مرات التغيير خلال 4 صيانات قادمة
-  // إذا كانت دورة الفلتر أكبر من دورة المعدة، يتغير مرة كل عدة صيانات
-  let timesInFourServices = 4;
-  if (filterInterval > eqInterval) {
-    timesInFourServices = Math.ceil((4 * eqInterval) / filterInterval);
-  } else if (filterInterval < eqInterval) {
-    // الفلتر يتغير أكثر من مرة في الصيانة الواحدة
-    timesInFourServices = Math.ceil(4 * (eqInterval / filterInterval));
+  // عدد مرات تغيير الفلتر خلال 1000 ساعة
+  // إذا كانت دورة الفلتر 250 ساعة: يتغير كل صيانة
+  // إذا كانت 500 ساعة: يتغير كل صيانتين
+  // إذا كانت 1000 ساعة: يتغير مرة واحدة
+  let timesChanged = 0;
+  
+  if (filterInterval <= eqInterval) {
+    // الفلتر يتغير كل صيانة أو أكثر من مرة في الصيانة
+    timesChanged = numberOfServices * Math.ceil(eqInterval / filterInterval);
+  } else {
+    // الفلتر يتغير مرة كل عدة صيانات
+    const servicesPerChange = Math.ceil(filterInterval / eqInterval);
+    timesChanged = Math.ceil(numberOfServices / servicesPerChange);
   }
   
   // إجمالي الكمية المطلوبة = عدد مرات التغيير × الكمية لكل صيانة
-  return timesInFourServices * quantityPerService;
+  return timesChanged * quantityPerService;
 }
 
-// حساب إجمالي الفلاتر المطلوبة للمخزن
-function calculateTotalFiltersNeeded() {
+// حساب إجمالي الاحتياجات لجميع الفلاتر لـ 1000 ساعة قادمة
+function calculateAllFiltersNeeded() {
   const needs = {};
   
-  equipmentData.forEach(eq => {
-    inventoryItems.forEach(item => {
-      if (item.category === 'filter') {
-        const needed = calculateFilterRequiredQuantity(item, eq);
-        if (needed > 0) {
-          if (!needs[item.id]) needs[item.id] = 0;
-          needs[item.id] += needed;
-        }
+  // تجميع روابط الفلاتر حسب رقم القطعة
+  const linksByPartNo = {};
+  equipmentFilterLinks.forEach(link => {
+    if (!linksByPartNo[link.filterPartNo]) {
+      linksByPartNo[link.filterPartNo] = [];
+    }
+    linksByPartNo[link.filterPartNo].push(link);
+  });
+  
+  // لكل فلتر في المخزن
+  inventoryItems.forEach(filter => {
+    if (filter.category !== 'filter') return;
+    
+    let totalNeeded = 0;
+    const filterLinks = linksByPartNo[filter.partNo] || [];
+    
+    // لكل معدة مرتبطة بهذا الفلتر
+    filterLinks.forEach(link => {
+      const equipment = equipmentData.find(eq => eq.code === link.equipmentId);
+      if (equipment && equipment.status !== 'متوقف') {
+        const needed = calculateNeededFor1000Hours(filter, equipment, link.quantityPerService);
+        totalNeeded += needed;
       }
     });
+    
+    needs[filter.id] = totalNeeded;
   });
   
   return needs;
@@ -800,7 +833,16 @@ function initFirebase() {
     
     fbDb.ref('equipment').on('value', (snap) => {
       const data = snap.val();
-      equipmentData = data ? Object.entries(data).map(([id, eq]) => ({ ...eq, id })) : [];
+      if (data && Object.keys(data).length > 0) {
+        equipmentData = Object.entries(data).map(([id, eq]) => ({ ...eq, id }));
+      } else {
+        equipmentData = [];
+        initialEquipmentData.forEach(eq => {
+          const newId = fbDb.ref('equipment').push().key;
+          fbDb.ref(`equipment/${newId}`).set({ ...eq, id: newId, createdAt: new Date().toISOString() });
+          equipmentData.push({ ...eq, id: newId });
+        });
+      }
       refreshUI();
     });
     
@@ -828,7 +870,6 @@ function initFirebase() {
       if (data && Object.keys(data).length > 0) {
         inventoryItems = Object.entries(data).map(([id, item]) => ({ ...item, id }));
       } else {
-        // إضافة البيانات الأولية إذا كانت فارغة
         inventoryItems = [];
         initialInventoryData.forEach(item => {
           const newId = fbDb.ref('inventoryItems').push().key;
@@ -839,9 +880,18 @@ function initFirebase() {
       refreshUI();
     });
     
-    fbDb.ref('equipmentFilters').on('value', (snap) => {
+    fbDb.ref('equipmentFilterLinks').on('value', (snap) => {
       const data = snap.val();
-      equipmentFilters = data ? Object.entries(data).map(([id, f]) => ({ ...f, id })) : [];
+      if (data && Object.keys(data).length > 0) {
+        equipmentFilterLinks = Object.entries(data).map(([id, link]) => ({ ...link, id }));
+      } else {
+        equipmentFilterLinks = [];
+        initialFilterLinks.forEach(link => {
+          const newId = fbDb.ref('equipmentFilterLinks').push().key;
+          fbDb.ref(`equipmentFilterLinks/${newId}`).set({ ...link, id: newId, createdAt: new Date().toISOString() });
+          equipmentFilterLinks.push({ ...link, id: newId });
+        });
+      }
       refreshUI();
     });
     
@@ -890,7 +940,7 @@ function logout() {
 }
 
 // ============================================
-// LINK FILTER TO EQUIPMENT - ربط الفلتر بالمعدة
+// LINK FILTER TO EQUIPMENT
 // ============================================
 function openLinkFilterModal(itemId) {
   currentLinkingItem = inventoryItems.find(i => i.id === itemId);
@@ -909,17 +959,17 @@ function openLinkFilterModal(itemId) {
   
   const checkboxesDiv = document.getElementById('link-eq-checkboxes');
   checkboxesDiv.innerHTML = equipmentData.map(eq => {
-    const isLinked = equipmentFilters.some(ef => ef.equipmentId === eq.id && ef.filterId === currentLinkingItem.id);
+    const existingLink = equipmentFilterLinks.find(link => link.equipmentId === eq.code && link.filterPartNo === currentLinkingItem.partNo);
     return `
       <label style="display:flex; align-items:center; gap:12px; padding:12px; background:white; border-radius:14px; margin-bottom:8px; cursor:pointer; border:1px solid #eef2f6">
-        <input type="checkbox" id="link-eq-${eq.id}" value="${eq.id}" ${isLinked ? 'checked' : ''} style="width:20px; height:20px; cursor:pointer">
+        <input type="checkbox" id="link-eq-${eq.id}" value="${eq.code}" ${existingLink ? 'checked' : ''} style="width:20px; height:20px; cursor:pointer">
         <div style="flex:1">
           <div style="font-weight:700">${eq.name}</div>
           <div style="font-size:11px; color:var(--gray)">${eq.code} | دورة الصيانة: كل ${eq.interval || 250} ساعة</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px">
           <span style="font-size:11px; color:var(--gray)">الكمية/صيانة:</span>
-          <input type="number" id="qty-${eq.id}" class="form-input" style="width:60px; border:1px solid #e2e8f0; border-radius:8px; padding:6px; text-align:center" value="${isLinked ? (equipmentFilters.find(ef => ef.equipmentId === eq.id && ef.filterId === currentLinkingItem.id)?.quantityPerService || 1) : 1}" min="1" step="1">
+          <input type="number" id="qty-${eq.id}" class="form-input" style="width:60px; border:1px solid #e2e8f0; border-radius:8px; padding:6px; text-align:center" value="${existingLink?.quantityPerService || 1}" min="1" step="1">
         </div>
       </label>
     `;
@@ -941,26 +991,22 @@ function saveFilterLink() {
     const quantityPerService = parseInt(qtyInput?.value) || 1;
     const isChecked = checkbox?.checked || false;
     
-    const existingLink = equipmentFilters.find(ef => ef.equipmentId === eq.id && ef.filterId === currentLinkingItem.id);
+    const existingLink = equipmentFilterLinks.find(link => link.equipmentId === eq.code && link.filterPartNo === currentLinkingItem.partNo);
     
     if (isChecked && !existingLink) {
-      // إضافة رابط جديد
       const newLink = {
-        equipmentId: eq.id,
-        filterId: currentLinkingItem.id,
-        filterName: currentLinkingItem.name,
+        equipmentId: eq.code,
         filterPartNo: currentLinkingItem.partNo,
+        filterName: currentLinkingItem.name,
         filterInterval: currentLinkingItem.interval || 250,
         quantityPerService: quantityPerService,
         createdAt: new Date().toISOString()
       };
-      saveToFirebase('equipmentFilters', newLink);
+      saveToFirebase('equipmentFilterLinks', newLink);
     } else if (!isChecked && existingLink) {
-      // حذف رابط موجود
-      deleteFromFirebase('equipmentFilters', existingLink.id);
+      deleteFromFirebase('equipmentFilterLinks', existingLink.id);
     } else if (isChecked && existingLink && existingLink.quantityPerService !== quantityPerService) {
-      // تحديث الكمية لكل صيانة
-      saveToFirebase('equipmentFilters', { ...existingLink, quantityPerService: quantityPerService });
+      saveToFirebase('equipmentFilterLinks', { ...existingLink, quantityPerService: quantityPerService });
     }
   });
   
@@ -1001,7 +1047,7 @@ function openAddInventoryItemModal() {
   editingInventoryId = null;
   invAltCount = 0;
   document.getElementById('inv-item-title').innerHTML = '📦 إضافة صنف جديد';
-  ['inv-name', 'inv-partno', 'inv-qty', 'inv-min-qty', 'inv-price', 'inv-interval', 'inv-notes'].forEach(id => {
+  ['inv-name', 'inv-partno', 'inv-qty', 'inv-min-qty', 'inv-price', 'inv-notes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -1096,8 +1142,8 @@ function renderInventory() {
     filtered = inventoryItems.filter(i => i.category === currentCategoryFilter);
   }
   
-  // حساب الاحتياجات الذكية للفلاتر
-  const filtersNeeded = calculateTotalFiltersNeeded();
+  // حساب الاحتياجات
+  const filtersNeeded = calculateAllFiltersNeeded();
   
   if (!filtered.length) {
     container.innerHTML = '<div class="empty-state">لا توجد أصناف في هذا التصنيف</div>';
@@ -1113,9 +1159,9 @@ function renderInventory() {
     const alts = item.alts || [];
     
     // المعدات المرتبطة بهذا الفلتر
-    const linkedEqs = equipmentFilters.filter(ef => ef.filterId === item.id).map(ef => {
-      const eq = equipmentData.find(e => e.id === ef.equipmentId);
-      return eq ? { name: eq.name, code: eq.code, quantityPerService: ef.quantityPerService } : null;
+    const linkedEqs = equipmentFilterLinks.filter(link => link.filterPartNo === item.partNo).map(link => {
+      const eq = equipmentData.find(e => e.code === link.equipmentId);
+      return eq ? { name: eq.name, code: eq.code, quantityPerService: link.quantityPerService, interval: eq.interval } : null;
     }).filter(Boolean);
     
     return `
@@ -1134,13 +1180,13 @@ function renderInventory() {
           <div><div class="detail-label">الإجمالي</div><div class="detail-value">${total}</div></div>
         </div>
         ${item.category === 'filter' ? `
-          <div class="grid-3" style="margin-top:6px">
-            <div><div class="detail-label">المطلوب (4 صيانات)</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${needed}</div></div>
+          <div class="grid-3" style="margin-top:6px; background:${shortage>0 ? '#fee2e2' : '#d1fae5'}; padding:6px; border-radius:8px">
+            <div><div class="detail-label">المطلوب (1000 س)</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${needed}</div></div>
             <div><div class="detail-label">النقص</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${shortage>0?shortage:'✓'}</div></div>
           </div>
         ` : ''}
         ${alts.length ? `<div style="margin-top:6px; font-size:10px; color:var(--gray)">🔄 بدائل: ${alts.map(a=>`${a.partNo} (${a.qty})`).join(' | ')}</div>` : ''}
-        ${linkedEqs.length ? `<div style="margin-top:6px; font-size:10px; color:var(--info)">🔗 يستخدم في: ${linkedEqs.map(l => `${l.name} (${l.quantityPerService}/صيانة)`).join(', ')}</div>` : ''}
+        ${linkedEqs.length ? `<div style="margin-top:6px; font-size:10px; color:var(--info)">🔗 يستخدم في: ${linkedEqs.map(l => `${l.name} (${l.quantityPerService}/صيانة - دورة ${l.interval} س)`).join(', ')}</div>` : ''}
         <div style="margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
           <button onclick="event.stopPropagation(); adjustInventoryQty('${item.id}', -1)" class="qty-btn" style="background:var(--danger); color:white">-</button>
           <span style="font-weight:700">${total} ${item.unit}</span>
@@ -1158,14 +1204,14 @@ function showInventoryItemDetail(id) {
   const item = inventoryItems.find(i => i.id === id);
   if (!item) return;
   const total = totalQty(item);
-  const filtersNeeded = calculateTotalFiltersNeeded();
+  const filtersNeeded = calculateAllFiltersNeeded();
   const needed = filtersNeeded[item.id] || 0;
   const shortage = Math.max(0, needed - total);
   const alts = item.alts || [];
   
-  const linkedEqs = equipmentFilters.filter(ef => ef.filterId === item.id).map(ef => {
-    const eq = equipmentData.find(e => e.id === ef.equipmentId);
-    return eq ? { name: eq.name, code: eq.code, interval: eq.interval, quantityPerService: ef.quantityPerService } : null;
+  const linkedEqs = equipmentFilterLinks.filter(link => link.filterPartNo === item.partNo).map(link => {
+    const eq = equipmentData.find(e => e.code === link.equipmentId);
+    return eq ? { name: eq.name, code: eq.code, interval: eq.interval, quantityPerService: link.quantityPerService } : null;
   }).filter(Boolean);
   
   document.getElementById('detail-title').innerHTML = `📦 ${item.name}`;
@@ -1180,7 +1226,7 @@ function showInventoryItemDetail(id) {
         <div><div class="detail-label">الحد الأدنى</div><div class="detail-value">${item.minQty} ${item.unit}</div></div>
         ${item.category === 'filter' ? `
           <div><div class="detail-label">دورة التغيير</div><div class="detail-value">كل ${item.interval || 250} ساعة</div></div>
-          <div><div class="detail-label">المطلوب (4 صيانات)</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${needed} ${item.unit}</div></div>
+          <div><div class="detail-label">المطلوب (لـ 1000 س)</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${needed} ${item.unit}</div></div>
           <div><div class="detail-label">الحالة</div><div class="detail-value">${shortage>0 ? `⚠️ ناقص ${shortage} ${item.unit}` : '✅ كافٍ'}</div></div>
         ` : ''}
         <div><div class="detail-label">سعر الوحدة</div><div class="detail-value">${formatNumber(item.price)} ر.س</div></div>
@@ -1198,7 +1244,12 @@ function showInventoryItemDetail(id) {
       <div class="detail-label">🔗 المعدات المستخدمة فيها</div>
       ${linkedEqs.map(l => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eef2f6">
         <div><span style="font-weight:600">🏗️ ${l.name}</span><br><span style="font-size:11px; color:var(--gray)">${l.code}</span></div>
-        <div style="text-align:left"><div class="detail-label">الكمية/صيانة</div><div class="detail-value">${l.quantityPerService}</div></div>
+        <div style="text-align:left">
+          <div class="detail-label">الكمية/صيانة</div>
+          <div class="detail-value">${l.quantityPerService}</div>
+          <div class="detail-label">دورة المعدة</div>
+          <div class="detail-value">كل ${l.interval} ساعة</div>
+        </div>
       </div>`).join('')}
     </div>` : ''}
     ${item.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${item.notes}</div></div>` : ''}
@@ -1214,15 +1265,15 @@ function showInventoryItemDetail(id) {
 // ORDER REPORT - طلبية النواقص
 // ============================================
 function generateOrderReport() {
-  const filtersNeeded = calculateTotalFiltersNeeded();
-  const lowStockItems = inventoryItems.filter(item => {
+  const filtersNeeded = calculateAllFiltersNeeded();
+  const lowStockFilters = inventoryItems.filter(item => {
     if (item.category !== 'filter') return false;
     const needed = filtersNeeded[item.id] || 0;
     const total = totalQty(item);
     return total < needed;
   });
   
-  const shortages = lowStockItems.map(item => ({
+  const shortages = lowStockFilters.map(item => ({
     ...item,
     totalQty: totalQty(item),
     neededQty: filtersNeeded[item.id] || 0,
@@ -1231,42 +1282,51 @@ function generateOrderReport() {
   }));
   
   const totalOrderCost = shortages.reduce((sum, i) => sum + i.totalCost, 0);
+  const totalShortageQty = shortages.reduce((sum, i) => sum + i.shortage, 0);
   
   const content = document.getElementById('order-report-content');
   content.innerHTML = `
     <div style="background:white; border-radius:16px; padding:16px; margin-bottom:16px">
       <div style="font-weight:800; font-size:16px; margin-bottom:10px">📋 تقرير الطلبية - الفلاتر الناقصة</div>
-      <div style="font-size:12px; color:var(--gray); margin-bottom:15px">التاريخ: ${new Date().toLocaleDateString('ar-SA')}</div>
-      <div style="font-size:12px; color:var(--info); margin-bottom:15px">🧮 تم حساب الاحتياجات بناءً على دورات صيانة المعدات والفلاتر</div>
+      <div style="font-size:12px; color:var(--gray); margin-bottom:8px">📅 التاريخ: ${new Date().toLocaleDateString('ar-SA')}</div>
+      <div style="font-size:12px; color:var(--info); margin-bottom:15px">⏱️ تم حساب الاحتياجات لـ 1000 ساعة تشغيل قادمة</div>
       ${shortages.length === 0 ? '<div class="empty-state">🎉 لا توجد فلاتر ناقصة - جميع الفلاتر كافية للصيانات القادمة</div>' : `
         <div style="margin-bottom:15px">
           <div class="grid-2" style="background:var(--bg); padding:10px; border-radius:12px">
             <div><div class="detail-label">عدد الفلاتر الناقصة</div><div class="detail-value" style="color:var(--danger)">${shortages.length}</div></div>
+            <div><div class="detail-label">إجمالي القطع الناقصة</div><div class="detail-value" style="color:var(--danger)">${totalShortageQty} قطعة</div></div>
             <div><div class="detail-label">إجمالي تكلفة الطلبية</div><div class="detail-value" style="color:var(--accent)">${formatNumber(totalOrderCost)} ر.س</div></div>
           </div>
         </div>
-        ${shortages.map(item => `
+        ${shortages.map(item => {
+          const linkedEqs = equipmentFilterLinks.filter(link => link.filterPartNo === item.partNo).map(link => {
+            const eq = equipmentData.find(e => e.code === link.equipmentId);
+            return eq ? { name: eq.name, code: eq.code, interval: eq.interval, quantityPerService: link.quantityPerService } : null;
+          }).filter(Boolean);
+          
+          return `
           <div style="border-bottom:1px solid #eef2f6; padding:12px 0">
-            <div style="display:flex; justify-content:space-between; align-items:center">
-              <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start">
+              <div style="flex:1">
                 <div style="font-weight:700">${item.name}</div>
                 <div style="font-size:11px; color:var(--gray)">${item.partNo} ${getCategoryBadge(item.category)}</div>
                 <div style="font-size:10px; color:var(--info)">دورة التغيير: كل ${item.interval || 250} ساعة</div>
                 ${item.alts?.length ? `<div style="font-size:10px; color:var(--info)">بدائل: ${item.alts.map(a=>a.partNo).join(', ')}</div>` : ''}
+                <div style="font-size:10px; color:var(--purple); margin-top:4px">🔗 يستخدم في: ${linkedEqs.map(l => `${l.name}`).join(', ')}</div>
               </div>
-              <div style="text-align:left">
-                <div style="font-size:11px; color:var(--danger)">المتوفر: ${item.totalQty} ${item.unit}</div>
-                <div style="font-size:11px; color:var(--warning)">المطلوب: ${item.neededQty} ${item.unit}</div>
-                <div style="font-size:14px; font-weight:800; color:var(--accent)">النقص: ${item.shortage} ${item.unit}</div>
+              <div style="text-align:left; min-width:100px">
+                <div style="font-size:11px; color:var(--danger)">المتوفر: ${item.totalQty}</div>
+                <div style="font-size:11px; color:var(--warning)">المطلوب: ${item.neededQty}</div>
+                <div style="font-size:16px; font-weight:800; color:var(--accent)">النقص: ${item.shortage}</div>
               </div>
             </div>
             <div style="margin-top:6px; font-size:12px">💰 التكلفة: ${formatNumber(item.totalCost)} ر.س</div>
           </div>
-        `).join('')}
+        `}).join('')}
         <div style="margin-top:16px; padding:12px; background:#fef3c7; border-radius:12px">
-          <div style="font-weight:700">📝 ملخص الطلبية</div>
-          <div>إجمالي الفلاتر المطلوبة: ${shortages.reduce((s,i)=>s+i.shortage,0)} قطعة</div>
-          <div>إجمالي التكلفة المتوقعة: ${formatNumber(totalOrderCost)} ر.س</div>
+          <div style="font-weight:700">📝 ملخص الطلبية (لـ 1000 ساعة تشغيل)</div>
+          <div>📦 إجمالي القطع المطلوبة: ${totalShortageQty} قطعة</div>
+          <div>💰 إجمالي التكلفة المتوقعة: ${formatNumber(totalOrderCost)} ر.س</div>
         </div>
       `}
     </div>
@@ -1275,63 +1335,79 @@ function generateOrderReport() {
 }
 
 function exportOrderToExcel() {
-  const filtersNeeded = calculateTotalFiltersNeeded();
-  const lowStockItems = inventoryItems.filter(item => {
+  const filtersNeeded = calculateAllFiltersNeeded();
+  const lowStockFilters = inventoryItems.filter(item => {
     if (item.category !== 'filter') return false;
     const needed = filtersNeeded[item.id] || 0;
     const total = totalQty(item);
     return total < needed;
   });
   
-  const data = lowStockItems.map(item => ({
-    'التصنيف': getCategoryName(item.category),
-    'اسم الفلتر': item.name,
-    'رقم القطعة الأصلي': item.partNo,
-    'الأرقام البديلة': (item.alts || []).map(a=>a.partNo).join(' - '),
-    'دورة التغيير (ساعة)': item.interval || 250,
-    'الوحدة': item.unit,
-    'الكمية المتوفرة (أصلي)': item.qty,
-    'الكمية المتوفرة (بدائل)': (item.alts || []).reduce((s,a)=>s+a.qty,0),
-    'الكمية المتوفرة (إجمالي)': totalQty(item),
-    'الكمية المطلوبة (لـ4 صيانات)': filtersNeeded[item.id] || 0,
-    'الكمية الناقصة': Math.max(0, (filtersNeeded[item.id] || 0) - totalQty(item)),
-    'سعر الوحدة (ر.س)': item.price || 0,
-    'التكلفة الإجمالية (ر.س)': (Math.max(0, (filtersNeeded[item.id] || 0) - totalQty(item)) * (item.price || 0)).toFixed(2)
-  }));
+  const data = lowStockFilters.map(item => {
+    const linkedEqs = equipmentFilterLinks.filter(link => link.filterPartNo === item.partNo).map(link => {
+      const eq = equipmentData.find(e => e.code === link.equipmentId);
+      return eq ? `${eq.name} (${link.quantityPerService}/صيانة)` : null;
+    }).filter(Boolean);
+    
+    return {
+      'التصنيف': getCategoryName(item.category),
+      'اسم الفلتر': item.name,
+      'رقم القطعة الأصلي': item.partNo,
+      'الأرقام البديلة': (item.alts || []).map(a=>a.partNo).join(' - '),
+      'دورة التغيير (ساعة)': item.interval || 250,
+      'الوحدة': item.unit,
+      'الكمية المتوفرة (أصلي)': item.qty,
+      'الكمية المتوفرة (بدائل)': (item.alts || []).reduce((s,a)=>s+a.qty,0),
+      'الكمية المتوفرة (إجمالي)': totalQty(item),
+      'الكمية المطلوبة (لـ 1000 س)': filtersNeeded[item.id] || 0,
+      'الكمية الناقصة': Math.max(0, (filtersNeeded[item.id] || 0) - totalQty(item)),
+      'سعر الوحدة (ر.س)': item.price || 0,
+      'التكلفة الإجمالية (ر.س)': (Math.max(0, (filtersNeeded[item.id] || 0) - totalQty(item)) * (item.price || 0)).toFixed(2),
+      'المعدات المستخدمة': linkedEqs.join(' - ')
+    };
+  });
   
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'طلبية_الفلاتر');
-  XLSX.writeFile(wb, `طلبيه_فلاتر_${new Date().toISOString().split('T')[0]}.xlsx`);
+  XLSX.utils.book_append_sheet(wb, ws, 'طلبية_الفلاتر_1000س');
+  XLSX.writeFile(wb, `طلبيه_فلاتر_1000ساعه_${new Date().toISOString().split('T')[0]}.xlsx`);
   showToast('تم تصدير الطلبية إلى Excel');
 }
 
 function sendOrderViaWhatsApp() {
-  const filtersNeeded = calculateTotalFiltersNeeded();
-  const lowStockItems = inventoryItems.filter(item => {
+  const filtersNeeded = calculateAllFiltersNeeded();
+  const lowStockFilters = inventoryItems.filter(item => {
     if (item.category !== 'filter') return false;
     const needed = filtersNeeded[item.id] || 0;
     const total = totalQty(item);
     return total < needed;
   });
   
-  if (lowStockItems.length === 0) {
+  if (lowStockFilters.length === 0) {
     showToast('لا توجد فلاتر ناقصة لإرسال الطلبية');
     return;
   }
   
   let message = `📋 *طلبيه فلاتر - حسن علام القابضة*%0A`;
   message += `📅 التاريخ: ${new Date().toLocaleDateString('ar-EG')}%0A`;
+  message += `⏱️ لـ 1000 ساعة تشغيل قادمة%0A`;
   message += `━━━━━━━━━━━━━━━━%0A%0A`;
   
-  lowStockItems.forEach(item => {
+  lowStockFilters.forEach(item => {
     const total = totalQty(item);
     const needed = filtersNeeded[item.id] || 0;
     const shortage = needed - total;
+    
+    const linkedEqs = equipmentFilterLinks.filter(link => link.filterPartNo === item.partNo).map(link => {
+      const eq = equipmentData.find(e => e.code === link.equipmentId);
+      return eq ? eq.name : null;
+    }).filter(Boolean);
+    
     message += `📦 *${item.name}*%0A`;
     message += `   رقم القطعة: ${item.partNo}%0A`;
     if (item.alts?.length) message += `   بدائل: ${item.alts.map(a=>a.partNo).join(', ')}%0A`;
     message += `   دورة التغيير: كل ${item.interval || 250} ساعة%0A`;
+    message += `   يستخدم في: ${linkedEqs.join(', ')}%0A`;
     message += `   المتوفر: ${total} ${item.unit}%0A`;
     message += `   المطلوب: ${needed} ${item.unit}%0A`;
     message += `   *العجز: ${shortage} ${item.unit}*%0A`;
@@ -1348,7 +1424,7 @@ function sendOrderViaWhatsApp() {
 }
 
 // ============================================
-// DRIVERS MANAGEMENT (مختصر)
+// DRIVERS MANAGEMENT
 // ============================================
 function updateDriverSelects() {
   const driverSelects = ['eq-driver', 'fuel-driver'];
@@ -1403,7 +1479,7 @@ function openDriverDetail(id) {
   currentDetailId = id;
   const driver = driversData.find(d => d.id === id);
   if (!driver) return;
-  const assignedEqs = equipmentData.filter(eq => eq.assignedDriver === id);
+  const assignedEqs = equipmentData.filter(eq => eq.assignedDriver === driver.id);
   
   document.getElementById('detail-title').innerHTML = `👨‍✈️ ${driver.name}`;
   document.getElementById('detail-content').innerHTML = `
@@ -1441,7 +1517,7 @@ function editDriver(id) {
 }
 
 // ============================================
-// FUEL MANAGEMENT (مختصر)
+// FUEL MANAGEMENT
 // ============================================
 function openAddFuelModal() {
   const equipSelect = document.getElementById('fuel-equipment');
@@ -1485,7 +1561,7 @@ function saveFuelRecord() {
 }
 
 // ============================================
-// MAINTENANCE SCHEDULE (مختصر)
+// MAINTENANCE SCHEDULE
 // ============================================
 function openAddMaintenanceModal() {
   const equipSelect = document.getElementById('maint-equipment');
@@ -1534,7 +1610,7 @@ function completeMaintenance(id) {
 }
 
 // ============================================
-// EQUIPMENT CRUD (مختصر)
+// EQUIPMENT CRUD
 // ============================================
 function openAddEquipmentModal() {
   editingEquipmentId = null;
@@ -1602,18 +1678,18 @@ function openEquipmentDetail(id) {
   const schedules = maintenanceSchedules.filter(m => m.equipmentId === id && m.status === 'مجدول');
   
   // الفلاتر المرتبطة بهذه المعدة
-  const eqFilters = equipmentFilters.filter(ef => ef.equipmentId === id);
-  const filtersHtml = eqFilters.map(ef => {
-    const filterItem = inventoryItems.find(i => i.id === ef.filterId);
+  const eqFilters = equipmentFilterLinks.filter(link => link.equipmentId === eq.code);
+  const filtersHtml = eqFilters.map(link => {
+    const filterItem = inventoryItems.find(i => i.partNo === link.filterPartNo);
     if (!filterItem) return '';
-    const needed = calculateFilterRequiredQuantity(filterItem, eq);
+    const needed = calculateNeededFor1000Hours(filterItem, eq, link.quantityPerService);
     return `
       <div style="padding:8px 0; border-bottom:1px solid #eef2f6">
         <div style="display:flex; justify-content:space-between">
           <div><span style="font-weight:600">🔧 ${filterItem.name}</span><br><span style="font-size:11px; color:var(--gray)">${filterItem.partNo}</span></div>
           <div style="text-align:left">
-            <div><span class="detail-label">الكمية/صيانة</span><div class="detail-value">${ef.quantityPerService}</div></div>
-            <div><span class="detail-label">المطلوب (4 صيانات)</span><div class="detail-value">${needed}</div></div>
+            <div><span class="detail-label">الكمية/صيانة</span><div class="detail-value">${link.quantityPerService}</div></div>
+            <div><span class="detail-label">المطلوب (1000 س)</span><div class="detail-value">${needed}</div></div>
           </div>
         </div>
       </div>
@@ -1639,7 +1715,7 @@ function openEquipmentDetail(id) {
       <div class="progress-bar" style="margin: 8px 0"><div class="progress-fill" style="width: ${percent}%; background: ${getBarColor(rem)}"></div></div>
       <div style="margin-top:8px"><div class="detail-label">⏳ المتبقي</div><div class="detail-value" style="color: ${remStatus.color}">${remStatus.text}</div></div>
     </div>
-    ${filtersHtml ? `<div class="detail-section"><div class="detail-label">🔧 الفلاتر المستخدمة</div>${filtersHtml}</div>` : ''}
+    ${filtersHtml ? `<div class="detail-section"><div class="detail-label">🔧 الفلاتر المستخدمة (لـ 1000 ساعة)</div>${filtersHtml}</div>` : ''}
     ${schedules.length ? `<div class="detail-section"><div class="detail-label">🔧 الصيانات المجدولة</div>${schedules.map(s => `<div style="padding:6px 0; border-bottom:1px solid #eef2f6"><div><strong>${s.type}</strong> - ${s.date}</div><div style="font-size:12px; color:var(--gray)">العداد: ${s.targetHours || '—'} ساعة | التكلفة: ${s.estimatedCost || 0} ر.س</div></div>`).join('')}</div>` : ''}
     ${fuelRecords.length ? `<div class="detail-section"><div class="detail-label">⛽ آخر تزودات الوقود</div>${fuelRecords.map(f => `<div style="padding:6px 0; border-bottom:1px solid #eef2f6"><div>📅 ${f.date} | ${f.amount} لتر | ${f.cost} ر.س</div><div style="font-size:12px; color:var(--gray)">العداد: ${f.hours} ساعة</div></div>`).join('')}</div>` : ''}
     ${eq.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${eq.notes}</div></div>` : ''}
@@ -1729,7 +1805,7 @@ function saveAllMeters() {
 }
 
 // ============================================
-// UI RENDERING - مع ترتيب المعدات حسب أقل ساعات متبقية
+// UI RENDERING
 // ============================================
 function refreshUI() {
   // Home stats
@@ -1737,7 +1813,7 @@ function refreshUI() {
   const activeDrivers = driversData.filter(d => d.status === 'نشط').length;
   const totalFuelCost = fuelData.reduce((sum, f) => sum + (f.cost || 0), 0);
   const pendingMaintenance = maintenanceSchedules.filter(m => m.status === 'مجدول').length;
-  const filtersNeeded = calculateTotalFiltersNeeded();
+  const filtersNeeded = calculateAllFiltersNeeded();
   const lowStockCount = inventoryItems.filter(item => {
     if (item.category !== 'filter') return false;
     const needed = filtersNeeded[item.id] || 0;
@@ -1753,7 +1829,7 @@ function refreshUI() {
     <div class="stat-card"><div class="stat-number" style="color:#8b5cf6">${lowStockCount}</div><div class="stat-label">فلاتر ناقصة</div></div>
   `;
   
-  // ترتيب المعدات حسب أقل ساعات متبقية (الأكثر احتياجاً في الأعلى)
+  // ترتيب المعدات حسب أقل ساعات متبقية
   const sortedEquipment = [...equipmentData].sort((a, b) => {
     const remA = hoursRemaining(a);
     const remB = hoursRemaining(b);
