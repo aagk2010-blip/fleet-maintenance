@@ -43,7 +43,6 @@ body {
   padding-bottom: 80px;
 }
 
-/* Header */
 .header {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   padding: 20px 18px;
@@ -64,7 +63,6 @@ body {
 .header-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
 .header-sub { font-size: 11px; opacity: 0.7; margin-top: 4px; }
 
-/* Stats */
 .stats-row {
   display: flex;
   gap: 10px;
@@ -84,7 +82,6 @@ body {
 .stat-number { font-size: 26px; font-weight: 800; }
 .stat-label { font-size: 11px; color: var(--gray); margin-top: 4px; }
 
-/* Sections */
 .section { padding: 0 14px; margin-top: 20px; }
 .section-title {
   font-size: 13px;
@@ -95,8 +92,7 @@ body {
   justify-content: space-between;
 }
 
-/* Cards */
-.equipment-card, .driver-card, .fuel-card, .maintenance-card, .inventory-item-card {
+.equipment-card, .driver-card, .fuel-card, .maintenance-card, .inventory-item-card, .filter-card {
   background: var(--white);
   border-radius: 18px;
   padding: 14px;
@@ -110,7 +106,10 @@ body {
 .fuel-card { border-right: 3px solid var(--success); }
 .maintenance-card { border-right: 3px solid var(--warning); }
 .inventory-item-card { border-right: 3px solid var(--purple); }
-.equipment-card:active, .driver-card:active, .inventory-item-card:active { transform: scale(0.98); }
+.filter-card { border-right: 3px solid var(--success); }
+.filter-card.low { border-right-color: var(--warning); }
+.filter-card.critical { border-right-color: var(--danger); }
+.equipment-card:active, .driver-card:active, .inventory-item-card:active, .filter-card:active { transform: scale(0.98); }
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
 .card-title { font-size: 15px; font-weight: 700; color: var(--primary); }
 .card-code { font-size: 11px; color: var(--gray); }
@@ -125,13 +124,9 @@ body {
 .badge-stopped { background: #fee2e2; color: #7f1d1d; }
 .badge-active { background: #dbeafe; color: #1e40af; }
 .badge-filter { background: #e0e7ff; color: #4338ca; }
-.badge-oil { background: #fed7aa; color: #9a3412; }
-.badge-tire { background: #d1fae5; color: #065f46; }
-.badge-spare { background: #fce7f3; color: #be185d; }
 .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
 
-/* Tab Bar */
 .tab-bar {
   position: fixed;
   bottom: 0;
@@ -164,7 +159,6 @@ body {
 .tab-btn.active { color: var(--accent); font-weight: 600; }
 .tab-icon { font-size: 20px; }
 
-/* FAB */
 .fab {
   position: fixed;
   bottom: 85px;
@@ -184,7 +178,6 @@ body {
   justify-content: center;
 }
 
-/* Modals */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -292,15 +285,6 @@ body {
   cursor: pointer;
   text-align: center;
 }
-.inventory-item-card {
-  background: var(--white);
-  border-radius: 18px;
-  padding: 14px;
-  margin-bottom: 10px;
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-}
 .qty-btn {
   width: 30px;
   height: 30px;
@@ -318,7 +302,7 @@ body {
   gap: 8px;
   box-shadow: var(--shadow-sm);
 }
-.search-box input {
+.search-box input, .search-box select {
   flex: 1;
   border: none;
   outline: none;
@@ -435,13 +419,12 @@ body {
     </div>
   </div>
 
-  <!-- Inventory View - مخزن متكامل بأنواع مختلفة -->
+  <!-- Inventory View -->
   <div id="view-inventory" style="display:none">
     <div style="padding:14px">
-      <!-- فلتر التصنيف -->
-      <div class="search-box" style="margin-bottom:12px">
+      <div class="search-box">
         <span>🏷️</span>
-        <select id="category-filter" onchange="filterInventory()" style="flex:1; border:none; outline:none; font-family:inherit; background:transparent; font-size:14px">
+        <select id="category-filter" onchange="filterInventory()" style="flex:1">
           <option value="all">جميع الأصناف</option>
           <option value="filter">فلاتر</option>
           <option value="oil">زيوت</option>
@@ -450,15 +433,8 @@ body {
           <option value="other">أخرى</option>
         </select>
       </div>
-      
-      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--purple), var(--pink))" onclick="openAddInventoryItemModal()">
-        📦 إضافة صنف جديد
-      </button>
-      
-      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--danger), var(--warning))" onclick="generateOrderReport()">
-        📋 إنشاء طلبية للنواقص
-      </button>
-      
+      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--purple), var(--pink))" onclick="openAddInventoryItemModal()">📦 إضافة صنف جديد</button>
+      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--danger), var(--warning))" onclick="generateOrderReport()">📋 إنشاء طلبية للنواقص</button>
       <div id="inv-list"></div>
     </div>
   </div>
@@ -472,19 +448,6 @@ body {
     <button class="tab-btn" data-view="inventory" onclick="switchView('inventory')"><span class="tab-icon">📦</span><span>المخزن</span></button>
   </div>
   <button class="fab" id="fab-btn" onclick="openAddEquipmentModal()">+</button>
-</div>
-
-<!-- Order Report Modal -->
-<div class="modal-overlay" id="order-report-modal">
-  <div class="modal-header" style="background:linear-gradient(135deg, var(--danger), var(--warning))">
-    <div class="modal-title">📋 تقرير الطلبية - النواقص</div>
-    <button class="modal-close" onclick="closeModal('order-report-modal')">✕</button>
-  </div>
-  <div id="order-report-content" style="padding:14px; padding-bottom:100px"></div>
-  <div style="position:sticky; bottom:0; background:var(--light); padding:14px">
-    <button class="save-btn" onclick="exportOrderToExcel()">📊 تصدير الطلبية إلى Excel</button>
-    <button class="save-btn" style="background:var(--success); margin-top:10px" onclick="sendOrderViaWhatsApp()">📱 إرسال الطلبية عبر واتساب</button>
-  </div>
 </div>
 
 <!-- Inventory Item Modal -->
@@ -504,12 +467,22 @@ body {
           <option value="other">أخرى</option>
         </select>
       </div>
-      <div class="form-field"><label class="form-label">اسم الصنف *</label><input class="form-input" id="inv-name" placeholder="مثال: زيت محرك 20W50"></div>
-      <div class="form-field"><label class="form-label">رقم القطعة / الموديل</label><input class="form-input" id="inv-partno" placeholder="رقم القطعة"></div>
+      <div class="form-field"><label class="form-label">اسم الصنف *</label><input class="form-input" id="inv-name" placeholder="مثال: فلتر زيت المحرك"></div>
+      <div class="form-field"><label class="form-label">رقم القطعة الأصلي *</label><input class="form-input" id="inv-partno" placeholder="رقم القطعة"></div>
       <div class="form-field"><label class="form-label">الكمية في المخزن</label><input class="form-input" type="number" id="inv-qty" value="0"></div>
-      <div class="form-field"><label class="form-label">الحد الأدنى للتنبيه</label><input class="form-input" type="number" id="inv-min-qty" value="5" placeholder="عند النقصان عن هذا الرقم يظهر تنبيه"></div>
+      <div class="form-field"><label class="form-label">الحد الأدنى للتنبيه</label><input class="form-input" type="number" id="inv-min-qty" value="5"></div>
       <div class="form-field"><label class="form-label">سعر الوحدة (ر.س)</label><input class="form-input" type="number" id="inv-price" value="0"></div>
       <div class="form-field"><label class="form-label">الوحدة</label><select class="form-select" id="inv-unit"><option>قطعة</option><option>لتر</option><option>جالون</option><option>كجم</option></select></div>
+    </div>
+    
+    <!-- الأرقام البديلة -->
+    <div class="sec-lbl" style="padding:0 14px 6px; font-size:12px; font-weight:700; color:var(--gray)">🔄 أرقام بديلة وكمياتها</div>
+    <div style="margin:0 14px 10px; background:white; border-radius:14px; padding:12px 14px; box-shadow:0 1px 4px rgba(0,0,0,0.07)">
+      <div id="inv-alt-list"></div>
+      <button onclick="addInvAltField()" style="width:100%; background:#f0fdf4; color:var(--green); border:1px dashed var(--green); border-radius:10px; padding:9px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px">➕ إضافة رقم بديل + كميته</button>
+    </div>
+    
+    <div class="form-group">
       <div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="inv-notes" placeholder="أي ملاحظات"></textarea></div>
     </div>
     <button class="save-btn" onclick="saveInventoryItem()">✅ حفظ الصنف</button>
@@ -619,6 +592,19 @@ body {
   </div>
 </div>
 
+<!-- Order Report Modal -->
+<div class="modal-overlay" id="order-report-modal">
+  <div class="modal-header" style="background:linear-gradient(135deg, var(--danger), var(--warning))">
+    <div class="modal-title">📋 تقرير الطلبية - النواقص</div>
+    <button class="modal-close" onclick="closeModal('order-report-modal')">✕</button>
+  </div>
+  <div id="order-report-content" style="padding:14px; padding-bottom:100px"></div>
+  <div style="position:sticky; bottom:0; background:var(--light); padding:14px">
+    <button class="save-btn" onclick="exportOrderToExcel()">📊 تصدير الطلبية إلى Excel</button>
+    <button class="save-btn" style="background:var(--success); margin-top:10px" onclick="sendOrderViaWhatsApp()">📱 إرسال الطلبية عبر واتساب</button>
+  </div>
+</div>
+
 <script>
 // ============================================
 // FIREBASE CONFIGURATION
@@ -643,6 +629,17 @@ let editingDriverId = null;
 let editingInventoryId = null;
 let currentDetailId = null;
 let currentCategoryFilter = 'all';
+let invAltCount = 0;
+
+// بيانات الفلاتر الأولية (المسجلة مسبقاً)
+const initialInventoryData = [
+  { category: "filter", name: "فلتر زيت المحرك", partNo: "1R-0739", qty: 3, minQty: 5, price: 85, unit: "قطعة", alts: [{partNo: "LF16015", qty: 2}, {partNo: "P550008", qty: 1}] },
+  { category: "filter", name: "فلتر الهواء", partNo: "6I-2501", qty: 2, minQty: 5, price: 120, unit: "قطعة", alts: [{partNo: "AF26510", qty: 1}] },
+  { category: "filter", name: "فلتر الديزل", partNo: "326-1641", qty: 2, minQty: 5, price: 95, unit: "قطعة", alts: [{partNo: "FF5327", qty: 1}] },
+  { category: "filter", name: "فلتر الهيدروليك", partNo: "093-7521", qty: 1, minQty: 3, price: 150, unit: "قطعة", alts: [] },
+  { category: "oil", name: "زيت محرك 15W40", partNo: "MO-15W40", qty: 8, minQty: 10, price: 45, unit: "لتر", alts: [] },
+  { category: "tire", name: "إطار 23.5R25", partNo: "TIR-235R25", qty: 4, minQty: 6, price: 3500, unit: "قطعة", alts: [] }
+];
 
 // ============================================
 // UTILITIES
@@ -699,6 +696,17 @@ function getCategoryBadge(category) {
   return badges[category] || badges.other;
 }
 
+function getCategoryName(category) {
+  const names = { filter: 'فلتر', oil: 'زيت', tire: 'إطار', spare: 'قطعة غيار', other: 'أخرى' };
+  return names[category] || category;
+}
+
+// حساب إجمالي الكمية مع البدائل
+function totalQty(item) {
+  const altQty = (item.alts || []).reduce((sum, a) => sum + (a.qty || 0), 0);
+  return (item.qty || 0) + altQty;
+}
+
 // ============================================
 // FIREBASE INIT
 // ============================================
@@ -738,7 +746,17 @@ function initFirebase() {
     
     fbDb.ref('inventoryItems').on('value', (snap) => {
       const data = snap.val();
-      inventoryItems = data ? Object.entries(data).map(([id, item]) => ({ ...item, id })) : [];
+      if (data) {
+        inventoryItems = Object.entries(data).map(([id, item]) => ({ ...item, id }));
+      } else {
+        // إضافة البيانات الأولية إذا كانت فارغة
+        inventoryItems = [];
+        initialInventoryData.forEach(item => {
+          const newId = fbDb.ref('inventoryItems').push().key;
+          fbDb.ref(`inventoryItems/${newId}`).set({ ...item, id: newId, createdAt: new Date().toISOString() });
+          inventoryItems.push({ ...item, id: newId });
+        });
+      }
       refreshUI();
     });
     
@@ -787,10 +805,37 @@ function logout() {
 }
 
 // ============================================
-// INVENTORY ITEMS MANAGEMENT (مخزن متكامل)
+// INVENTORY ITEMS MANAGEMENT
 // ============================================
+function addInvAltField() {
+  invAltCount++;
+  const container = document.getElementById('inv-alt-list');
+  const div = document.createElement('div');
+  div.id = `inv-alt-${invAltCount}`;
+  div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px';
+  div.innerHTML = `
+    <input class="form-input" id="inv-alt-pn-${invAltCount}" placeholder="رقم بديل" style="background:white; border-radius:8px; padding:8px; border:1px solid #e2e8f0">
+    <input class="form-input" type="number" id="inv-alt-qty-${invAltCount}" placeholder="كميته" style="background:white; border-radius:8px; padding:8px; border:1px solid #e2e8f0">
+    <button onclick="document.getElementById('inv-alt-${invAltCount}').remove()" style="background:#fee2e2; border:none; border-radius:8px; padding:8px 12px">×</button>
+  `;
+  container.appendChild(div);
+}
+
+function getInvAltsValues() {
+  const alts = [];
+  for (let i = 1; i <= invAltCount; i++) {
+    const pn = document.getElementById(`inv-alt-pn-${i}`);
+    const qty = document.getElementById(`inv-alt-qty-${i}`);
+    if (pn && pn.value.trim()) {
+      alts.push({ partNo: pn.value.trim(), qty: parseInt(qty?.value) || 0 });
+    }
+  }
+  return alts;
+}
+
 function openAddInventoryItemModal() {
   editingInventoryId = null;
+  invAltCount = 0;
   document.getElementById('inv-item-title').innerHTML = '📦 إضافة صنف جديد';
   ['inv-name', 'inv-partno', 'inv-qty', 'inv-min-qty', 'inv-price', 'inv-notes'].forEach(id => {
     const el = document.getElementById(id);
@@ -798,10 +843,12 @@ function openAddInventoryItemModal() {
   });
   document.getElementById('inv-category').value = 'filter';
   document.getElementById('inv-unit').value = 'قطعة';
+  document.getElementById('inv-alt-list').innerHTML = '';
   document.getElementById('inventory-item-modal').classList.add('active');
 }
 
 function saveInventoryItem() {
+  const alts = getInvAltsValues();
   const item = {
     category: document.getElementById('inv-category').value,
     name: document.getElementById('inv-name').value.trim(),
@@ -811,11 +858,12 @@ function saveInventoryItem() {
     price: parseFloat(document.getElementById('inv-price').value) || 0,
     unit: document.getElementById('inv-unit').value,
     notes: document.getElementById('inv-notes').value,
+    alts: alts,
     updatedAt: new Date().toISOString()
   };
   
-  if (!item.name) {
-    showToast('يرجى إدخال اسم الصنف');
+  if (!item.name || !item.partNo) {
+    showToast('يرجى إدخال اسم الصنف ورقم القطعة');
     return;
   }
   
@@ -834,6 +882,7 @@ function editInventoryItem(id) {
   const item = inventoryItems.find(i => i.id === id);
   if (!item) return;
   editingInventoryId = id;
+  invAltCount = 0;
   document.getElementById('inv-item-title').innerHTML = '✏️ تعديل صنف';
   document.getElementById('inv-category').value = item.category || 'filter';
   document.getElementById('inv-name').value = item.name || '';
@@ -843,6 +892,19 @@ function editInventoryItem(id) {
   document.getElementById('inv-price').value = item.price || 0;
   document.getElementById('inv-unit').value = item.unit || 'قطعة';
   document.getElementById('inv-notes').value = item.notes || '';
+  document.getElementById('inv-alt-list').innerHTML = '';
+  (item.alts || []).forEach(alt => {
+    invAltCount++;
+    const div = document.createElement('div');
+    div.id = `inv-alt-${invAltCount}`;
+    div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px';
+    div.innerHTML = `
+      <input class="form-input" id="inv-alt-pn-${invAltCount}" value="${alt.partNo}" style="background:white; border-radius:8px; padding:8px; border:1px solid #e2e8f0">
+      <input class="form-input" type="number" id="inv-alt-qty-${invAltCount}" value="${alt.qty}" style="background:white; border-radius:8px; padding:8px; border:1px solid #e2e8f0">
+      <button onclick="document.getElementById('inv-alt-${invAltCount}').remove()" style="background:#fee2e2; border:none; border-radius:8px; padding:8px 12px">×</button>
+    `;
+    document.getElementById('inv-alt-list').appendChild(div);
+  });
   closeModal('detail-modal');
   document.getElementById('inventory-item-modal').classList.add('active');
 }
@@ -868,33 +930,37 @@ function renderInventory() {
   }
   
   if (!filtered.length) {
-    container.innerHTML = '<div class="empty-state">لا توجد أصناف في هذا التصنيف<br><button class="save-btn" style="margin-top:16px" onclick="openAddInventoryItemModal()">+ إضافة صنف جديد</button></div>';
+    container.innerHTML = '<div class="empty-state">لا توجد أصناف في هذا التصنيف</div>';
     return;
   }
   
   container.innerHTML = filtered.map(item => {
-    const isLow = item.qty <= item.minQty;
-    const totalValue = (item.qty || 0) * (item.price || 0);
+    const total = totalQty(item);
+    const isLow = total <= item.minQty;
+    const needed = Math.max(0, item.minQty - total);
+    const totalValue = total * (item.price || 0);
+    const alts = item.alts || [];
     
     return `
       <div class="inventory-item-card" onclick="showInventoryItemDetail('${item.id}')">
         <div class="card-header">
           <div>
             <div class="card-title">${item.name}</div>
-            <div class="card-code">${item.partNo || '—'} ${getCategoryBadge(item.category)}</div>
+            <div class="card-code">${item.partNo} ${getCategoryBadge(item.category)}</div>
           </div>
-          <span class="badge ${isLow ? 'badge-maintenance' : 'badge-working'}">${item.qty} ${item.unit}</span>
+          <span class="badge ${isLow ? 'badge-maintenance' : 'badge-working'}">${total} ${item.unit}</span>
         </div>
         <div class="grid-3" style="margin-top:10px">
-          <div><div class="detail-label">الحد الأدنى</div><div class="detail-value">${item.minQty} ${item.unit}</div></div>
-          <div><div class="detail-label">سعر الوحدة</div><div class="detail-value">${formatNumber(item.price)} ر.س</div></div>
-          <div><div class="detail-label">القيمة الإجمالية</div><div class="detail-value">${formatNumber(totalValue)} ر.س</div></div>
+          <div><div class="detail-label">الأصلي</div><div class="detail-value">${item.qty}</div></div>
+          <div><div class="detail-label">البدائل</div><div class="detail-value">${alts.reduce((s,a)=>s+a.qty,0)}</div></div>
+          <div><div class="detail-label">الإجمالي</div><div class="detail-value">${total}</div></div>
         </div>
+        ${alts.length ? `<div style="margin-top:6px; font-size:10px; color:var(--gray)">🔄 بدائل: ${alts.map(a=>`${a.partNo} (${a.qty})`).join(' | ')}</div>` : ''}
         <div style="margin-top:8px; display:flex; gap:10px; align-items:center">
           <button onclick="event.stopPropagation(); adjustInventoryQty('${item.id}', -1)" class="qty-btn" style="background:var(--danger); color:white">-</button>
-          <span style="font-weight:700">${item.qty} ${item.unit}</span>
+          <span style="font-weight:700">${total} ${item.unit}</span>
           <button onclick="event.stopPropagation(); adjustInventoryQty('${item.id}', 1)" class="qty-btn" style="background:var(--success); color:white">+</button>
-          ${isLow ? '<span style="background:#fee2e2; color:var(--danger); padding:2px 8px; border-radius:12px; font-size:10px">⚠️ يحتاج طلبية</span>' : ''}
+          ${isLow ? `<span style="background:#fee2e2; color:var(--danger); padding:2px 8px; border-radius:12px; font-size:10px">⚠️ ناقص ${needed}</span>` : ''}
         </div>
         <button onclick="event.stopPropagation(); deleteFromFirebase('inventoryItems','${item.id}')" class="save-btn" style="margin:10px 0 0 0; background:#fee2e2; color:var(--danger)">🗑️ حذف</button>
       </div>
@@ -905,19 +971,33 @@ function renderInventory() {
 function showInventoryItemDetail(id) {
   const item = inventoryItems.find(i => i.id === id);
   if (!item) return;
-  currentDetailId = id;
+  const total = totalQty(item);
+  const isLow = total <= item.minQty;
+  const needed = Math.max(0, item.minQty - total);
+  const alts = item.alts || [];
+  
   document.getElementById('detail-title').innerHTML = `📦 ${item.name}`;
   document.getElementById('detail-content').innerHTML = `
     <div class="detail-section">
       <div class="grid-2">
         <div><div class="detail-label">التصنيف</div><div class="detail-value">${getCategoryBadge(item.category)}</div></div>
-        <div><div class="detail-label">رقم القطعة</div><div class="detail-value">${item.partNo || '—'}</div></div>
-        <div><div class="detail-label">الكمية المتوفرة</div><div class="detail-value">${item.qty} ${item.unit}</div></div>
+        <div><div class="detail-label">رقم القطعة الأصلي</div><div class="detail-value">${item.partNo}</div></div>
+        <div><div class="detail-label">الكمية الأصلية</div><div class="detail-value">${item.qty} ${item.unit}</div></div>
+        <div><div class="detail-label">البدائل</div><div class="detail-value">${alts.reduce((s,a)=>s+a.qty,0)} ${item.unit}</div></div>
+        <div><div class="detail-label">الإجمالي الكلي</div><div class="detail-value" style="color:${isLow ? 'var(--danger)' : 'var(--success)'}">${total} ${item.unit}</div></div>
         <div><div class="detail-label">الحد الأدنى</div><div class="detail-value">${item.minQty} ${item.unit}</div></div>
+        <div><div class="detail-label">الحالة</div><div class="detail-value">${isLow ? `⚠️ يحتاج ${needed} ${item.unit}` : '✅ كافٍ'}</div></div>
         <div><div class="detail-label">سعر الوحدة</div><div class="detail-value">${formatNumber(item.price)} ر.س</div></div>
-        <div><div class="detail-label">القيمة الإجمالية</div><div class="detail-value">${formatNumber((item.qty || 0) * (item.price || 0))} ر.س</div></div>
+        <div><div class="detail-label">القيمة الإجمالية</div><div class="detail-value">${formatNumber(total * (item.price || 0))} ر.س</div></div>
       </div>
     </div>
+    ${alts.length ? `<div class="detail-section">
+      <div class="detail-label">🔄 الأرقام البديلة وكمياتها</div>
+      ${alts.map(a => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eef2f6">
+        <span>📦 ${a.partNo}</span>
+        <span>الكمية: ${a.qty} ${item.unit}</span>
+      </div>`).join('')}
+    </div>` : ''}
     ${item.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${item.notes}</div></div>` : ''}
     <div class="grid-2" style="margin:12px 14px">
       <button class="save-btn" style="margin:0; background:var(--accent)" onclick="editInventoryItem('${item.id}')">✏️ تعديل</button>
@@ -928,14 +1008,15 @@ function showInventoryItemDetail(id) {
 }
 
 // ============================================
-// ORDER REPORT - طلبية النواقص
+// ORDER REPORT
 // ============================================
 function generateOrderReport() {
-  const lowStockItems = inventoryItems.filter(item => item.qty <= item.minQty);
+  const lowStockItems = inventoryItems.filter(item => totalQty(item) <= item.minQty);
   const shortages = lowStockItems.map(item => ({
     ...item,
-    neededQty: item.minQty - item.qty,
-    totalCost: (item.minQty - item.qty) * (item.price || 0)
+    totalQty: totalQty(item),
+    neededQty: item.minQty - totalQty(item),
+    totalCost: (item.minQty - totalQty(item)) * (item.price || 0)
   }));
   
   const totalOrderCost = shortages.reduce((sum, i) => sum + i.totalCost, 0);
@@ -957,10 +1038,11 @@ function generateOrderReport() {
             <div style="display:flex; justify-content:space-between; align-items:center">
               <div>
                 <div style="font-weight:700">${item.name}</div>
-                <div style="font-size:11px; color:var(--gray)">${item.partNo || '—'} ${getCategoryBadge(item.category)}</div>
+                <div style="font-size:11px; color:var(--gray)">${item.partNo} ${getCategoryBadge(item.category)}</div>
+                ${item.alts?.length ? `<div style="font-size:10px; color:var(--info)">بدائل: ${item.alts.map(a=>a.partNo).join(', ')}</div>` : ''}
               </div>
               <div style="text-align:left">
-                <div style="font-size:11px; color:var(--danger)">المتوفر: ${item.qty} ${item.unit}</div>
+                <div style="font-size:11px; color:var(--danger)">المتوفر: ${item.totalQty} ${item.unit}</div>
                 <div style="font-size:14px; font-weight:800; color:var(--accent)">المطلوب: ${item.neededQty} ${item.unit}</div>
               </div>
             </div>
@@ -979,17 +1061,20 @@ function generateOrderReport() {
 }
 
 function exportOrderToExcel() {
-  const lowStockItems = inventoryItems.filter(item => item.qty <= item.minQty);
+  const lowStockItems = inventoryItems.filter(item => totalQty(item) <= item.minQty);
   const data = lowStockItems.map(item => ({
     'التصنيف': getCategoryName(item.category),
     'اسم الصنف': item.name,
-    'رقم القطعة': item.partNo || '—',
+    'رقم القطعة الأصلي': item.partNo,
+    'الأرقام البديلة': (item.alts || []).map(a=>a.partNo).join(' - '),
     'الوحدة': item.unit,
-    'الكمية المتوفرة': item.qty,
+    'الكمية المتوفرة (أصلي)': item.qty,
+    'الكمية المتوفرة (بدائل)': (item.alts || []).reduce((s,a)=>s+a.qty,0),
+    'الكمية المتوفرة (إجمالي)': totalQty(item),
     'الحد الأدنى': item.minQty,
-    'الكمية المطلوبة': item.minQty - item.qty,
+    'الكمية المطلوبة': item.minQty - totalQty(item),
     'سعر الوحدة (ر.س)': item.price || 0,
-    'التكلفة الإجمالية (ر.س)': ((item.minQty - item.qty) * (item.price || 0)).toFixed(2)
+    'التكلفة الإجمالية (ر.س)': ((item.minQty - totalQty(item)) * (item.price || 0)).toFixed(2)
   }));
   
   const ws = XLSX.utils.json_to_sheet(data);
@@ -999,32 +1084,24 @@ function exportOrderToExcel() {
   showToast('تم تصدير الطلبية إلى Excel');
 }
 
-function getCategoryName(category) {
-  const names = {
-    filter: 'فلتر',
-    oil: 'زيت',
-    tire: 'إطار',
-    spare: 'قطعة غيار',
-    other: 'أخرى'
-  };
-  return names[category] || category;
-}
-
 function sendOrderViaWhatsApp() {
-  const lowStockItems = inventoryItems.filter(item => item.qty <= item.minQty);
+  const lowStockItems = inventoryItems.filter(item => totalQty(item) <= item.minQty);
   if (lowStockItems.length === 0) {
     showToast('لا توجد أصناف ناقصة لإرسال الطلبية');
     return;
   }
   
-  let message = `📋 *طلبية مخزن - حسن علام القابضة*%0A`;
+  let message = `📋 *طلبيه مخزن - حسن علام القابضة*%0A`;
   message += `📅 التاريخ: ${new Date().toLocaleDateString('ar-EG')}%0A`;
-  message += `━━━━━━━━━━━━━━━━%0A`;
+  message += `━━━━━━━━━━━━━━━━%0A%0A`;
   
   lowStockItems.forEach(item => {
-    const needed = item.minQty - item.qty;
+    const total = totalQty(item);
+    const needed = item.minQty - total;
     message += `📦 *${item.name}*%0A`;
-    message += `   المتوفر: ${item.qty} ${item.unit}%0A`;
+    message += `   رقم القطعة: ${item.partNo}%0A`;
+    if (item.alts?.length) message += `   بدائل: ${item.alts.map(a=>a.partNo).join(', ')}%0A`;
+    message += `   المتوفر: ${total} ${item.unit}%0A`;
     message += `   المطلوب: ${needed} ${item.unit}%0A`;
     if (item.price) message += `   السعر: ${item.price} ر.س%0A`;
     message += `%0A`;
@@ -1039,7 +1116,7 @@ function sendOrderViaWhatsApp() {
 }
 
 // ============================================
-// DRIVERS MANAGEMENT
+// DRIVERS MANAGEMENT (مختصر)
 // ============================================
 function updateDriverSelects() {
   const driverSelects = ['eq-driver', 'fuel-driver'];
@@ -1094,7 +1171,6 @@ function openDriverDetail(id) {
   currentDetailId = id;
   const driver = driversData.find(d => d.id === id);
   if (!driver) return;
-  
   const assignedEqs = equipmentData.filter(eq => eq.assignedDriver === id);
   
   document.getElementById('detail-title').innerHTML = `👨‍✈️ ${driver.name}`;
@@ -1107,10 +1183,7 @@ function openDriverDetail(id) {
         <div><div class="detail-label">الحالة</div><div class="detail-value">${driver.status}</div></div>
       </div>
     </div>
-    ${assignedEqs.length ? `<div class="detail-section">
-      <div class="detail-label">🚜 المعدات المسندة</div>
-      ${assignedEqs.map(eq => `<div style="padding:6px 0">• ${eq.name} (${eq.code})</div>`).join('')}
-    </div>` : ''}
+    ${assignedEqs.length ? `<div class="detail-section"><div class="detail-label">🚜 المعدات المسندة</div>${assignedEqs.map(eq => `<div style="padding:6px 0">• ${eq.name} (${eq.code})</div>`).join('')}</div>` : ''}
     ${driver.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${driver.notes}</div></div>` : ''}
     <div class="grid-2" style="margin:12px 14px">
       <button class="save-btn" style="margin:0; background:var(--accent)" onclick="editDriver('${driver.id}')">✏️ تعديل</button>
@@ -1136,7 +1209,7 @@ function editDriver(id) {
 }
 
 // ============================================
-// FUEL MANAGEMENT
+// FUEL MANAGEMENT (مختصر)
 // ============================================
 function openAddFuelModal() {
   const equipSelect = document.getElementById('fuel-equipment');
@@ -1180,7 +1253,7 @@ function saveFuelRecord() {
 }
 
 // ============================================
-// MAINTENANCE SCHEDULE
+// MAINTENANCE SCHEDULE (مختصر)
 // ============================================
 function openAddMaintenanceModal() {
   const equipSelect = document.getElementById('maint-equipment');
@@ -1229,7 +1302,7 @@ function completeMaintenance(id) {
 }
 
 // ============================================
-// EQUIPMENT CRUD
+// EQUIPMENT CRUD (مختصر)
 // ============================================
 function openAddEquipmentModal() {
   editingEquipmentId = null;
@@ -1289,12 +1362,10 @@ function openEquipmentDetail(id) {
   currentDetailId = id;
   const eq = equipmentData.find(e => e.id === id);
   if (!eq) return;
-  
   const driver = driversData.find(d => d.id === eq.assignedDriver);
   const rem = hoursRemaining(eq);
   const percent = getRemainingPercent(eq);
   const remStatus = getRemainingStatus(eq);
-  
   const fuelRecords = fuelData.filter(f => f.equipmentId === id).slice(-5).reverse();
   const schedules = maintenanceSchedules.filter(m => m.equipmentId === id && m.status === 'مجدول');
   
@@ -1316,20 +1387,8 @@ function openEquipmentDetail(id) {
       <div class="progress-bar" style="margin: 8px 0"><div class="progress-fill" style="width: ${percent}%; background: ${getBarColor(rem)}"></div></div>
       <div style="margin-top:8px"><div class="detail-label">⏳ المتبقي</div><div class="detail-value" style="color: ${remStatus.color}">${remStatus.text}</div></div>
     </div>
-    ${schedules.length ? `<div class="detail-section">
-      <div class="detail-label">🔧 الصيانات المجدولة</div>
-      ${schedules.map(s => `<div style="padding:6px 0; border-bottom:1px solid #eef2f6">
-        <div><strong>${s.type}</strong> - ${s.date}</div>
-        <div style="font-size:12px; color:var(--gray)">العداد: ${s.targetHours || '—'} ساعة | التكلفة: ${s.estimatedCost || 0} ر.س</div>
-      </div>`).join('')}
-    </div>` : ''}
-    ${fuelRecords.length ? `<div class="detail-section">
-      <div class="detail-label">⛽ آخر تزودات الوقود</div>
-      ${fuelRecords.map(f => `<div style="padding:6px 0; border-bottom:1px solid #eef2f6">
-        <div>📅 ${f.date} | ${f.amount} لتر | ${f.cost} ر.س</div>
-        <div style="font-size:12px; color:var(--gray)">العداد: ${f.hours} ساعة</div>
-      </div>`).join('')}
-    </div>` : ''}
+    ${schedules.length ? `<div class="detail-section"><div class="detail-label">🔧 الصيانات المجدولة</div>${schedules.map(s => `<div style="padding:6px 0; border-bottom:1px solid #eef2f6"><div><strong>${s.type}</strong> - ${s.date}</div><div style="font-size:12px; color:var(--gray)">العداد: ${s.targetHours || '—'} ساعة | التكلفة: ${s.estimatedCost || 0} ر.س</div></div>`).join('')}</div>` : ''}
+    ${fuelRecords.length ? `<div class="detail-section"><div class="detail-label">⛽ آخر تزودات الوقود</div>${fuelRecords.map(f => `<div style="padding:6px 0; border-bottom:1px solid #eef2f6"><div>📅 ${f.date} | ${f.amount} لتر | ${f.cost} ر.س</div><div style="font-size:12px; color:var(--gray)">العداد: ${f.hours} ساعة</div></div>`).join('')}</div>` : ''}
     ${eq.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${eq.notes}</div></div>` : ''}
     <div class="grid-2" style="margin:12px 14px">
       <button class="save-btn" style="margin:0; background:var(--accent)" onclick="editEquipment('${eq.id}')">✏️ تعديل</button>
@@ -1355,9 +1414,7 @@ function editEquipment(id) {
   document.getElementById('eq-status').value = eq.status || 'يعمل';
   document.getElementById('eq-notes').value = eq.notes || '';
   updateDriverSelects();
-  if (eq.assignedDriver) {
-    document.getElementById('eq-driver').value = eq.assignedDriver;
-  }
+  if (eq.assignedDriver) document.getElementById('eq-driver').value = eq.assignedDriver;
   closeModal('detail-modal');
   document.getElementById('equipment-modal').classList.add('active');
 }
@@ -1419,7 +1476,7 @@ function saveAllMeters() {
 }
 
 // ============================================
-// UI RENDERING
+// UI RENDERING - مع ترتيب المعدات حسب أقل ساعات متبقية
 // ============================================
 function refreshUI() {
   // Home stats
@@ -1427,7 +1484,7 @@ function refreshUI() {
   const activeDrivers = driversData.filter(d => d.status === 'نشط').length;
   const totalFuelCost = fuelData.reduce((sum, f) => sum + (f.cost || 0), 0);
   const pendingMaintenance = maintenanceSchedules.filter(m => m.status === 'مجدول').length;
-  const lowStockCount = inventoryItems.filter(i => i.qty <= i.minQty).length;
+  const lowStockCount = inventoryItems.filter(i => totalQty(i) <= i.minQty).length;
   
   document.getElementById('stats-summary').innerHTML = `
     <div class="stat-card"><div class="stat-number">${equipmentData.length}</div><div class="stat-label">المعدات</div></div>
@@ -1437,17 +1494,30 @@ function refreshUI() {
     <div class="stat-card"><div class="stat-number" style="color:#8b5cf6">${lowStockCount}</div><div class="stat-label">أصناف ناقصة</div></div>
   `;
   
-  // Equipment list home
+  // ترتيب المعدات حسب أقل ساعات متبقية (الأكثر احتياجاً في الأعلى)
+  const sortedEquipment = [...equipmentData].sort((a, b) => {
+    const remA = hoursRemaining(a);
+    const remB = hoursRemaining(b);
+    if (remA <= 0 && remB > 0) return -1;
+    if (remA > 0 && remB <= 0) return 1;
+    return remA - remB;
+  });
+  
   document.getElementById('equipment-count').innerHTML = `(${equipmentData.length})`;
-  document.getElementById('equipment-list-home').innerHTML = equipmentData.map(eq => {
+  document.getElementById('equipment-list-home').innerHTML = sortedEquipment.map(eq => {
     const rem = hoursRemaining(eq);
     const percentRemaining = getRemainingPercent(eq);
     const remStatus = getRemainingStatus(eq);
     const barColor = getBarColor(rem);
     const driver = driversData.find(d => d.id === eq.assignedDriver);
     
+    // تحديد لون الخلفية للبطاقة حسب الأولوية
+    let cardClass = '';
+    if (rem <= 0) cardClass = 'critical';
+    else if (rem <= 50) cardClass = 'low';
+    
     return `
-      <div class="equipment-card" onclick="openEquipmentDetail('${eq.id}')">
+      <div class="equipment-card ${cardClass}" onclick="openEquipmentDetail('${eq.id}')">
         <div class="card-header">
           <div>
             <div class="card-title">${eq.name}</div>
@@ -1561,7 +1631,6 @@ function refreshUI() {
     document.getElementById('maintenance-list').innerHTML = '<div class="empty-state">لا توجد صيانات مجدولة</div>';
   }
   
-  // Inventory
   renderInventory();
 }
 
@@ -1659,6 +1728,7 @@ window.filterInventory = filterInventory;
 window.generateOrderReport = generateOrderReport;
 window.exportOrderToExcel = exportOrderToExcel;
 window.sendOrderViaWhatsApp = sendOrderViaWhatsApp;
+window.addInvAltField = addInvAltField;
 
 document.getElementById('login-screen').style.display = 'flex';
 </script>
