@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0d1b2a">
-<title>نظام إدارة الأسطول المتكامل | النسخة الاحترافية</title>
+<title>حسن علام القابضة - نظام إدارة الأسطول المتكامل</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
@@ -325,16 +325,59 @@ body {
 
 <div class="toast" id="toast"></div>
 
-<!-- Login Screen -->
-<div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, var(--primary), var(--secondary)); z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px;">
-  <div style="text-align:center; width:100%; max-width:320px">
-    <div style="font-size:60px; margin-bottom:20px">🏗️</div>
-    <div style="font-size:28px; font-weight:800; margin-bottom:10px; color:white">نظام الأسطول المتكامل</div>
-    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">صيانة - فلاتر - وقود - سائقين - تقارير</div>
-    <input type="text" id="login-username" placeholder="اسم المستخدم" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:12px; text-align:center; font-size:14px">
-    <input type="password" id="login-password" placeholder="كلمة المرور" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:20px; text-align:center; font-size:14px">
-    <button onclick="performLogin()" style="width:100%; background:var(--accent); color:var(--primary); border:none; padding:14px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer">دخول</button>
-    <div style="margin-top:20px; font-size:11px; color:rgba(255,255,255,0.5)">admin / admin123</div>
+<!-- Login Screen - شعار حسن علام القابضة -->
+<div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, #0a1622, #1a2a3a); z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px;">
+  <div style="text-align:center; width:100%; max-width:360px">
+    
+    <!-- شعار الشركة -->
+    <div style="margin-bottom:25px">
+      <div style="width:110px; height:110px; background:linear-gradient(145deg, #1a3a4a, #0d1b2a); border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; border:3px solid var(--accent); box-shadow:0 0 20px rgba(232,160,32,0.3)">
+        <span style="font-size:52px">🏗️</span>
+      </div>
+      <div style="font-size:22px; font-weight:800; letter-spacing:1.5px; color:white; font-family:'Arial',sans-serif">HASSAN ALLAM</div>
+      <div style="font-size:13px; color:var(--accent); letter-spacing:3px; margin-top:3px; font-weight:600">HOLDING</div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px">
+        <div style="width:30px; height:1px; background:rgba(232,160,32,0.5)"></div>
+        <div style="width:6px; height:6px; background:var(--accent); border-radius:50%"></div>
+        <div style="width:30px; height:1px; background:rgba(232,160,32,0.5)"></div>
+      </div>
+    </div>
+    
+    <div style="font-size:24px; font-weight:800; margin-bottom:6px; color:white">نظام الأسطول المتكامل</div>
+    <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:30px">Integrated Fleet Management System</div>
+    
+    <div style="background:rgba(255,255,255,0.05); border-radius:20px; padding:5px; margin-bottom:12px; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1)">
+      <div style="display:flex; align-items:center; gap:12px; background:rgba(0,0,0,0.3); border-radius:15px; padding:4px 18px">
+        <span style="color:var(--accent); font-size:18px">👤</span>
+        <input type="text" id="login-username" placeholder="اسم المستخدم" 
+               style="flex:1; background:transparent; border:none; outline:none; padding:14px 0; color:white; font-size:14px; font-family:inherit">
+      </div>
+    </div>
+    
+    <div style="background:rgba(255,255,255,0.05); border-radius:20px; padding:5px; margin-bottom:25px; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1)">
+      <div style="display:flex; align-items:center; gap:12px; background:rgba(0,0,0,0.3); border-radius:15px; padding:4px 18px">
+        <span style="color:var(--accent); font-size:18px">🔒</span>
+        <input type="password" id="login-password" placeholder="كلمة المرور" 
+               style="flex:1; background:transparent; border:none; outline:none; padding:14px 0; color:white; font-size:14px; font-family:inherit">
+      </div>
+    </div>
+    
+    <button onclick="performLogin()" 
+            style="width:100%; background:linear-gradient(135deg, var(--accent), var(--accent-dark)); color:var(--primary); border:none; padding:15px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer; transition:all 0.3s; box-shadow:0 5px 20px rgba(232,160,32,0.4); display:flex; align-items:center; justify-content:center; gap:10px; font-family:inherit">
+      <span>🚀</span> دخول إلى النظام
+    </button>
+    
+    <div style="margin-top:30px; padding:12px; background:rgba(255,255,255,0.03); border-radius:16px">
+      <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:5px">بيانات الدخول التجريبية</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.6); display:flex; justify-content:center; gap:20px; font-family:monospace">
+        <span>👨‍💼 admin / admin123</span>
+      </div>
+    </div>
+    
+    <div style="margin-top:25px">
+      <div style="font-size:9px; color:rgba(255,255,255,0.25)">© 2024 حسن علام القابضة - جميع الحقوق محفوظة</div>
+      <div style="font-size:9px; color:rgba(255,255,255,0.15); margin-top:4px">Hassan Allam Holding - Fleet Management System</div>
+    </div>
   </div>
 </div>
 
@@ -342,7 +385,7 @@ body {
 <div id="app-container" style="display:none">
   <div class="header" id="main-header">
     <div class="header-title" id="header-title">📊 لوحة القيادة</div>
-    <div class="header-sub" id="header-sub">نظام متابعة الأسطول</div>
+    <div class="header-sub" id="header-sub">نظام متابعة الأسطول - حسن علام القابضة</div>
   </div>
 
   <!-- Home View -->
@@ -676,7 +719,7 @@ function performLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-container').style.display = 'block';
     initFirebase();
-    showToast('مرحباً بك في النظام');
+    showToast('مرحباً بك في نظام حسن علام القابضة');
   } else {
     showToast('اسم المستخدم أو كلمة المرور غير صحيحة');
   }
@@ -1391,7 +1434,7 @@ window.completeMaintenance = completeMaintenance;
 window.showMaintenanceDetail = showMaintenanceDetail;
 window.saveInventoryFilter = saveInventoryFilter;
 
-// عرض شاشة تسجيل الدخول فقط
+// عرض شاشة تسجيل الدخول
 document.getElementById('login-screen').style.display = 'flex';
 </script>
 </body>
