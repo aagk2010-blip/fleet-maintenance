@@ -292,6 +292,23 @@ body {
   border-radius: 12px;
   margin-top: 8px;
 }
+.filter-card {
+  background: white;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-right: 3px solid var(--success);
+}
+.filter-card.low { border-right-color: var(--warning); }
+.filter-card.critical { border-right-color: var(--danger); }
+.qty-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -303,7 +320,7 @@ body {
   <div style="text-align:center; width:100%; max-width:320px">
     <div style="font-size:60px; margin-bottom:20px">🏗️</div>
     <div style="font-size:28px; font-weight:800; margin-bottom:10px; color:white">نظام الأسطول المتكامل</div>
-    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">صيانة - سائقين - وقود - تقارير</div>
+    <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:30px">صيانة - فلاتر - وقود - سائقين - تقارير</div>
     <input type="text" id="login-username" placeholder="اسم المستخدم" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:12px; text-align:center; font-size:14px">
     <input type="password" id="login-password" placeholder="كلمة المرور" style="width:100%; padding:14px; border-radius:30px; border:none; margin-bottom:20px; text-align:center; font-size:14px">
     <button onclick="performLogin()" style="width:100%; background:var(--accent); color:var(--primary); border:none; padding:14px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer">دخول</button>
@@ -354,6 +371,7 @@ body {
   <div id="view-fuel" style="display:none">
     <div style="padding:14px">
       <div id="fuel-stats" class="grid-3" style="margin-bottom:16px"></div>
+      <button class="big-btn" style="margin-bottom:16px" onclick="openAddFuelModal()">⛽ تسجيل تزود جديد</button>
       <div id="fuel-list"></div>
     </div>
   </div>
@@ -361,6 +379,7 @@ body {
   <!-- Maintenance View -->
   <div id="view-maintenance" style="display:none">
     <div style="padding:14px">
+      <button class="big-btn" style="margin-bottom:16px" onclick="openAddMaintenanceModal()">🔧 جدولة صيانة جديدة</button>
       <div id="maintenance-list"></div>
     </div>
   </div>
@@ -400,7 +419,6 @@ body {
       <div class="form-field"><label class="form-label">🔧 عداد الصيانة القادمة (ساعة)</label><input class="form-input" type="number" id="eq-next-hours" value="250"></div>
       <div class="form-field"><label class="form-label">دورة الصيانة (ساعة)</label><input class="form-input" type="number" id="eq-interval" value="250"></div>
       <div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="eq-status"><option>يعمل</option><option>صيانة</option><option>متوقف</option></select></div>
-      <div class="form-field"><label class="form-label">رابط صورة المعدة</label><input class="form-input" id="eq-image" placeholder="https://..."></div>
       <div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="eq-notes" placeholder="أي ملاحظات"></textarea></div>
     </div>
     <button class="save-btn" onclick="saveEquipment()">✅ حفظ المعدة</button>
@@ -459,7 +477,7 @@ body {
       <div class="form-field"><label class="form-label">التاريخ المحدد</label><input class="form-input" type="date" id="maint-date"></div>
       <div class="form-field"><label class="form-label">العداد المستهدف (ساعة)</label><input class="form-input" type="number" id="maint-hours" placeholder="العداد المستهدف"></div>
       <div class="form-field"><label class="form-label">التكلفة المتوقعة</label><input class="form-input" type="number" id="maint-cost" placeholder="التكلفة"></div>
-      <div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="maint-notes" placeholder"></textarea></div>
+      <div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="maint-notes" placeholder="أي ملاحظات"></textarea></div>
     </div>
     <button class="save-btn" onclick="saveMaintenanceSchedule()">✅ جدولة الصيانة</button>
   </div>
@@ -486,15 +504,25 @@ body {
   </div>
 </div>
 
-<!-- Notification Permission -->
-<div id="notif-request" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:var(--primary); color:white; padding:12px 20px; border-radius:30px; z-index:300; display:none; gap:12px">
-  <span>🔔 تفعيل الإشعارات</span>
-  <button onclick="requestNotificationPermission()" style="background:var(--accent); border:none; padding:6px 12px; border-radius:20px; cursor:pointer">تفعيل</button>
+<!-- Inventory Modal -->
+<div class="modal-overlay" id="inv-modal">
+  <div class="modal-header">
+    <div class="modal-title">إضافة فلتر للمخزن</div>
+    <button class="modal-close" onclick="closeModal('inv-modal')">✕</button>
+  </div>
+  <div>
+    <div class="form-group">
+      <div class="form-field"><label class="form-label">نوع الفلتر *</label><input class="form-input" id="inv-type"></div>
+      <div class="form-field"><label class="form-label">رقم القطعة *</label><input class="form-input" id="inv-partno"></div>
+      <div class="form-field"><label class="form-label">الكمية</label><input class="form-input" type="number" id="inv-qty" value="0"></div>
+    </div>
+    <button class="save-btn" onclick="saveInventoryFilter()">✅ حفظ</button>
+  </div>
 </div>
 
 <script>
 // ============================================
-// FIREBASE CONFIGURATION
+// FIREBASE CONFIGURATION - البيانات الحالية محفوظة
 // ============================================
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD3eWEZZDXCfHtJ6xdD9VwW8hT5vZzV0W4",
@@ -505,7 +533,6 @@ const FIREBASE_CONFIG = {
 };
 
 let fbDb = null;
-let fbStorage = null;
 let equipmentData = [];
 let driversData = [];
 let fuelData = [];
@@ -514,9 +541,9 @@ let inventoryData = [];
 let currentUser = null;
 let editingEquipmentId = null;
 let editingDriverId = null;
+let editingInvId = null;
 let currentDetailId = null;
 let currentDetailType = null;
-let notificationInterval = null;
 
 // ============================================
 // UTILITIES
@@ -545,87 +572,25 @@ function getProgressPercent(eq) {
 }
 
 // ============================================
-// NOTIFICATION SYSTEM
-// ============================================
-function requestNotificationPermission() {
-  if ('Notification' in window) {
-    Notification.requestPermission().then(perm => {
-      if (perm === 'granted') {
-        showToast('✅ تم تفعيل الإشعارات');
-        document.getElementById('notif-request').style.display = 'none';
-        sendNotification('مرحباً', 'سيتم إرسال إشعارات الصيانة والمواعيد');
-      }
-    });
-  }
-}
-
-function sendNotification(title, body) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(title, { body, icon: '🏗️' });
-  }
-}
-
-function checkMaintenanceAlerts() {
-  const today = new Date().toISOString().split('T')[0];
-  
-  // فحص الصيانة المجدولة
-  maintenanceSchedules.forEach(schedule => {
-    if (schedule.date === today && !schedule.notified) {
-      const eq = equipmentData.find(e => e.id === schedule.equipmentId);
-      if (eq) {
-        sendNotification(`🔧 صيانة ${eq.name}`, `${schedule.type} - اليوم ${schedule.date}`);
-        schedule.notified = true;
-        saveToFirebase('maintenanceSchedules', schedule);
-      }
-    }
-  });
-  
-  // فحص المعدات (متبقي أقل من 50 ساعة)
-  equipmentData.forEach(eq => {
-    const rem = hoursRemaining(eq);
-    if (rem <= 50 && rem > 0 && rem % 10 === 0) {
-      const lastNotif = localStorage.getItem(`notif_${eq.id}_${eq.nextHours}`);
-      if (!lastNotif) {
-        sendNotification(`⚠️ صيانة قريبة - ${eq.name}`, `باقي ${rem} ساعة على الصيانة`);
-        localStorage.setItem(`notif_${eq.id}_${eq.nextHours}`, Date.now());
-      }
-    }
-  });
-  
-  // فحص صلاحية رخص السائقين
-  const todayDate = new Date();
-  driversData.forEach(driver => {
-    if (driver.licenseExpiry) {
-      const expiryDate = new Date(driver.licenseExpiry);
-      const daysLeft = Math.ceil((expiryDate - todayDate) / (1000 * 60 * 60 * 24));
-      if (daysLeft <= 30 && daysLeft > 0 && daysLeft % 10 === 0) {
-        const lastNotif = localStorage.getItem(`license_${driver.id}`);
-        if (!lastNotif) {
-          sendNotification(`📜 رخصة ${driver.name}`, `تنتهي بعد ${daysLeft} يوم`);
-          localStorage.setItem(`license_${driver.id}`, Date.now());
-        }
-      }
-    });
-  });
-}
-
-// ============================================
 // FIREBASE INIT
 // ============================================
 function initFirebase() {
   try {
-    firebase.initializeApp(FIREBASE_CONFIG);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+    }
     fbDb = firebase.database();
-    fbStorage = firebase.storage();
     
     firebase.auth().signInAnonymously().catch(console.error);
     
+    // استماع للمعدات
     fbDb.ref('equipment').on('value', (snap) => {
       const data = snap.val();
       equipmentData = data ? Object.entries(data).map(([id, eq]) => ({ ...eq, id })) : [];
       refreshUI();
     });
     
+    // استماع للسائقين
     fbDb.ref('drivers').on('value', (snap) => {
       const data = snap.val();
       driversData = data ? Object.entries(data).map(([id, d]) => ({ ...d, id })) : [];
@@ -633,34 +598,26 @@ function initFirebase() {
       updateDriverSelects();
     });
     
+    // استماع للوقود
     fbDb.ref('fuelRecords').on('value', (snap) => {
       const data = snap.val();
       fuelData = data ? Object.entries(data).map(([id, f]) => ({ ...f, id })) : [];
       refreshUI();
     });
     
+    // استماع للصيانة المجدولة
     fbDb.ref('maintenanceSchedules').on('value', (snap) => {
       const data = snap.val();
       maintenanceSchedules = data ? Object.entries(data).map(([id, m]) => ({ ...m, id })) : [];
       refreshUI();
     });
     
+    // استماع للمخزن
     fbDb.ref('inventory').on('value', (snap) => {
       const data = snap.val();
       inventoryData = data ? Object.entries(data).map(([id, inv]) => ({ ...inv, id })) : [];
       refreshUI();
     });
-    
-    // Start notification checker
-    if (notificationInterval) clearInterval(notificationInterval);
-    notificationInterval = setInterval(checkMaintenanceAlerts, 60000);
-    
-    // Show notification request after 5 seconds
-    setTimeout(() => {
-      if (Notification.permission === 'default') {
-        document.getElementById('notif-request').style.display = 'flex';
-      }
-    }, 5000);
     
   } catch(e) { console.error('Firebase error:', e); }
 }
@@ -688,15 +645,16 @@ function deleteFromFirebase(path, id) {
 function performLogin() {
   const username = document.getElementById('login-username').value;
   const password = document.getElementById('login-password').value;
+  
   if (username === 'admin' && password === 'admin123') {
     currentUser = { username: 'admin', role: 'admin', name: 'المدير' };
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    initFirebase();
+    showToast('مرحباً بك في النظام');
   } else {
-    showToast('بيانات الدخول غير صحيحة');
-    return;
+    showToast('اسم المستخدم أو كلمة المرور غير صحيحة');
   }
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-container').style.display = 'block';
-  initFirebase();
 }
 
 function logout() {
@@ -763,7 +721,6 @@ function openDriverDetail(id) {
   const driver = driversData.find(d => d.id === id);
   if (!driver) return;
   
-  // المعدات المسندة لهذا السائق
   const assignedEqs = equipmentData.filter(eq => eq.assignedDriver === id);
   
   document.getElementById('detail-title').innerHTML = `👨‍✈️ ${driver.name}`;
@@ -772,7 +729,7 @@ function openDriverDetail(id) {
       <div class="grid-2">
         <div><div class="detail-label">رقم الهاتف</div><div class="detail-value">${driver.phone || '—'}</div></div>
         <div><div class="detail-label">رقم الرخصة</div><div class="detail-value">${driver.licenseNumber || '—'}</div></div>
-        <div><div class="detail-label">انتهاء الرخصة</div><div class="detail-value" style="color:${new Date(driver.licenseExpiry) < new Date() ? 'var(--danger)' : 'var(--success)'}">${driver.licenseExpiry || '—'}</div></div>
+        <div><div class="detail-label">انتهاء الرخصة</div><div class="detail-value" style="color:${driver.licenseExpiry && new Date(driver.licenseExpiry) < new Date() ? 'var(--danger)' : 'var(--success)'}">${driver.licenseExpiry || '—'}</div></div>
         <div><div class="detail-label">الحالة</div><div class="detail-value">${driver.status}</div></div>
       </div>
     </div>
@@ -782,14 +739,14 @@ function openDriverDetail(id) {
     </div>` : ''}
     ${driver.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${driver.notes}</div></div>` : ''}
     <div class="grid-2" style="margin:12px 14px">
-      <button class="save-btn" style="margin:0; background:var(--accent)" onclick="openEditDriver('${driver.id}')">✏️ تعديل</button>
+      <button class="save-btn" style="margin:0; background:var(--accent)" onclick="editDriver('${driver.id}')">✏️ تعديل</button>
       <button class="save-btn" style="margin:0; background:var(--danger)" onclick="deleteFromFirebase('drivers','${driver.id}')">🗑️ حذف</button>
     </div>
   `;
   document.getElementById('detail-modal').classList.add('active');
 }
 
-function openEditDriver(id) {
+function editDriver(id) {
   const driver = driversData.find(d => d.id === id);
   if (!driver) return;
   editingDriverId = id;
@@ -808,7 +765,8 @@ function openEditDriver(id) {
 // FUEL MANAGEMENT
 // ============================================
 function openAddFuelModal() {
-  document.getElementById('fuel-equipment').innerHTML = '<option value="">اختر المعدة</option>' + 
+  const equipSelect = document.getElementById('fuel-equipment');
+  equipSelect.innerHTML = '<option value="">اختر المعدة</option>' + 
     equipmentData.map(eq => `<option value="${eq.id}">${eq.name} (${eq.code})</option>`).join('');
   updateDriverSelects();
   document.getElementById('fuel-amount').value = '';
@@ -851,7 +809,8 @@ function saveFuelRecord() {
 // MAINTENANCE SCHEDULE
 // ============================================
 function openAddMaintenanceModal() {
-  document.getElementById('maint-equipment').innerHTML = '<option value="">اختر المعدة</option>' + 
+  const equipSelect = document.getElementById('maint-equipment');
+  equipSelect.innerHTML = '<option value="">اختر المعدة</option>' + 
     equipmentData.map(eq => `<option value="${eq.id}">${eq.name} (${eq.code})</option>`).join('');
   document.getElementById('maint-type').value = 'صيانة دورية';
   document.getElementById('maint-date').value = new Date().toISOString().split('T')[0];
@@ -883,12 +842,16 @@ function saveMaintenanceSchedule() {
   saveToFirebase('maintenanceSchedules', schedule);
   closeModal('maintenance-modal');
   showToast('تم جدولة الصيانة');
-  
-  // إرسال إشعار فوري
-  const eq = equipmentData.find(e => e.id === equipmentId);
-  if (eq) {
-    sendNotification(`🔧 صيانة مجدولة - ${eq.name}`, `${schedule.type} بتاريخ ${schedule.date}`);
-  }
+}
+
+function completeMaintenance(id) {
+  const m = maintenanceSchedules.find(m => m.id === id);
+  if (!m) return;
+  m.status = 'مكتمل';
+  m.completedAt = new Date().toISOString();
+  saveToFirebase('maintenanceSchedules', m);
+  closeModal('detail-modal');
+  showToast('تم إكمال الصيانة');
 }
 
 // ============================================
@@ -897,7 +860,7 @@ function saveMaintenanceSchedule() {
 function openAddEquipmentModal() {
   editingEquipmentId = null;
   document.getElementById('modal-title-equipment').innerHTML = 'إضافة معدة جديدة';
-  ['eq-code', 'eq-name', 'eq-chassis', 'eq-location', 'eq-hours', 'eq-next-hours', 'eq-interval', 'eq-image', 'eq-notes'].forEach(id => {
+  ['eq-code', 'eq-name', 'eq-chassis', 'eq-location', 'eq-hours', 'eq-next-hours', 'eq-interval', 'eq-notes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -919,7 +882,6 @@ function saveEquipment() {
     nextHours: parseInt(document.getElementById('eq-next-hours').value) || 250,
     interval: parseInt(document.getElementById('eq-interval').value) || 250,
     status: document.getElementById('eq-status').value,
-    image: document.getElementById('eq-image').value,
     notes: document.getElementById('eq-notes').value,
     updatedAt: new Date().toISOString()
   };
@@ -960,14 +922,11 @@ function openEquipmentDetail(id) {
   const percent = getProgressPercent(eq);
   const remColor = rem <= 50 ? '#ef4444' : rem <= 100 ? '#f59e0b' : '#10b981';
   
-  // سجل الوقود لهذه المعدة
   const fuelRecords = fuelData.filter(f => f.equipmentId === id).slice(-5).reverse();
-  // الصيانات المجدولة
   const schedules = maintenanceSchedules.filter(m => m.equipmentId === id && m.status === 'مجدول');
   
   document.getElementById('detail-title').innerHTML = `🏗️ ${eq.name}`;
   document.getElementById('detail-content').innerHTML = `
-    ${eq.image ? `<img src="${eq.image}" class="image-preview" onerror="this.style.display='none'">` : ''}
     <div class="detail-section">
       <div class="grid-2">
         <div><div class="detail-label">كود المعدة</div><div class="detail-value">${eq.code}</div></div>
@@ -1000,14 +959,14 @@ function openEquipmentDetail(id) {
     </div>` : ''}
     ${eq.notes ? `<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">${eq.notes}</div></div>` : ''}
     <div class="grid-2" style="margin:12px 14px">
-      <button class="save-btn" style="margin:0; background:var(--accent)" onclick="openEditEquipment('${eq.id}')">✏️ تعديل</button>
+      <button class="save-btn" style="margin:0; background:var(--accent)" onclick="editEquipment('${eq.id}')">✏️ تعديل</button>
       <button class="save-btn" style="margin:0; background:var(--danger)" onclick="deleteFromFirebase('equipment','${eq.id}')">🗑️ حذف</button>
     </div>
   `;
   document.getElementById('detail-modal').classList.add('active');
 }
 
-function openEditEquipment(id) {
+function editEquipment(id) {
   const eq = equipmentData.find(e => e.id === id);
   if (!eq) return;
   editingEquipmentId = id;
@@ -1021,7 +980,6 @@ function openEditEquipment(id) {
   document.getElementById('eq-next-hours').value = eq.nextHours || 250;
   document.getElementById('eq-interval').value = eq.interval || 250;
   document.getElementById('eq-status').value = eq.status || 'يعمل';
-  document.getElementById('eq-image').value = eq.image || '';
   document.getElementById('eq-notes').value = eq.notes || '';
   updateDriverSelects();
   if (eq.assignedDriver) {
@@ -1081,20 +1039,54 @@ function saveAllMeters() {
   });
   closeModal('meter-modal');
   showToast('تم تحديث جميع العدادات');
-  checkMaintenanceAlerts();
+}
+
+function updateSingleMeterFromHome(eqId) {
+  const input = document.getElementById(`home-meter-${eqId}`);
+  if (!input || !input.value) return;
+  const eq = equipmentData.find(e => e.id === eqId);
+  if (!eq) return;
+  const newHours = parseInt(input.value);
+  if (isNaN(newHours) || newHours === eq.hours) return;
+  
+  const log = { date: new Date().toISOString().split('T')[0], prev: eq.hours, hours: newHours };
+  eq.hours = newHours;
+  eq.hoursLog = [...(eq.hoursLog || []), log];
+  saveToFirebase('equipment', eq);
+  showToast(`تم تحديث عداد ${eq.name} إلى ${newHours} ساعة`);
+  refreshUI();
 }
 
 // ============================================
 // INVENTORY FUNCTIONS
 // ============================================
 function openAddInventoryModal() {
-  const type = prompt('نوع الفلتر:');
-  if (!type) return;
-  const partNo = prompt('رقم القطعة:');
-  if (!partNo) return;
-  const qty = parseInt(prompt('الكمية الأولية:', '0')) || 0;
-  saveToFirebase('inventory', { type, partNo, qty, createdAt: new Date().toISOString() });
-  showToast('تم إضافة الفلتر');
+  document.getElementById('inv-type').value = '';
+  document.getElementById('inv-partno').value = '';
+  document.getElementById('inv-qty').value = 0;
+  editingInvId = null;
+  document.getElementById('inv-modal').classList.add('active');
+}
+
+function saveInventoryFilter() {
+  const filter = {
+    type: document.getElementById('inv-type').value.trim(),
+    partNo: document.getElementById('inv-partno').value.trim(),
+    qty: parseInt(document.getElementById('inv-qty').value) || 0
+  };
+  if (!filter.type || !filter.partNo) {
+    showToast('يرجى إدخال نوع الفلتر ورقم القطعة');
+    return;
+  }
+  if (editingInvId) {
+    saveToFirebase('inventory', { ...filter, id: editingInvId });
+    showToast('تم تحديث الفلتر');
+  } else {
+    filter.createdAt = new Date().toISOString();
+    saveToFirebase('inventory', filter);
+    showToast('تم إضافة الفلتر');
+  }
+  closeModal('inv-modal');
 }
 
 function adjustInvQty(id, delta) {
@@ -1103,39 +1095,6 @@ function adjustInvQty(id, delta) {
     inv.qty = Math.max(0, (inv.qty || 0) + delta);
     saveToFirebase('inventory', inv);
   }
-}
-
-function renderInventory() {
-  const container = document.getElementById('inv-list');
-  if (!inventoryData.length) {
-    container.innerHTML = `<div class="empty-state">📦 لا توجد فلاتر في المخزن<br><button class="save-btn" style="margin-top:16px" onclick="openAddInventoryModal()">+ إضافة فلتر جديد</button></div>`;
-    return;
-  }
-  
-  container.innerHTML = inventoryData.map(inv => {
-    const linkedEqs = equipmentData.filter(eq => 
-      Object.values(eq.filters || {}).some(f => f.invId === inv.id)
-    );
-    const needed = linkedEqs.length * 4;
-    const shortage = Math.max(0, needed - (inv.qty || 0));
-    
-    return `
-      <div class="filter-card ${shortage > 0 ? 'critical' : inv.qty < needed * 1.5 ? 'low' : ''}">
-        <div><div style="font-weight:700">${inv.type}</div><div style="font-size:11px; color:var(--gray)">P/N: ${inv.partNo}</div></div>
-        <div class="grid-3" style="margin-top:10px">
-          <div><div class="detail-label">المتوفر</div><div class="detail-value">${inv.qty || 0}</div></div>
-          <div><div class="detail-label">المطلوب</div><div class="detail-value">${needed}</div></div>
-          <div><div class="detail-label">النقص</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${shortage>0?shortage:'✓'}</div></div>
-        </div>
-        <div style="margin-top:8px">
-          <button onclick="adjustInvQty('${inv.id}', -1)" class="qty-btn" style="background:var(--danger); color:white; width:30px; height:30px; border-radius:15px; border:none">-</button>
-          <span style="margin:0 10px">${inv.qty || 0}</span>
-          <button onclick="adjustInvQty('${inv.id}', 1)" class="qty-btn" style="background:var(--success); color:white; width:30px; height:30px; border-radius:15px; border:none">+</button>
-        </div>
-        <button onclick="deleteFromFirebase('inventory','${inv.id}')" class="save-btn" style="margin:10px 0 0 0; background:#fee2e2; color:var(--danger)">🗑️ حذف</button>
-      </div>
-    `;
-  }).join('');
 }
 
 // ============================================
@@ -1265,31 +1224,14 @@ function refreshUI() {
     document.getElementById('maintenance-list').innerHTML = '<div class="empty-state">لا توجد صيانات مجدولة</div>';
   }
   
+  // Inventory list
   renderInventory();
-}
-
-function updateSingleMeterFromHome(eqId) {
-  const input = document.getElementById(`home-meter-${eqId}`);
-  if (!input || !input.value) return;
-  const eq = equipmentData.find(e => e.id === eqId);
-  if (!eq) return;
-  const newHours = parseInt(input.value);
-  if (isNaN(newHours) || newHours === eq.hours) return;
-  
-  const log = { date: new Date().toISOString().split('T')[0], prev: eq.hours, hours: newHours };
-  eq.hours = newHours;
-  eq.hoursLog = [...(eq.hoursLog || []), log];
-  saveToFirebase('equipment', eq);
-  showToast(`تم تحديث عداد ${eq.name} إلى ${newHours} ساعة`);
-  refreshUI();
 }
 
 function showMaintenanceDetail(id) {
   const m = maintenanceSchedules.find(m => m.id === id);
   if (!m) return;
   const eq = equipmentData.find(e => e.id === m.equipmentId);
-  currentDetailId = id;
-  currentDetailType = 'maintenance';
   document.getElementById('detail-title').innerHTML = `🔧 تفاصيل الصيانة`;
   document.getElementById('detail-content').innerHTML = `
     <div class="detail-section">
@@ -1311,15 +1253,37 @@ function showMaintenanceDetail(id) {
   document.getElementById('detail-modal').classList.add('active');
 }
 
-function completeMaintenance(id) {
-  const m = maintenanceSchedules.find(m => m.id === id);
-  if (!m) return;
-  m.status = 'مكتمل';
-  m.completedAt = new Date().toISOString();
-  saveToFirebase('maintenanceSchedules', m);
-  closeModal('detail-modal');
-  showToast('تم إكمال الصيانة');
-  refreshUI();
+function renderInventory() {
+  const container = document.getElementById('inv-list');
+  if (!inventoryData.length) {
+    container.innerHTML = `<div class="empty-state">📦 لا توجد فلاتر في المخزن<br><button class="save-btn" style="margin-top:16px" onclick="openAddInventoryModal()">+ إضافة فلتر جديد</button></div>`;
+    return;
+  }
+  
+  container.innerHTML = inventoryData.map(inv => {
+    const linkedEqs = equipmentData.filter(eq => 
+      Object.values(eq.filters || {}).some(f => f.invId === inv.id)
+    );
+    const needed = linkedEqs.length * 4;
+    const shortage = Math.max(0, needed - (inv.qty || 0));
+    
+    return `
+      <div class="filter-card ${shortage > 0 ? 'critical' : inv.qty < needed * 1.5 ? 'low' : ''}">
+        <div><div style="font-weight:700">${inv.type}</div><div style="font-size:11px; color:var(--gray)">P/N: ${inv.partNo}</div></div>
+        <div class="grid-3" style="margin-top:10px">
+          <div><div class="detail-label">المتوفر</div><div class="detail-value">${inv.qty || 0}</div></div>
+          <div><div class="detail-label">المطلوب</div><div class="detail-value">${needed}</div></div>
+          <div><div class="detail-label">النقص</div><div class="detail-value" style="color:${shortage>0?'var(--danger)':'var(--success)'}">${shortage>0?shortage:'✓'}</div></div>
+        </div>
+        <div style="margin-top:8px">
+          <button onclick="adjustInvQty('${inv.id}', -1)" class="qty-btn" style="background:var(--danger); color:white">-</button>
+          <span style="margin:0 10px">${inv.qty || 0}</span>
+          <button onclick="adjustInvQty('${inv.id}', 1)" class="qty-btn" style="background:var(--success); color:white">+</button>
+        </div>
+        <button onclick="deleteFromFirebase('inventory','${inv.id}')" class="save-btn" style="margin:10px 0 0 0; background:#fee2e2; color:var(--danger)">🗑️ حذف</button>
+      </div>
+    `;
+  }).join('');
 }
 
 // ============================================
@@ -1359,7 +1323,9 @@ function switchView(view) {
   refreshUI();
 }
 
-// Initialize
+// ============================================
+// INITIALIZATION
+// ============================================
 window.performLogin = performLogin;
 window.logout = logout;
 window.switchView = switchView;
@@ -1381,11 +1347,14 @@ window.saveEquipment = saveEquipment;
 window.saveDriver = saveDriver;
 window.saveFuelRecord = saveFuelRecord;
 window.saveMaintenanceSchedule = saveMaintenanceSchedule;
-window.openEditEquipment = openEditEquipment;
-window.openEditDriver = openEditDriver;
+window.editEquipment = editEquipment;
+window.editDriver = editDriver;
 window.completeMaintenance = completeMaintenance;
 window.showMaintenanceDetail = showMaintenanceDetail;
-window.requestNotificationPermission = requestNotificationPermission;
+window.saveInventoryFilter = saveInventoryFilter;
+
+// عرض شاشة تسجيل الدخول فقط
+document.getElementById('login-screen').style.display = 'flex';
 </script>
 </body>
 </html>
