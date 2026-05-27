@@ -120,6 +120,10 @@ body {
 .badge-maintenance { background: #fef3c7; color: #78350f; }
 .badge-stopped { background: #fee2e2; color: #7f1d1d; }
 .badge-active { background: #dbeafe; color: #1e40af; }
+.badge-admin { background: #f1f5f9; color: #0f172a; }
+.badge-supervisor { background: #e0e7ff; color: #4338ca; }
+.badge-technician { background: #d1fae5; color: #065f46; }
+.badge-operator { background: #fef3c7; color: #b45309; }
 .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
 
@@ -325,6 +329,23 @@ body {
   font-weight: 600;
   margin-right: 6px;
 }
+.company-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: white;
+  padding: 2px;
+}
+.company-logo-large {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: white;
+  padding: 5px;
+  border: 2px solid var(--accent);
+}
 </style>
 </head>
 <body>
@@ -335,8 +356,9 @@ body {
 <div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, #0a1622, #1a2a3a); z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px;">
   <div style="text-align:center; width:100%; max-width:360px">
     <div style="margin-bottom:25px">
-      <div style="width:110px; height:110px; background:linear-gradient(145deg, #1a3a4a, #0d1b2a); border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; border:3px solid var(--accent); box-shadow:0 0 20px rgba(232,160,32,0.3)">
-        <span style="font-size:52px">🏗️</span>
+      <!-- شعار الشركة - صورة Base64 -->
+      <div style="width:110px; height:110px; background:linear-gradient(145deg, #1a3a4a, #0d1b2a); border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; border:3px solid var(--accent); box-shadow:0 0 20px rgba(232,160,32,0.3); overflow:hidden">
+        <img src="data:image/png;base64,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" alt="HASSAN ALLAM" class="company-logo-large">
       </div>
       <div style="font-size:22px; font-weight:800; letter-spacing:1.5px; color:white; font-family:'Arial',sans-serif">HASSAN ALLAM</div>
       <div style="font-size:13px; color:var(--accent); letter-spacing:3px; margin-top:3px; font-weight:600">HOLDING</div>
@@ -355,19 +377,18 @@ body {
       <button id="secure-login-btn" onclick="setLoginMode('secure')" style="flex:1; padding:10px; border-radius:30px; border:none; background:rgba(255,255,255,0.1); color:white; font-weight:700; cursor:pointer; font-family:inherit">🔐 دخول آمن</button>
     </div>
     
-    <!-- قسم الدخول المباشر -->
+    <!-- قسم الدخول المباشر (مشاهدة فقط) -->
     <div id="direct-login-panel">
       <div style="background:rgba(255,255,255,0.05); border-radius:20px; padding:5px; margin-bottom:20px; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1)">
         <div style="display:flex; align-items:center; gap:12px; background:rgba(0,0,0,0.3); border-radius:15px; padding:4px 18px">
           <span style="color:var(--accent); font-size:18px">👤</span>
           <select id="direct-username" style="flex:1; background:transparent; border:none; outline:none; padding:14px 0; color:white; font-size:14px; font-family:inherit">
-            <option value="admin" style="background:#1a2a3a">👨‍💼 مدير النظام (كامل الصلاحيات)</option>
-            <option value="viewer" style="background:#1a2a3a">👁️ مشاهد (صلاحيات محدودة)</option>
+            <option value="viewer" style="background:#1a2a3a">👁️ مشاهد (صلاحيات مشاهدة فقط)</option>
           </select>
         </div>
       </div>
       <button onclick="directLogin()" style="width:100%; background:linear-gradient(135deg, var(--accent), var(--accent-dark)); color:var(--primary); border:none; padding:15px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer; transition:all 0.3s; box-shadow:0 5px 20px rgba(232,160,32,0.4); display:flex; align-items:center; justify-content:center; gap:10px; font-family:inherit">
-        <span>🚀</span> دخول مباشر
+        <span>🚀</span> دخول مباشر (مشاهدة فقط)
       </button>
     </div>
     
@@ -386,7 +407,7 @@ body {
         </div>
       </div>
       <button onclick="secureLogin()" style="width:100%; background:linear-gradient(135deg, var(--accent), var(--accent-dark)); color:var(--primary); border:none; padding:15px; border-radius:30px; font-weight:800; font-size:16px; cursor:pointer; transition:all 0.3s; box-shadow:0 5px 20px rgba(232,160,32,0.4); display:flex; align-items:center; justify-content:center; gap:10px; font-family:inherit">
-        <span>🔐</span> دخول آمن
+        <span>🔐</span> دخول آمن (صلاحيات كاملة)
       </button>
     </div>
     
@@ -409,7 +430,10 @@ body {
 <!-- Main App -->
 <div id="app-container" style="display:none">
   <div class="status-bar">
-    <span>🏗️ نظام صيانة الأسطول</span>
+    <div style="display:flex; align-items:center; gap:8px">
+      <img src="data:image/png;base64,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" alt="HASSAN ALLAM" class="company-logo">
+      <span style="font-weight:600">HASSAN ALLAM HOLDING</span>
+    </div>
     <div>
       <span id="user-name-display"></span>
       <button onclick="logout()" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:4px 12px; border-radius:20px; font-size:11px; cursor:pointer; margin-right:8px">خروج</button>
@@ -423,7 +447,7 @@ body {
 
   <div id="view-home">
     <div class="stats-row" id="stats-summary"></div>
-    <button class="big-btn" onclick="openMeterUpdate()">⏱️ تحديث العدادات اليومي</button>
+    <button class="big-btn" id="meter-update-btn" onclick="openMeterUpdate()">⏱️ تحديث العدادات اليومي</button>
     <div class="section">
       <div class="section-title">🚜 جميع المعدات <span id="equipment-count"></span></div>
       <div id="equipment-list-home"></div>
@@ -453,14 +477,14 @@ body {
   <div id="view-fuel" style="display:none">
     <div style="padding:14px">
       <div id="fuel-stats" class="grid-3" style="margin-bottom:16px"></div>
-      <button class="big-btn" style="margin-bottom:16px" onclick="openAddFuelModal()">⛽ تسجيل تزود جديد</button>
+      <button class="big-btn" id="add-fuel-btn" style="margin-bottom:16px" onclick="openAddFuelModal()">⛽ تسجيل تزود جديد</button>
       <div id="fuel-list"></div>
     </div>
   </div>
 
   <div id="view-maintenance" style="display:none">
     <div style="padding:14px">
-      <button class="big-btn" style="margin-bottom:16px" onclick="openAddMaintenanceModal()">🔧 جدولة صيانة جديدة</button>
+      <button class="big-btn" id="add-maintenance-btn" style="margin-bottom:16px" onclick="openAddMaintenanceModal()">🔧 جدولة صيانة جديدة</button>
       <div id="maintenance-list"></div>
     </div>
   </div>
@@ -478,8 +502,8 @@ body {
           <option value="other">أخرى</option>
         </select>
       </div>
-      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--purple), var(--pink))" onclick="openAddInventoryItemModal()">📦 إضافة صنف جديد</button>
-      <button class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--danger), var(--warning))" onclick="generateOrderReport()">📋 إنشاء طلبية للنواقص (1000 ساعة)</button>
+      <button class="big-btn" id="add-inventory-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--purple), var(--pink))" onclick="openAddInventoryItemModal()">📦 إضافة صنف جديد</button>
+      <button class="big-btn" id="order-report-btn" style="margin-bottom:16px; background:linear-gradient(135deg, var(--danger), var(--warning))" onclick="generateOrderReport()">📋 إنشاء طلبية للنواقص (1000 ساعة)</button>
       <div id="inv-list"></div>
     </div>
   </div>
@@ -495,7 +519,7 @@ body {
   <button class="fab" id="fab-btn" onclick="openAddEquipmentModal()">+</button>
 </div>
 
-<!-- باقي المودالات (بنفس النسخة السابقة التي كانت تعمل) -->
+<!-- باقي المودالات (نفس النسخة السابقة) -->
 <div class="modal-overlay" id="equipment-modal">
   <div class="modal-header"><div class="modal-title" id="modal-title-equipment">إضافة معدة جديدة</div><button class="modal-close" onclick="closeModal('equipment-modal')">✕</button></div>
   <div><div class="form-group"><div class="form-field"><label class="form-label">كود المعدة *</label><input class="form-input" id="eq-code" placeholder="مثال: EX-001"></div><div class="form-field"><label class="form-label">اسم المعدة *</label><input class="form-input" id="eq-name" placeholder="مثال: حفارة كاتربيلار 320D"></div><div class="form-field"><label class="form-label">النوع</label><select class="form-select" id="eq-type"><option>حفارة</option><option>لودر</option><option>رافعة</option><option>بلدوزر</option><option>شاحنة</option><option>مولد كهربائي</option></select></div><div class="form-field"><label class="form-label">رقم الشاسيه</label><input class="form-input" id="eq-chassis" placeholder="رقم الهيكل"></div><div class="form-field"><label class="form-label">الموقع</label><input class="form-input" id="eq-location" placeholder="موقع المشروع"></div><div class="form-field"><label class="form-label">السائق المسند</label><select class="form-select" id="eq-driver"></select></div><div class="form-field"><label class="form-label">⏱️ العداد الحالي (ساعة)</label><input class="form-input" type="number" id="eq-hours" value="0"></div><div class="form-field"><label class="form-label">🔧 عداد الصيانة القادمة (ساعة)</label><input class="form-input" type="number" id="eq-next-hours" value="250"></div><div class="form-field"><label class="form-label">دورة الصيانة (ساعة)</label><input class="form-input" type="number" id="eq-interval" value="250"></div><div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="eq-status"><option>يعمل</option><option>صيانة</option><option>متوقف</option></select></div><div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="eq-notes" placeholder="أي ملاحظات"></textarea></div></div><button class="save-btn" onclick="saveEquipment()">✅ حفظ المعدة</button></div>
@@ -730,14 +754,9 @@ function setLoginMode(mode) {
 }
 
 function directLogin() {
-  const username = document.getElementById('direct-username').value;
-  if (username === 'admin') {
-    currentUser = { username: 'admin', role: 'admin', name: 'المدير', permissions: ['all'] };
-    showToast('مرحباً مدير النظام');
-  } else {
-    currentUser = { username: 'viewer', role: 'viewer', name: 'مشاهد', permissions: ['view'] };
-    showToast('مرحباً مشاهد');
-  }
+  // الدخول المباشر فقط كمشاهد (صلاحيات مشاهدة فقط)
+  currentUser = { username: 'viewer', role: 'viewer', name: 'مشاهد', permissions: ['view'] };
+  showToast('مرحباً مشاهد - صلاحيات مشاهدة فقط');
   proceedToApp();
 }
 
@@ -746,11 +765,7 @@ function secureLogin() {
   const password = document.getElementById('secure-password').value;
   if (username === 'admin' && password === 'admin123') {
     currentUser = { username: 'admin', role: 'admin', name: 'المدير', permissions: ['all'] };
-    showToast('مرحباً مدير النظام');
-    proceedToApp();
-  } else if (username === 'viewer' && password === 'viewer123') {
-    currentUser = { username: 'viewer', role: 'viewer', name: 'مشاهد', permissions: ['view'] };
-    showToast('مرحباً مشاهد');
+    showToast('مرحباً مدير النظام - صلاحيات كاملة');
     proceedToApp();
   } else {
     showToast('بيانات الدخول غير صحيحة');
@@ -761,6 +776,33 @@ function proceedToApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-container').style.display = 'block';
   document.getElementById('user-name-display').innerHTML = `${currentUser.name} (${currentUser.role === 'admin' ? 'مدير' : 'مشاهد'})`;
+  
+  // إخفاء أزرار الإضافة والتعديل والحذف للمشاهد
+  if (!hasPermission('all')) {
+    // إخفاء زر الإضافة العلوي
+    const fab = document.getElementById('fab-btn');
+    if (fab) fab.style.display = 'none';
+    
+    // إخفاء أزرار الإضافة في كل صفحة
+    const addButtons = ['add-fuel-btn', 'add-maintenance-btn', 'add-inventory-btn', 'order-report-btn', 'meter-update-btn'];
+    addButtons.forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.style.display = 'none';
+    });
+    
+    // إخفاء أزرار الحذف والتعديل في القوائم
+    const style = document.createElement('style');
+    style.textContent = `
+      .save-btn.danger-btn, button[onclick*="deleteFromFirebase"], button[onclick*="editEquipment"], button[onclick*="editDriver"], button[onclick*="editInventoryItem"], .qty-btn, .fab {
+        display: none !important;
+      }
+      .filter-card .qty-btn, .inventory-item-card .qty-btn, .equipment-card .qty-btn {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
   initFirebase();
 }
 
@@ -886,7 +928,7 @@ function updateDriverSelects() {
 }
 
 function openAddEquipmentModal() {
-  if (!hasPermission('all')) { showToast('غير مصرح لك'); return; }
+  if (!hasPermission('all')) { showToast('غير مصرح لك - هذه العملية تتطلب صلاحيات مدير'); return; }
   editingEquipmentId = null;
   document.getElementById('modal-title-equipment').innerHTML = 'إضافة معدة جديدة';
   ['eq-code', 'eq-name', 'eq-chassis', 'eq-location', 'eq-hours', 'eq-next-hours', 'eq-interval', 'eq-notes'].forEach(id => {
@@ -1141,6 +1183,7 @@ function showMaintenanceDetail(id) {
 // دوال تحديث العدادات
 // ============================================
 function openMeterUpdate() {
+  if (!hasPermission('all')) { showToast('غير مصرح لك'); return; }
   const container = document.getElementById('meter-list');
   container.innerHTML = equipmentData.map(eq => {
     const rem = hoursRemaining(eq);
@@ -1413,7 +1456,9 @@ function refreshUI() {
     const remStatus = getRemainingStatus(eq);
     const barColor = getBarColor(rem);
     const driver = driversData.find(d => d.id === eq.assignedDriver);
-    return `<div class="equipment-card" onclick="openEquipmentDetail('${eq.id}')"><div class="card-header"><div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code} | ${eq.type}</div></div><span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span></div><div style="margin: 12px 0 6px 0"><div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span style="font-size: 11px; color: var(--gray)">⏱️ الساعات المتبقية</span><span style="font-size: 12px; font-weight: 700; color: ${remStatus.color}">${remStatus.text}</span></div><div class="progress-bar"><div class="progress-fill" style="width: ${percentRemaining}%; background: ${barColor}"></div></div><div style="display: flex; justify-content: space-between; margin-top: 4px"><span style="font-size: 9px; color: var(--gray)">0 ساعة</span><span style="font-size: 9px; color: var(--gray)">الصيانة عند ${formatNumber(eq.nextHours)} س</span></div></div><div class="grid-2" style="margin-top: 8px"><div><span class="detail-label">⏱️ العداد الحالي</span><div class="detail-value" style="font-size: 13px">${formatNumber(eq.hours)} ساعة</div></div><div><span class="detail-label">🔧 الصيانة القادمة</span><div class="detail-value" style="font-size: 13px">${formatNumber(eq.nextHours)} ساعة</div></div></div>${driver ? `<div style="margin-top: 8px; font-size: 11px; color: var(--gray); padding-top: 6px; border-top: 1px solid #eef2f6">👨‍✈️ السائق: ${driver.name}</div>` : ''}</div>`;
+    // إخفاء أزرار التحديث للمشاهد
+    const meterInputHtml = hasPermission('all') ? `<div class="meter-input-group" style="margin-top:8px; display:flex; gap:8px"><input type="number" id="home-meter-${eq.id}" class="meter-input" style="flex:1; border:1px solid #e2e8f0; border-radius:12px; padding:8px" value="${eq.hours}"><button class="update-meter-btn" style="background:var(--info); border:none; color:white; padding:8px 12px; border-radius:12px" onclick="event.stopPropagation(); updateSingleMeterFromHome('${eq.id}')">تحديث</button></div>` : '';
+    return `<div class="equipment-card" onclick="openEquipmentDetail('${eq.id}')"><div class="card-header"><div><div class="card-title">${eq.name}</div><div class="card-code">${eq.code} | ${eq.type}</div></div><span class="badge ${eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped'}">${eq.status}</span></div><div style="margin: 12px 0 6px 0"><div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span style="font-size: 11px; color: var(--gray)">⏱️ الساعات المتبقية</span><span style="font-size: 12px; font-weight: 700; color: ${remStatus.color}">${remStatus.text}</span></div><div class="progress-bar"><div class="progress-fill" style="width: ${percentRemaining}%; background: ${barColor}"></div></div><div style="display: flex; justify-content: space-between; margin-top: 4px"><span style="font-size: 9px; color: var(--gray)">0 ساعة</span><span style="font-size: 9px; color: var(--gray)">الصيانة عند ${formatNumber(eq.nextHours)} س</span></div></div><div class="grid-2" style="margin-top: 8px"><div><span class="detail-label">⏱️ العداد الحالي</span><div class="detail-value" style="font-size: 13px">${formatNumber(eq.hours)} ساعة</div></div><div><span class="detail-label">🔧 الصيانة القادمة</span><div class="detail-value" style="font-size: 13px">${formatNumber(eq.nextHours)} ساعة</div></div></div>${driver ? `<div style="margin-top: 8px; font-size: 11px; color: var(--gray); padding-top: 6px; border-top: 1px solid #eef2f6">👨‍✈️ السائق: ${driver.name}</div>` : ''}${meterInputHtml}</div>`;
   }).join('');
   if (equipmentData.length === 0) document.getElementById('equipment-list-home').innerHTML = '<div class="empty-state">لا توجد معدات مسجلة<br>اضغط زر + لإضافة معدة جديدة</div>';
   
@@ -1434,6 +1479,22 @@ function refreshUI() {
   if (maintenanceSchedules.filter(m => m.status === 'مجدول').length === 0) document.getElementById('maintenance-list').innerHTML = '<div class="empty-state">لا توجد صيانات مجدولة</div>';
   
   renderInventory();
+}
+
+function updateSingleMeterFromHome(eqId) {
+  if (!hasPermission('all')) { showToast('غير مصرح لك'); return; }
+  const input = document.getElementById(`home-meter-${eqId}`);
+  if (!input || !input.value) return;
+  const eq = equipmentData.find(e => e.id === eqId);
+  if (!eq) return;
+  const newHours = parseInt(input.value);
+  if (isNaN(newHours) || newHours === eq.hours) return;
+  const log = { date: new Date().toISOString().split('T')[0], prev: eq.hours, hours: newHours };
+  eq.hours = newHours;
+  eq.hoursLog = [...(eq.hoursLog || []), log];
+  saveToFirebase('equipment', eq);
+  showToast(`تم تحديث عداد ${eq.name} إلى ${newHours} ساعة`);
+  refreshUI();
 }
 
 // ============================================
@@ -1494,6 +1555,7 @@ window.sendOrderViaWhatsApp = sendOrderViaWhatsApp;
 window.addInvAltField = addInvAltField;
 window.openLinkFilterModal = openLinkFilterModal;
 window.saveFilterLink = saveFilterLink;
+window.updateSingleMeterFromHome = updateSingleMeterFromHome;
 
 loadSavedSettings();
 </script>
