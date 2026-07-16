@@ -437,7 +437,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     <div class="sidebar-foot">EMS Dashboard</div>
   </nav>
   <div class="app-main">
-  <div class="status-bar"><span>🏗️ Hassan Allam Holding</span><div><span id="user-name-display"></span><button id="logout-btn" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:4px 12px; border-radius:20px; font-size:11px; cursor:pointer; margin-right:8px">خروج</button><button id="admin-panel-btn" style="display:none;background:rgba(232,160,32,0.3);border:none;color:white;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;margin-right:5px">👑 إدارة المستخدمين</button><button id="delete-all-equipment-global-btn" class="danger-btn" style="background:#7f1d1d;border:none;color:white;border-radius:20px;padding:6px 12px;font-size:11px;cursor:pointer;margin-right:5px;font-weight:700">🗑️ مسح كل البيانات</button></div></div>
+  <div class="status-bar"><span>🏗️ Hassan Allam Holding</span><div><span id="user-name-display"></span><button id="logout-btn" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:4px 12px; border-radius:20px; font-size:11px; cursor:pointer; margin-right:8px">خروج</button><button id="admin-panel-btn" style="display:none;background:rgba(232,160,32,0.3);border:none;color:white;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;margin-right:5px">👑 إدارة المستخدمين</button></div></div>
   <div class="header"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:20px;font-weight:900;color:white;letter-spacing:2px;flex-shrink:0;font-family:serif">HAC</span><div class="header-title" id="header-title" style="margin-bottom:0">📊 لوحة القيادة</div></div><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><div class="header-sub" id="sync-status-placeholder" style="display:none"></div><div style="display:flex;gap:6px;align-items:center"><span id="conn-indicator" title="حالة الاتصال" style="font-size:18px;line-height:1;cursor:default">🔴</span><button id="global-search-toggle" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 10px;font-size:14px;cursor:pointer" title="بحث عالمي">🔍</button><button id="export-pdf-btn" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 10px;font-size:12px;cursor:pointer">📄 PDF</button><button id="notif-settings-btn" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px">🔔 الإشعارات</button></div></div><div class="header-sub" id="sync-status">جاري الاتصال...</div></div>
   <div id="alert-bar" style="display:none"></div>
   
@@ -629,6 +629,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   <div style="display:flex;gap:6px;padding:12px 14px 0;background:white;border-bottom:1px solid #e2e8f0;position:sticky;top:56px;z-index:9">
     <button id="atab-users-btn" onclick="switchAdminTab('users')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">👥 المستخدمون</button>
     <button id="atab-firebase-btn" onclick="switchAdminTab('firebase')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">🔥 إعدادات Firebase</button>
+    <button id="atab-danger-btn" onclick="switchAdminTab('danger')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">⚠️ منطقة الخطر</button>
   </div>
 
   <!-- تبويب المستخدمين -->
@@ -768,6 +769,23 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 
       <!-- نتيجة الاختبار -->
       <div id="fb-test-result" style="display:none;margin-top:12px;border-radius:12px;padding:12px;font-size:12px;text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- تبويب منطقة الخطر -->
+  <div id="atab-danger" style="padding:14px;display:none">
+    <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:#7f1d1d;margin-bottom:6px">⚠️ منطقة خطرة — الإجراءات هنا نهائية</div>
+      <div style="font-size:12px;color:#991b1b;line-height:1.7">
+        نقلنا زر حذف كل البيانات هنا عمدًا بعيدًا عن الهيدر لتقليل خطر الحذف بالخطأ.
+        العملية تتطلب صلاحية مدير كامل وتأكيدين منفصلين، ولا يمكن التراجع عنها بعد التنفيذ.
+      </div>
+    </div>
+    <div style="background:white;border:1.5px solid #fecaca;border-radius:14px;padding:16px">
+      <div style="font-size:12.5px;color:var(--gray);margin-bottom:12px">
+        سيتم حذف كل المعدات والسائقين وسجلات الوقود والصيانة وأصناف المخزون نهائيًا من قاعدة البيانات.
+      </div>
+      <button id="delete-all-equipment-global-btn" class="danger-btn" style="width:100%;background:#7f1d1d;border:none;color:white;border-radius:12px;padding:14px;font-size:13px;cursor:pointer;font-weight:700;font-family:inherit">🗑️ مسح كل البيانات نهائيًا</button>
     </div>
   </div>
 </div>
@@ -1366,7 +1384,7 @@ function deleteAdminUser(uid, email) {
 
 // ==================== إعدادات Firebase ====================
 function switchAdminTab(tab) {
-    var tabs = ['users', 'firebase'];
+    var tabs = ['users', 'firebase', 'danger'];
     tabs.forEach(function(t) {
         var panel = document.getElementById('atab-' + t);
         var btn = document.getElementById('atab-' + t + '-btn');
