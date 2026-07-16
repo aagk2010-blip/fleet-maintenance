@@ -121,10 +121,10 @@ body{font-family:'Cairo','Segoe UI',sans-serif;background:var(--light);direction
   .stat-card{min-width:0}
   #alert-bar,.smart-alert-bar{margin-right:28px;margin-left:28px}
 
-  /* القوائم تتحول لشبكة متجاوبة بعدة أعمدة تستغل مساحة الشاشة الكبيرة */
+  /* كل القوائم عمود واحد تحت بعض، بعرض مريح للقراءة على الشاشات الكبيرة */
   #equipment-list-home,#equipment-list,#drivers-list,#fuel-list,#maintenance-list,#inv-list,
   #sites-dashboard-list,#rental-equipment-list,#rental-daily-list{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;max-width:1400px;align-items:start}
+    display:flex;flex-direction:column;gap:12px;max-width:720px}
   .equipment-card,.driver-card,.fuel-card,.maintenance-card,.inventory-item-card{margin-bottom:0}
 
   .search-box{max-width:420px}
@@ -366,6 +366,18 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   /* --- شاشة الدخول: لمسة أهدأ وأرقى --- */
   #login-screen{background:linear-gradient(180deg,#0a1622,#101d2c) !important}
   #login-screen::after{opacity:.035}
+}
+
+/* =======================================================================
+   كل الكروت (معدات، سائقين، وقود، صيانة، مخزن، إيجار، مواقع) عمود واحد
+   تحت بعض على كل الشاشات، بعرض مريح للقراءة على الشاشات الكبيرة.
+   ======================================================================= */
+#equipment-list-home,#equipment-list,#drivers-list,#fuel-list,#maintenance-list,#inv-list,
+#sites-dashboard-list,#rental-equipment-list,#rental-daily-list{
+  display:flex !important;flex-direction:column !important;gap:12px}
+@media (min-width:1024px){
+  #equipment-list-home,#equipment-list,#drivers-list,#fuel-list,#maintenance-list,#inv-list,
+  #sites-dashboard-list,#rental-equipment-list,#rental-daily-list{max-width:720px;gap:14px}
 }
 </style>
 </head>
