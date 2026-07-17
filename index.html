@@ -7781,8 +7781,9 @@ var editingRentalDailyId = null;
       '<input class="form-input" type="time" id="rental-daily-in"></div>' +
       '<div class="form-field"><label class="form-label">🔴 ساعة الانصراف</label>' +
       '<input class="form-input" type="time" id="rental-daily-out"></div>' +
-      '<div class="form-field"><label class="form-label">☕ ساعات الراحة (0 = اشتغل الغداء = إضافي من ساعة 9)</label>' +
-      '<input class="form-input" type="number" id="rental-daily-break" value="1" min="0" max="5" step="0.5"></div>' +
+      '<div class="form-field" style="display:flex;align-items:center;gap:8px;background:#fff7ed;border-radius:12px;padding:10px 12px">' +
+      '<input type="checkbox" id="rental-daily-break" style="width:20px;height:20px;flex-shrink:0">' +
+      '<label class="form-label" for="rental-daily-break" style="margin:0;flex:1">☕ اشتغلت المعدة ساعة الراحة؟ (تُحسب ساعة إضافية منفصلة)</label></div>' +
       '<div id="rental-daily-calc" style="display:none;background:#f0fdf4;border-radius:12px;padding:12px;margin:0 16px 8px;font-size:13px"></div>' +
       '<div class="form-field"><label class="form-label">ملاحظات</label>' +
       '<textarea class="form-textarea" id="rental-daily-notes" rows="2"></textarea></div></div>' +
@@ -7790,20 +7791,26 @@ var editingRentalDailyId = null;
     document.body.insertAdjacentHTML('beforeend', html);
 })();
 
-function calcRentalHours(inTime, outTime, breakHours) {
-    if (!inTime || !outTime) return { total:0, basic:0, break:breakHours||0, extra:0 };
+// يوم العمل القياسي: 8 صباحًا → 5 مساءً = 8 ساعات أساسي (ساعة راحة غير مدفوعة ضمن الفترة)
+// breakWorked = true  → اشتغلت المعدة ساعة الراحة، فتُحسب ساعة الراحة ضمن ساعات العمل بشكل منفصل
+// أي وقت بعد 5 مساءً يُحسب "إضافي" تلقائيًا من وقت الانصراف الفعلي
+var RENTAL_STANDARD_END_MINS = 17 * 60; // 5:00 م
+function calcRentalHours(inTime, outTime, breakWorked) {
+    if (!inTime || !outTime) return { total:0, basic:0, break:0, extra:0 };
     var inMins  = parseInt(inTime.split(':')[0])*60 + parseInt(inTime.split(':')[1]);
     var outMins = parseInt(outTime.split(':')[0])*60 + parseInt(outTime.split(':')[1]);
     if (outMins <= inMins) outMins += 1440;
     var total = Math.round((outMins - inMins)/60*100)/100;
-    var brk = (breakHours === undefined || breakHours === null || isNaN(parseFloat(breakHours))) ? 1 : parseFloat(breakHours);
-    var workNet = Math.max(0, total - brk);
-    // راحة = 0 → اشتغل الغداء → 8س أساسي + إضافي من ساعة 8
-    // راحة > 0 → 9س أساسي + إضافي من ساعة 9
-    var threshold = brk > 0 ? 9 : 8;
-    var basic = Math.min(workNet, threshold);
-    var extra = Math.max(0, workNet - threshold);
-    return { total:total, basic:Math.round(basic*100)/100, break:brk, extra:Math.round(extra*100)/100 };
+
+    var extraMins = Math.max(0, outMins - RENTAL_STANDARD_END_MINS);
+    var extra = Math.round(extraMins/60*100)/100;
+
+    var breakVal = breakWorked ? 1 : 0;
+    var workBeforeExtra = total - extra; // الوقت حتى نهاية الدوام الرسمي (5م) أو حتى وقت الانصراف لو أبكر
+    var basicRaw = workBeforeExtra - (breakWorked ? 0 : 1); // خصم ساعة راحة غير مدفوعة لو لم تُستخدم في العمل
+    var basic = Math.max(0, Math.min(basicRaw, 8));
+
+    return { total:total, basic:Math.round(basic*100)/100, break:breakVal, extra:extra };
 }
 
 function switchRentalTab(tab) {
@@ -7837,6 +7844,7 @@ function renderRentalEquipment() {
         var todayRec  = allDays.find(function(d){ return d.date===todayStr; });
         var daysCount = monthDays.length;
         var sumBasic  = monthDays.reduce(function(s,d){ return s+(d.basicHours||0); },0);
+        var sumBreak  = monthDays.reduce(function(s,d){ return s+(d.breakHours||0); },0);
         var sumExtra  = monthDays.reduce(function(s,d){ return s+(d.extraHours||0); },0);
         var pct   = Math.min(daysCount/30,1);
         var color = daysCount>=25?'#059669':daysCount>=15?'#0e7490':daysCount>=7?'#d97706':'#7c3aed';
@@ -7867,17 +7875,20 @@ function renderRentalEquipment() {
         '<div style="font-size:9px;color:var(--gray)">يوم/30</div></div></div>'+
         '<div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:5px">'+
         '<div style="background:var(--light);border-radius:9px;padding:7px;text-align:center"><div style="font-size:17px;font-weight:700;color:#0e7490">'+sumBasic.toFixed(1)+'</div><div style="font-size:9px;color:var(--gray)">أساسية</div></div>'+
-        '<div style="background:'+(sumExtra>0?'#fef3c7':'var(--light)')+';border-radius:9px;padding:7px;text-align:center"><div style="font-size:17px;font-weight:700;color:'+(sumExtra>0?'#d97706':'var(--gray)')+'">'+sumExtra.toFixed(1)+'</div><div style="font-size:9px;color:var(--gray)">إضافية</div></div>'+
+        '<div style="background:'+((sumExtra+sumBreak)>0?'#fef3c7':'var(--light)')+';border-radius:9px;padding:7px;text-align:center"><div style="font-size:17px;font-weight:700;color:'+((sumExtra+sumBreak)>0?'#d97706':'var(--gray)')+'">'+(sumExtra+sumBreak).toFixed(1)+'</div><div style="font-size:9px;color:var(--gray)">إضافية'+(sumBreak>0?' (منها '+sumBreak.toFixed(1)+'راحة)':'')+'</div></div>'+
         '<div style="grid-column:1/-1;background:'+(todayRec?'#d1fae5':'#fef9c3')+';border-radius:9px;padding:5px 8px;text-align:center;font-size:11px;font-weight:600;color:'+todayStatusColor+'">'+todayStatus+'</div>'+
         '</div></div>'+
         '<div style="margin:0 10px 10px;background:'+(todayRec?'#f0fdf4':'#fef3c7')+';border:1px solid '+(todayRec?'#bbf7d0':'#fde68a')+';border-radius:11px;padding:8px">'+
         '<div style="font-size:10px;color:'+todayStatusColor+';margin-bottom:5px;font-weight:600">⚡ '+(todayRec?'تعديل اليوم '+todayStr:'تسجيل اليوم '+todayStr)+'</div>'+
         '<div style="display:flex;gap:5px;align-items:center">'+
-        '<input type="time" id="quick-in-'+rid+'" value="'+(todayRec?todayRec.inTime||'':'07:00')+'" style="flex:1;padding:6px;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:12px">'+
+        '<input type="time" id="quick-in-'+rid+'" value="'+(todayRec?todayRec.inTime||'':'08:00')+'" style="flex:1;padding:6px;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:12px">'+
         '<span style="color:var(--gray);font-size:11px">→</span>'+
-        '<input type="time" id="quick-out-'+rid+'" value="'+(todayRec?todayRec.outTime||'':'')+'" style="flex:1;padding:6px;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:12px">'+
-        '<input type="number" id="quick-brk-'+rid+'" value="'+(todayRec?todayRec.breakHours||1:1)+'" min="0" max="5" step="0.5" title="راحة" style="width:44px;padding:6px;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:11px;text-align:center">'+
+        '<input type="time" id="quick-out-'+rid+'" value="'+(todayRec?todayRec.outTime||'':'17:00')+'" style="flex:1;padding:6px;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:12px">'+
         '<button data-action="quick-save" data-id="'+rid+'" data-today="'+todayStr+'" data-existing="'+(todayRec?todayRec.id:'')+'" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;border:none;border-radius:8px;padding:6px 11px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">✅</button>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-top:5px">'+
+        '<input type="checkbox" id="quick-brk-'+rid+'" '+(todayRec&&todayRec.breakWorked?'checked':'')+' style="width:16px;height:16px">'+
+        '<label for="quick-brk-'+rid+'" style="font-size:11px;color:'+todayStatusColor+'">☕ اشتغلت ساعة الراحة (تُحسب إضافي)</label>'+
         '</div></div>'+
         (isAdmin?
         '<div style="padding:0 10px 10px;display:flex;gap:6px">'+
@@ -7905,7 +7916,7 @@ function renderRentalEquipment() {
             var today=btn.getAttribute('data-today'), existing=btn.getAttribute('data-existing');
             var inT=(document.getElementById('quick-in-'+id)||{}).value||'';
             var outT=(document.getElementById('quick-out-'+id)||{}).value||'';
-            var brk=parseFloat((document.getElementById('quick-brk-'+id)||{}).value)||1;
+            var brk=!!(document.getElementById('quick-brk-'+id)||{}).checked;
             quickSaveRentalDay(id,today,existing,inT,outT,brk);
         }
     };
@@ -7920,7 +7931,7 @@ function quickSaveRentalDay(rentalId,date,existingId,inTime,outTime,brk) {
     var h=calcRentalHours(inTime,outTime,brk);
     var record={ equipmentId:rentalId, equipmentCode:rental.equipmentCode||'', equipmentType:rental.equipmentType||'',
         driverId:rental.driverId||'', company:rental.company||'', date:date,
-        inTime:inTime, outTime:outTime, totalHours:h.total, basicHours:h.basic, breakHours:brk, extraHours:h.extra,
+        inTime:inTime, outTime:outTime, totalHours:h.total, basicHours:h.basic, breakWorked:!!brk, breakHours:h.break, extraHours:h.extra,
         notes:'', updatedAt:new Date().toISOString() };
     var ref=targetId?fbDb.ref('rentalDaily/'+targetId):fbDb.ref('rentalDaily').push();
     ref.set(record).then(function(){ showToast(targetId?'✅ تم تحديث اليوم':'✅ تم حفظ اليوم'); }).catch(function(err){ showToast('خطأ: '+err.message,true); });
@@ -8008,9 +8019,9 @@ function openAddDailyModal(rentalId) {
     }).join('');
     document.getElementById('rental-daily-modal-title').textContent='📋 تسجيل يوم عمل';
     document.getElementById('rental-daily-date-input').value=new Date().toISOString().split('T')[0];
-    document.getElementById('rental-daily-in').value='07:00';
-    document.getElementById('rental-daily-out').value='';
-    document.getElementById('rental-daily-break').value='1';
+    document.getElementById('rental-daily-in').value='08:00';
+    document.getElementById('rental-daily-out').value='17:00';
+    document.getElementById('rental-daily-break').checked=false;
     document.getElementById('rental-daily-notes').value='';
     document.getElementById('rental-daily-calc').style.display='none';
     if (rentalId) onRentalDailyEqChange();
@@ -8019,26 +8030,27 @@ function openAddDailyModal(rentalId) {
         var inT=document.getElementById('rental-daily-in').value;
         var outT=document.getElementById('rental-daily-out').value;
         if (!inT||!outT) return;
-        var brk=parseFloat(document.getElementById('rental-daily-break').value)||0;
+        var brk=document.getElementById('rental-daily-break').checked;
         var h=calcRentalHours(inT,outT,brk);
         var div=document.getElementById('rental-daily-calc');
         div.style.display='block';
         div.innerHTML='<div style="font-weight:700;margin-bottom:6px;color:#065f46">⏱️ ملخص الساعات</div>'+
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+
             '<div style="background:white;padding:6px 10px;border-radius:8px">📊 إجمالي: <strong>'+h.total.toFixed(1)+'س</strong></div>'+
-            '<div style="background:white;padding:6px 10px;border-radius:8px">☕ راحة: <strong>'+h.break+'س</strong>'+(h.break===0?' <span style="color:#d97706;font-size:10px">(لا راحة)</span>':'')+'</div>'+
             '<div style="background:white;padding:6px 10px;border-radius:8px">✅ أساسي: <strong>'+h.basic.toFixed(1)+'س</strong></div>'+
-            (h.extra>0?'<div style="background:#fef3c7;color:#92400e;padding:6px 10px;border-radius:8px">⚡ إضافي: <strong>'+h.extra.toFixed(2)+'س</strong></div>':'<div style="background:white;padding:6px 10px;border-radius:8px;color:var(--gray)">⚡ لا إضافي</div>')+
+            (h.break>0?'<div style="background:#fef3c7;color:#92400e;padding:6px 10px;border-radius:8px">☕ ساعة راحة (اشتغلت): <strong>'+h.break.toFixed(1)+'س</strong></div>':'<div style="background:white;padding:6px 10px;border-radius:8px;color:var(--gray)">☕ راحة عادية (غير محسوبة)</div>')+
+            (h.extra>0?'<div style="background:#fef3c7;color:#92400e;padding:6px 10px;border-radius:8px">⚡ إضافي (بعد 5م): <strong>'+h.extra.toFixed(2)+'س</strong></div>':'<div style="background:white;padding:6px 10px;border-radius:8px;color:var(--gray)">⚡ لا إضافي</div>')+
             '</div>';
     }
-    ['rental-daily-in','rental-daily-out','rental-daily-break'].forEach(function(id){ var el=document.getElementById(id); if(el) el.oninput=updCalc; });
+    ['rental-daily-in','rental-daily-out'].forEach(function(id){ var el=document.getElementById(id); if(el) el.oninput=updCalc; });
+    document.getElementById('rental-daily-break').onchange=updCalc;
 }
 function saveRentalDaily() {
     var rId=document.getElementById('rental-daily-eq').value;
     var date=document.getElementById('rental-daily-date-input').value;
     var inT=document.getElementById('rental-daily-in').value;
     var outT=document.getElementById('rental-daily-out').value;
-    var brk=parseFloat(document.getElementById('rental-daily-break').value)||0;
+    var brk=document.getElementById('rental-daily-break').checked;
     var notes=document.getElementById('rental-daily-notes').value.trim();
     if (!rId) { showToast('اختر المعدة',true); return; }
     if (!date) { showToast('أدخل التاريخ',true); return; }
@@ -8057,7 +8069,7 @@ function saveRentalDaily() {
     var h=calcRentalHours(inT,outT,brk);
     var record={ equipmentId:rId, equipmentCode:rental?rental.equipmentCode:'', equipmentType:rental?rental.equipmentType:'',
         driverId:rental?rental.driverId:'', company:rental?rental.company:'',
-        date:date, inTime:inT, outTime:outT, totalHours:h.total, basicHours:h.basic, breakHours:brk, extraHours:h.extra,
+        date:date, inTime:inT, outTime:outT, totalHours:h.total, basicHours:h.basic, breakWorked:!!brk, breakHours:h.break, extraHours:h.extra,
         notes:notes, updatedAt:new Date().toISOString() };
     var ref=editingRentalDailyId?fbDb.ref('rentalDaily/'+editingRentalDailyId):fbDb.ref('rentalDaily').push();
     ref.set(record).then(function(){ closeModal('rental-daily-modal'); showToast('تم الحفظ ✅'); }).catch(function(err){ showToast('خطأ: '+err.message,true); });
@@ -8071,7 +8083,7 @@ function editRentalDaily(id) {
         document.getElementById('rental-daily-date-input').value=r.date||'';
         document.getElementById('rental-daily-in').value=r.inTime||'';
         document.getElementById('rental-daily-out').value=r.outTime||'';
-        document.getElementById('rental-daily-break').value=r.breakHours||0;
+        document.getElementById('rental-daily-break').checked=!!r.breakWorked;
         document.getElementById('rental-daily-notes').value=r.notes||'';
         document.getElementById('rental-daily-modal-title').textContent='✏️ تعديل يوم عمل';
         document.getElementById('rental-daily-in').dispatchEvent(new Event('input'));
@@ -8084,10 +8096,10 @@ function deleteRentalDaily(id) {
 function updateRentalTimes(id) {
     var inT=(document.getElementById('upd-in-'+id)||{}).value||'';
     var outT=(document.getElementById('upd-out-'+id)||{}).value||'';
-    var brk=parseFloat((document.getElementById('upd-brk-'+id)||{}).value)||0;
+    var brk=!!(document.getElementById('upd-brk-'+id)||{}).checked;
     if (!inT||!outT) { showToast('أدخل وقت الحضور والانصراف',true); return; }
     var h=calcRentalHours(inT,outT,brk);
-    fbDb.ref('rentalDaily/'+id).update({ inTime:inT,outTime:outT,breakHours:brk,totalHours:h.total,basicHours:h.basic,extraHours:h.extra,updatedAt:new Date().toISOString() })
+    fbDb.ref('rentalDaily/'+id).update({ inTime:inT,outTime:outT,breakWorked:brk,breakHours:h.break,totalHours:h.total,basicHours:h.basic,extraHours:h.extra,updatedAt:new Date().toISOString() })
         .then(function(){ showToast('تم التحديث'); }).catch(function(err){ showToast('خطأ: '+err.message,true); });
 }
 
@@ -8105,8 +8117,9 @@ function renderRentalDailyView() {
     Object.keys(grouped).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(date){
         var recs=grouped[date];
         var sb=recs.reduce(function(s,r){ return s+(r.basicHours||0); },0);
+        var sk=recs.reduce(function(s,r){ return s+(r.breakHours||0); },0);
         var se=recs.reduce(function(s,r){ return s+(r.extraHours||0); },0);
-        html+='<div style="background:linear-gradient(135deg,#0e7490,#0369a1);color:white;border-radius:12px;padding:8px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center"><strong>📅 '+date+'</strong><span style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 10px;border-radius:99px">'+recs.length+' معدة | أساسي '+sb.toFixed(1)+'س'+(se>0?' | إضافي '+se.toFixed(1)+'س':'')+'</span></div>';
+        html+='<div style="background:linear-gradient(135deg,#0e7490,#0369a1);color:white;border-radius:12px;padding:8px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center"><strong>📅 '+date+'</strong><span style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 10px;border-radius:99px">'+recs.length+' معدة | أساسي '+sb.toFixed(1)+'س'+(sk>0?' | راحة '+sk.toFixed(1)+'س':'')+(se>0?' | إضافي '+se.toFixed(1)+'س':'')+'</span></div>';
         recs.forEach(function(r){
             var rental=rentalData.find(function(x){ return x.id===r.equipmentId; });
             var eq=rental?equipmentData.find(function(e){ return e.id===rental.equipmentId; }):null;
@@ -8118,9 +8131,10 @@ function renderRentalDailyView() {
                 (isAdmin?'<div style="display:flex;gap:5px">'+
                 '<button data-action="edit-daily" data-id="'+r.id+'" style="background:#e0e7ff;color:#4338ca;border:none;border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer">✏️</button>'+
                 '<button data-action="del-daily" data-id="'+r.id+'" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer">🗑️</button></div>':'')+'</div>'+
-                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;font-size:12px">'+
+                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr'+(r.breakHours>0?' 1fr':'')+';gap:5px;font-size:12px">'+
                 '<div style="background:var(--light);padding:5px 8px;border-radius:8px;text-align:center">🟢 '+(r.inTime||'—')+'<br>🔴 '+(r.outTime||'—')+'</div>'+
                 '<div style="background:var(--light);padding:5px 8px;border-radius:8px;text-align:center">✅ أساسي<br><strong>'+(r.basicHours||0).toFixed(1)+'س</strong></div>'+
+                (r.breakHours>0?'<div style="background:#fef3c7;color:#92400e;padding:5px 8px;border-radius:8px;text-align:center">☕ راحة<br><strong>'+(r.breakHours||0).toFixed(1)+'س</strong></div>':'')+
                 '<div style="background:'+(r.extraHours>0?'#fef3c7':'var(--light)')+';color:'+(r.extraHours>0?'#92400e':'inherit')+';padding:5px 8px;border-radius:8px;text-align:center">⚡ إضافي<br><strong>'+(r.extraHours||0).toFixed(2)+'س</strong></div></div>'+
                 (r.notes?'<div style="margin-top:5px;font-size:12px;color:var(--gray);background:var(--light);padding:5px 10px;border-radius:8px">📝 '+escapeHtml(r.notes)+'</div>':'')+'</div></div>';
         });
@@ -8189,40 +8203,49 @@ function renderRentalReportContent(rentalId, dateFrom, dateTo) {
         return true;
     }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
     var sb=records.reduce(function(s,d){ return s+(d.basicHours||0); },0);
+    var sk=records.reduce(function(s,d){ return s+(d.breakHours||0); },0);
     var se=records.reduce(function(s,d){ return s+(d.extraHours||0); },0);
+    var st=sb+sk+se;
     var periodLabel = (dateFrom||'') + (dateTo?' \u2192 '+dateTo:'');
     var cont=document.getElementById('rental-report-content');
     if (!cont) return;
     var html='<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:14px;padding:14px;color:white;margin-bottom:10px">'+
         '<div style="font-weight:700;margin-bottom:8px">\u{1F4CA} '+periodLabel+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;margin-bottom:6px">'+
+        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:22px;font-weight:700">'+records.length+'</div><div>\u064A\u0648\u0645 \u0639\u0645\u0644 (\u0623\u0633\u0627\u0633 8\u0633/\u064A\u0648\u0645)</div></div>'+
+        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:22px;font-weight:700">'+st.toFixed(1)+'</div><div>\u0625\u062C\u0645\u0627\u0644\u064A \u0627\u0644\u0633\u0627\u0639\u0627\u062A</div></div>'+
+        '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:13px">'+
-        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:22px;font-weight:700">'+records.length+'</div><div>\u064A\u0648\u0645 \u0639\u0645\u0644</div></div>'+
-        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:22px;font-weight:700">'+sb.toFixed(1)+'</div><div>\u0633\u0627\u0639\u0629 \u0623\u0633\u0627\u0633\u064A\u0629</div></div>'+
-        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:22px;font-weight:700;color:#fbbf24">'+se.toFixed(1)+'</div><div>\u0633\u0627\u0639\u0629 \u0625\u0636\u0627\u0641\u064A\u0629</div></div>'+
+        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700">'+sb.toFixed(1)+'</div><div>\u0623\u0633\u0627\u0633\u064A</div></div>'+
+        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700;color:#fbbf24">'+sk.toFixed(1)+'</div><div>\u0633\u0627\u0639\u0629 \u0631\u0627\u062D\u0629</div></div>'+
+        '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700;color:#fbbf24">'+se.toFixed(1)+'</div><div>\u0625\u0636\u0627\u0641\u064A</div></div>'+
         '</div></div>';
     if (!records.length) { html+='<div style="text-align:center;padding:30px;color:var(--gray)">\u0644\u0627 \u0633\u062C\u0644\u0627\u062A \u0644\u0647\u0630\u0647 \u0627\u0644\u0641\u062A\u0631\u0629</div>'; cont.innerHTML=html; return; }
-    var colTemplate = isAdmin ? '70px 48px 48px 42px 42px 58px' : '85px 55px 55px 50px 55px';
+    var colTemplate = isAdmin ? '52px 36px 36px 30px 28px 30px 32px 44px' : '62px 42px 42px 34px 32px 34px 36px';
     var editHeader = isAdmin ? '<span style="text-align:center">\u062A\u0639\u062F\u064A\u0644</span>' : '';
-    html+='<div style="background:white;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden">'+
-        '<div style="background:var(--light);padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:4px;font-size:12px;font-weight:700">'+
-        '<span>\u0627\u0644\u062A\u0627\u0631\u064A\u062E</span><span style="text-align:center">\u062D\u0636\u0648\u0631</span><span style="text-align:center">\u0627\u0646\u0635\u0631\u0627\u0641</span><span style="text-align:center">\u0623\u0633\u0627\u0633\u064A</span><span style="text-align:center">\u0625\u0636\u0627\u0641\u064A</span>'+editHeader+'</div>';
+    html+='<div style="background:white;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;overflow-x:auto">'+
+        '<div style="background:var(--light);padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:3px;font-size:11px;font-weight:700">'+
+        '<span>\u0627\u0644\u062A\u0627\u0631\u064A\u062E</span><span style="text-align:center">\u062D\u0636\u0648\u0631</span><span style="text-align:center">\u0627\u0646\u0635\u0631\u0627\u0641</span><span style="text-align:center">\u0623\u0633\u0627\u0633\u064A</span><span style="text-align:center">\u0631\u0627\u062D\u0629</span><span style="text-align:center">\u0625\u0636\u0627\u0641\u064A</span><span style="text-align:center">\u0627\u0644\u0645\u062C\u0645\u0648\u0639</span>'+editHeader+'</div>';
     records.forEach(function(r,i){
         var editBtns = isAdmin ?
             '<span style="display:flex;gap:3px;justify-content:center">'+
             '<button data-action="edit-daily-entry" data-entry-id="'+r.id+'" data-rental-id="'+rentalId+'" style="background:#7c3aed;color:white;border:none;border-radius:5px;padding:3px 5px;cursor:pointer;font-size:10px">\u270F\uFE0F</button>'+
             '<button data-action="del-daily-entry" data-entry-id="'+r.id+'" data-rental-id="'+rentalId+'" style="background:#dc2626;color:white;border:none;border-radius:5px;padding:3px 5px;cursor:pointer;font-size:10px">\u{1F5D1}\uFE0F</button>'+
             '</span>' : '';
-        html+='<div style="background:'+(i%2?'#f8fafc':'white')+';padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:4px;font-size:12px;border-top:1px solid #f1f5f9;align-items:center">'+
+        var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
+        html+='<div style="background:'+(i%2?'#f8fafc':'white')+';padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:3px;font-size:11px;border-top:1px solid #f1f5f9;align-items:center">'+
             '<span>'+r.date+'</span><span style="text-align:center;color:var(--gray)">'+(r.inTime||'\u2014')+'</span>'+
             '<span style="text-align:center;color:var(--gray)">'+(r.outTime||'\u2014')+'</span>'+
             '<span style="text-align:center;font-weight:600">'+(r.basicHours||0).toFixed(1)+'</span>'+
-            '<span style="text-align:center;font-weight:600;color:'+(r.extraHours>0?'#d97706':'var(--gray)')+'\">'+(r.extraHours||0).toFixed(2)+'</span>'+
+            '<span style="text-align:center;font-weight:600;color:'+(r.breakHours>0?'#d97706':'var(--gray)')+'\">'+(r.breakHours||0).toFixed(1)+'</span>'+
+            '<span style="text-align:center;font-weight:600;color:'+(r.extraHours>0?'#d97706':'var(--gray)')+'\">'+(r.extraHours||0).toFixed(1)+'</span>'+
+            '<span style="text-align:center;font-weight:700;color:#065f46">'+rowTotal.toFixed(1)+'</span>'+
             editBtns+'</div>'+
             (r.notes?'<div style="padding:2px 12px 5px;font-size:10px;color:var(--gray);background:'+(i%2?'#f8fafc':'white')+'">\u{1F4DD} '+escapeHtml(r.notes)+'</div>':'');
     });
     var emptyCol = isAdmin ? '<span></span>' : '';
-    html+='<div style="background:#f1f5f9;padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:4px;font-size:12px;font-weight:700;border-top:2px solid #e2e8f0">'+
-        '<span>\u0627\u0644\u0625\u062C\u0645\u0627\u0644\u064A</span><span></span><span></span><span style="text-align:center;color:#0e7490">'+sb.toFixed(1)+'</span><span style="text-align:center;color:#d97706">'+se.toFixed(1)+'</span>'+emptyCol+'</div>';
+    html+='<div style="background:#f1f5f9;padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:3px;font-size:11px;font-weight:700;border-top:2px solid #e2e8f0">'+
+        '<span>\u0627\u0644\u0625\u062C\u0645\u0627\u0644\u064A</span><span></span><span></span><span style="text-align:center;color:#0e7490">'+sb.toFixed(1)+'</span><span style="text-align:center;color:#d97706">'+sk.toFixed(1)+'</span><span style="text-align:center;color:#d97706">'+se.toFixed(1)+'</span><span style="text-align:center;color:#065f46">'+st.toFixed(1)+'</span>'+emptyCol+'</div>';
     html+='</div>';
     cont.innerHTML=html;
     if (isAdmin) {
@@ -8256,11 +8279,12 @@ function openEditDailyEntryModal(entryId, rentalId, dateFrom, dateTo) {
         '<div style="background:#ede9fe;border-radius:10px;padding:8px 12px;font-size:12px;color:#4c1d95;margin-bottom:14px">\u{1F4C5} \u0627\u0644\u062A\u0627\u0631\u064A\u062E: <strong>'+entry.date+'</strong></div>'+
         '<div style="display:grid;gap:10px">'+
         '<div><label style="font-size:12px;color:var(--gray);display:block;margin-bottom:4px">\u0648\u0642\u062A \u0627\u0644\u062D\u0636\u0648\u0631</label>'+
-        '<input type="time" id="edit-entry-in" value="'+(entry.inTime||'07:00')+'" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:14px"></div>'+
+        '<input type="time" id="edit-entry-in" value="'+(entry.inTime||'08:00')+'" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:14px"></div>'+
         '<div><label style="font-size:12px;color:var(--gray);display:block;margin-bottom:4px">\u0648\u0642\u062A \u0627\u0644\u0627\u0646\u0635\u0631\u0627\u0641</label>'+
         '<input type="time" id="edit-entry-out" value="'+(entry.outTime||'')+'" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:14px"></div>'+
-        '<div><label style="font-size:12px;color:var(--gray);display:block;margin-bottom:4px">\u0633\u0627\u0639\u0627\u062A \u0627\u0644\u0631\u0627\u062D\u0629</label>'+
-        '<input type="number" id="edit-entry-brk" value="'+(entry.breakHours||1)+'" min="0" max="5" step="0.5" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:14px"></div>'+
+        '<div style="display:flex;align-items:center;gap:8px;background:#fff7ed;border-radius:10px;padding:8px 10px">'+
+        '<input type="checkbox" id="edit-entry-brk" '+(entry.breakWorked?'checked':'')+' style="width:18px;height:18px">'+
+        '<label for="edit-entry-brk" style="font-size:12px;color:#92400e;margin:0">\u2615 \u0627\u0634\u062A\u063A\u0644\u062A \u0627\u0644\u0645\u0639\u062F\u0629 \u0633\u0627\u0639\u0629 \u0627\u0644\u0631\u0627\u062D\u0629\u061F</label></div>'+
         '<div><label style="font-size:12px;color:var(--gray);display:block;margin-bottom:4px">\u0645\u0644\u0627\u062D\u0638\u0627\u062A</label>'+
         '<textarea id="edit-entry-notes" rows="2" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:13px;resize:none">'+(entry.notes||'')+'</textarea></div>'+
         '</div>'+
@@ -8272,17 +8296,19 @@ function openEditDailyEntryModal(entryId, rentalId, dateFrom, dateTo) {
     function calcAndShow() {
         var inT = document.getElementById('edit-entry-in').value;
         var outT = document.getElementById('edit-entry-out').value;
-        var brk = parseFloat(document.getElementById('edit-entry-brk').value)||0;
+        var brk = document.getElementById('edit-entry-brk').checked;
         var calcDiv = document.getElementById('edit-entry-calc');
         if (inT && outT) {
             var h = calcRentalHours(inT, outT, brk);
             calcDiv.style.display = 'block';
-            calcDiv.innerHTML = '\u2705 \u0623\u0633\u0627\u0633\u064A: <strong>'+h.basic.toFixed(1)+'</strong> \u0633\u0627\u0639\u0629 | \u0625\u0636\u0627\u0641\u064A: <strong style="color:#d97706">'+h.extra.toFixed(2)+'</strong> \u0633\u0627\u0639\u0629';
+            calcDiv.innerHTML = '\u2705 \u0623\u0633\u0627\u0633\u064A: <strong>'+h.basic.toFixed(1)+'</strong>\u0633'+
+                (h.break>0?' | \u2615 \u0631\u0627\u062D\u0629: <strong style="color:#d97706">'+h.break.toFixed(1)+'</strong>\u0633':'')+
+                ' | \u0625\u0636\u0627\u0641\u064A: <strong style="color:#d97706">'+h.extra.toFixed(2)+'</strong>\u0633';
         } else { calcDiv.style.display = 'none'; }
     }
     document.getElementById('edit-entry-in').oninput = calcAndShow;
     document.getElementById('edit-entry-out').oninput = calcAndShow;
-    document.getElementById('edit-entry-brk').oninput = calcAndShow;
+    document.getElementById('edit-entry-brk').onchange = calcAndShow;
     calcAndShow();
 
     document.getElementById('edit-daily-close').onclick = function(){ modal.remove(); };
@@ -8291,12 +8317,12 @@ function openEditDailyEntryModal(entryId, rentalId, dateFrom, dateTo) {
     document.getElementById('edit-daily-save-btn').onclick = function() {
         var inT = document.getElementById('edit-entry-in').value;
         var outT = document.getElementById('edit-entry-out').value;
-        var brk = parseFloat(document.getElementById('edit-entry-brk').value)||0;
+        var brk = document.getElementById('edit-entry-brk').checked;
         var notes = document.getElementById('edit-entry-notes').value;
         if (!inT || !outT) { showToast('\u0623\u062F\u062E\u0644 \u0648\u0642\u062A \u0627\u0644\u062D\u0636\u0648\u0631 \u0648\u0627\u0644\u0627\u0646\u0635\u0631\u0627\u0641', true); return; }
         var h = calcRentalHours(inT, outT, brk);
         var updated = Object.assign({}, entry, {
-            inTime: inT, outTime: outT, breakHours: brk,
+            inTime: inT, outTime: outT, breakWorked: !!brk, breakHours: h.break,
             totalHours: h.total, basicHours: h.basic, extraHours: h.extra,
             notes: notes, updatedAt: new Date().toISOString()
         });
@@ -8343,11 +8369,12 @@ function exportSingleRentalExcel(rentalId) {
     var rows=[['تقرير معدة إيجار'],
         ['المعدة:',(eq?eq.type+' — '+eq.code:'—'),'الشركة:',(rental?rental.company||'—':'—')],
         ['السائق:',(drv?drv.name:'—'),'الفترة:',periodLabel],[],
-        ['التاريخ','حضور','انصراف','إجمالي','راحة','أساسي','إضافي','ملاحظات']];
-    var sb=0,se=0;
-    records.forEach(function(r){ sb+=(r.basicHours||0);se+=(r.extraHours||0);
-        rows.push([r.date,r.inTime||'',r.outTime||'',(r.totalHours||0).toFixed(2),(r.breakHours||0),(r.basicHours||0).toFixed(2),(r.extraHours||0).toFixed(2),r.notes||'']); });
-    rows.push([]);rows.push(['الإجمالي','','','','',sb.toFixed(2),se.toFixed(2),'']);
+        ['التاريخ','حضور','انصراف','أساسي','ساعة راحة','إضافي','المجموع','ملاحظات']];
+    var sb=0,sk=0,se=0;
+    records.forEach(function(r){ sb+=(r.basicHours||0);sk+=(r.breakHours||0);se+=(r.extraHours||0);
+        var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
+        rows.push([r.date,r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'']); });
+    rows.push([]);rows.push(['الإجمالي','','',sb.toFixed(2),sk.toFixed(2),se.toFixed(2),(sb+sk+se).toFixed(2),'']);
     var ws=XLSX.utils.aoa_to_sheet(rows);var wb2=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb2,ws,'تقرير');
     XLSX.writeFile(wb2,'rental_'+(eq?eq.code:'')+'_'+(range.from||'all')+'.xlsx');
 }
@@ -8364,22 +8391,25 @@ function exportSingleRentalPDF(rentalId) {
         return true;
     }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
     var sb=records.reduce(function(s,r){ return s+(r.basicHours||0); },0);
+    var sk=records.reduce(function(s,r){ return s+(r.breakHours||0); },0);
     var se=records.reduce(function(s,r){ return s+(r.extraHours||0); },0);
     var periodLabel=(range.from||'')+(range.to?' → '+range.to:'');
     var rows=records.map(function(r,i){
-        return '<tr style="background:'+(i%2?'#f8fafc':'white')+'"><td>'+r.date+'</td><td>'+(r.inTime||'—')+'</td><td>'+(r.outTime||'—')+'</td><td>'+(r.basicHours||0).toFixed(2)+'</td><td style="color:'+(r.extraHours>0?'#d97706':'#666')+'">'+(r.extraHours||0).toFixed(2)+'</td><td>'+(r.notes||'')+'</td></tr>';
+        var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
+        return '<tr style="background:'+(i%2?'#f8fafc':'white')+'"><td>'+r.date+'</td><td>'+(r.inTime||'—')+'</td><td>'+(r.outTime||'—')+'</td><td>'+(r.basicHours||0).toFixed(2)+'</td><td style="color:'+(r.breakHours>0?'#d97706':'#666')+'">'+(r.breakHours||0).toFixed(2)+'</td><td style="color:'+(r.extraHours>0?'#d97706':'#666')+'">'+(r.extraHours||0).toFixed(2)+'</td><td style="font-weight:bold">'+rowTotal.toFixed(2)+'</td><td>'+(r.notes||'')+'</td></tr>';
     }).join('');
     var w=window.open('','_blank');
-    w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;padding:20px;direction:rtl}h2{color:#7c3aed}.info{background:#f1f5f9;padding:10px;border-radius:8px;margin-bottom:15px;font-size:13px}.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:15px}.sum-box{background:#7c3aed;color:white;padding:12px;border-radius:8px;text-align:center}.sum-box .num{font-size:24px;font-weight:bold}.sum-box .lbl{font-size:12px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#7c3aed;color:white;padding:8px;text-align:center}td{padding:7px 8px;border-bottom:1px solid #e2e8f0;text-align:center}tfoot td{background:#f1f5f9;font-weight:bold}</style></head><body>'+
+    w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;padding:20px;direction:rtl}h2{color:#7c3aed}.info{background:#f1f5f9;padding:10px;border-radius:8px;margin-bottom:15px;font-size:13px}.summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px}.sum-box{background:#7c3aed;color:white;padding:12px;border-radius:8px;text-align:center}.sum-box .num{font-size:22px;font-weight:bold}.sum-box .lbl{font-size:11px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#7c3aed;color:white;padding:7px;text-align:center}td{padding:6px 7px;border-bottom:1px solid #e2e8f0;text-align:center}tfoot td{background:#f1f5f9;font-weight:bold}</style></head><body>'+
         '<h2>📋 تقرير معدة إيجار</h2>'+
         '<div class="info"><b>المعدة:</b> '+(eq?eq.type+' — '+eq.name:'—')+'&nbsp;&nbsp;<b>الكود:</b> '+(eq?eq.code:'—')+'&nbsp;&nbsp;<b>السائق:</b> '+(drv?drv.name:'—')+'<br>'+
         '<b>الشركة:</b> '+(rental?rental.company||'—':'—')+'&nbsp;&nbsp;<b>الفترة:</b> '+periodLabel+'&nbsp;&nbsp;<b>الطباعة:</b> '+new Date().toLocaleDateString('ar-EG')+'</div>'+
         '<div class="summary"><div class="sum-box"><div class="num">'+records.length+'</div><div class="lbl">يوم عمل</div></div>'+
         '<div class="sum-box"><div class="num">'+sb.toFixed(1)+'</div><div class="lbl">ساعة أساسية</div></div>'+
+        '<div class="sum-box" style="background:#d97706"><div class="num">'+sk.toFixed(1)+'</div><div class="lbl">ساعة راحة</div></div>'+
         '<div class="sum-box" style="background:#d97706"><div class="num">'+se.toFixed(1)+'</div><div class="lbl">ساعة إضافية</div></div></div>'+
-        '<table><thead><tr><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>أساسي</th><th>إضافي</th><th>ملاحظات</th></tr></thead>'+
+        '<table><thead><tr><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>أساسي</th><th>راحة</th><th>إضافي</th><th>المجموع</th><th>ملاحظات</th></tr></thead>'+
         '<tbody>'+rows+'</tbody>'+
-        '<tfoot><tr><td colspan="3">الإجمالي</td><td>'+sb.toFixed(2)+'</td><td>'+se.toFixed(2)+'</td><td></td></tr></tfoot>'+
+        '<tfoot><tr><td colspan="3">الإجمالي</td><td>'+sb.toFixed(2)+'</td><td>'+sk.toFixed(2)+'</td><td>'+se.toFixed(2)+'</td><td>'+(sb+sk+se).toFixed(2)+'</td><td></td></tr></tfoot>'+
         '</table></body></html>');
     w.document.close();setTimeout(function(){ w.print(); },500);
 }
@@ -8401,9 +8431,10 @@ function sendRentalWhatsApp() {
             var eq  = rental ? equipmentData.find(function(e){ return e.id===rental.equipmentId; }) : null;
             var drv = rental ? driversData.find(function(d){ return d.id===rental.driverId; }) : null;
             var label = eq ? (eq.type + ' ' + (eq.name||eq.code)) : (r.equipmentCode||'—');
+            var brk = (r.breakHours||0) > 0 ? ' | ☕*' + (r.breakHours||0).toFixed(1) + 'س*' : '';
             var extra = (r.extraHours||0) > 0 ? ' | ⚡*' + (r.extraHours||0).toFixed(2) + 'س*' : '';
             msg += '%0A▪️ *' + label + '*%0A';
-            msg += (drv ? drv.name : '—') + ' | 🟢' + (r.inTime||'—') + ' 🔴' + (r.outTime||'—') + extra + '%0A';
+            msg += (drv ? drv.name : '—') + ' | 🟢' + (r.inTime||'—') + ' 🔴' + (r.outTime||'—') + brk + extra + '%0A';
         });
     }
 
@@ -8478,6 +8509,7 @@ function sendDriverWhatsApp(rentalId) {
         }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
 
         var totalBasic = records.reduce(function(s,d){ return s+(d.basicHours||0); }, 0);
+        var totalBreak = records.reduce(function(s,d){ return s+(d.breakHours||0); }, 0);
         var totalExtra = records.reduce(function(s,d){ return s+(d.extraHours||0); }, 0);
         var periodLabel = (from||'') + (to?' → '+to:'');
 
@@ -8494,6 +8526,7 @@ function sendDriverWhatsApp(rentalId) {
                 msg += '📆 ' + r.date + '\n';
                 msg += '  🟢 ' + (r.inTime||'—') + ' → 🔴 ' + (r.outTime||'—') + '\n';
                 msg += '  ✅ أساسي: ' + (r.basicHours||0).toFixed(1) + 'س';
+                if ((r.breakHours||0) > 0) msg += ' | ☕ راحة: ' + (r.breakHours||0).toFixed(1) + 'س';
                 if ((r.extraHours||0) > 0) msg += ' | ⚡ إضافي: ' + (r.extraHours||0).toFixed(2) + 'س';
                 msg += '\n';
                 if (r.notes) msg += '  📝 ' + r.notes + '\n';
@@ -8504,7 +8537,9 @@ function sendDriverWhatsApp(rentalId) {
         msg += '━━━━━━━━━━━━\n';
         msg += '📊 الإجمالي: ' + records.length + ' يوم عمل\n';
         msg += '✅ أساسي: *' + totalBasic.toFixed(1) + ' ساعة*\n';
+        if (totalBreak > 0) msg += '☕ راحة (اشتغلت): *' + totalBreak.toFixed(1) + ' ساعة*\n';
         if (totalExtra > 0) msg += '⚡ إضافي: *' + totalExtra.toFixed(1) + ' ساعة*\n';
+        msg += '📊 المجموع: *' + (totalBasic+totalBreak+totalExtra).toFixed(1) + ' ساعة*\n';
         msg += '\nحسن علام القابضة 🏗️';
 
         var url = phone
@@ -8518,12 +8553,13 @@ window.sendDriverWhatsApp = sendDriverWhatsApp;
 
 function exportRentalToExcel() {
     if (!rentalDailyData.length) { showToast('لا توجد بيانات',true); return; }
-    var rows=[['التاريخ','المعدة','الكود','النوع','السائق','الشركة','حضور','انصراف','إجمالي','أساسي','إضافي','ملاحظات']];
+    var rows=[['التاريخ','المعدة','الكود','النوع','السائق','الشركة','حضور','انصراف','أساسي','ساعة راحة','إضافي','المجموع','ملاحظات']];
     rentalDailyData.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }).forEach(function(r){
         var rental=rentalData.find(function(x){ return x.id===r.equipmentId; });
         var eq=rental?equipmentData.find(function(e){ return e.id===rental.equipmentId; }):null;
         var drv=rental?driversData.find(function(d){ return d.id===rental.driverId; }):null;
-        rows.push([r.date,eq?eq.name:'',eq?eq.code:'',eq?eq.type:'',drv?drv.name:'',rental?rental.company||'':'',r.inTime||'',r.outTime||'',(r.totalHours||0).toFixed(2),(r.basicHours||0).toFixed(2),(r.extraHours||0).toFixed(2),r.notes||'']);
+        var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
+        rows.push([r.date,eq?eq.name:'',eq?eq.code:'',eq?eq.type:'',drv?drv.name:'',rental?rental.company||'':'',r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'']);
     });
     var ws=XLSX.utils.aoa_to_sheet(rows);var wb2=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb2,ws,'السجل');
     XLSX.writeFile(wb2,'rental_full_'+new Date().toISOString().split('T')[0]+'.xlsx');
