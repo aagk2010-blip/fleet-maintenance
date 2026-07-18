@@ -603,7 +603,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 
 <div class="modal-overlay" id="import-progress-modal"><div class="modal-header" style="background:linear-gradient(135deg,var(--success),var(--info))"><div class="modal-title">📊 جاري استيراد البيانات...</div><button class="modal-close" onclick="closeModal('import-progress-modal')">✕</button></div><div style="padding:20px; text-align:center"><div style="font-size:40px; margin-bottom:15px">⏳</div><div id="import-progress-text" style="margin-bottom:10px">جارٍ قراءة الملف...</div><div class="progress-bar" style="height:10px"><div id="import-progress-bar" class="progress-fill" style="width:0%"></div></div><div id="import-status-list" style="margin-top:15px; font-size:12px; text-align:right; max-height:200px; overflow:auto"></div></div></div>
 
-<div class="modal-overlay" id="notif-settings-modal"><div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)"><div class="modal-title">🔔 إعدادات الإشعارات</div><button class="modal-close" onclick="closeModal('notif-settings-modal')">✕</button></div><div style="padding:16px"><div class="detail-section" style="margin:0 0 12px 0"><div class="detail-label" style="margin-bottom:8px">📱 رقم واتساب لاستقبال التنبيهات</div><input class="form-input" id="whatsapp-number" type="tel" placeholder="مثال: 201012345678" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px 14px; width:100%; font-size:14px"><div style="font-size:11px; color:var(--gray); margin-top:6px">أدخل الرقم مع كود الدولة بدون + مثلاً 201012345678</div></div><div class="detail-section" style="margin:0 0 12px 0"><div class="detail-label" style="margin-bottom:8px">⏰ إشعار عند باقي (ساعات)</div><select class="form-select" id="notif-threshold" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px 14px; width:100%"><option value="10">10 ساعات فأقل</option><option value="25">25 ساعة فأقل</option><option value="50" selected>50 ساعة فأقل</option><option value="100">100 ساعة فأقل</option></select></div><div class="detail-section" style="margin:0 0 12px 0; display:flex; justify-content:space-between; align-items:center"><div><div class="detail-label">🔔 إشعارات المتصفح</div><div style="font-size:11px; color:var(--gray)">تنبيه تلقائي عند فتح التطبيق</div></div><div id="notif-permission-status" style="font-size:12px; font-weight:600"></div></div><button id="enable-notif-btn" class="save-btn" style="background:linear-gradient(135deg,#7c3aed,#4f46e5); margin-bottom:10px">🔔 تفعيل إشعارات المتصفح</button><button id="send-wa-report-btn" class="save-btn" style="background:linear-gradient(135deg,#25d366,#128c7e)">📱 إرسال تقرير واتساب الآن</button><button id="save-notif-settings-btn" class="save-btn">✅ حفظ الإعدادات</button></div></div>
+<div class="modal-overlay" id="notif-settings-modal"><div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)"><div class="modal-title">🔔 إعدادات الإشعارات</div><button class="modal-close" onclick="closeModal('notif-settings-modal')">✕</button></div><div style="padding:16px"><div class="detail-section" style="margin:0 0 12px 0"><div class="detail-label" style="margin-bottom:8px">📱 رقم واتساب لاستقبال التنبيهات</div><input class="form-input" id="whatsapp-number" type="tel" placeholder="مثال: 201012345678" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px 14px; width:100%; font-size:14px"><div style="font-size:11px; color:var(--gray); margin-top:6px">أدخل الرقم مع كود الدولة بدون + مثلاً 201012345678</div></div><div class="detail-section" style="margin:0 0 12px 0"><div class="detail-label" style="margin-bottom:8px">⏰ إشعار عند باقي (ساعات)</div><select class="form-select" id="notif-threshold" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px 14px; width:100%"><option value="10">10 ساعات فأقل</option><option value="25">25 ساعة فأقل</option><option value="50" selected>50 ساعة فأقل</option><option value="100">100 ساعة فأقل</option></select></div><div class="detail-section" style="margin:0 0 12px 0; display:flex; justify-content:space-between; align-items:center"><div><div class="detail-label">🔔 إشعارات المتصفح</div><div style="font-size:11px; color:var(--gray)">تنبيه تلقائي عند فتح التطبيق</div></div><div id="notif-permission-status" style="font-size:12px; font-weight:600"></div></div><div class="detail-section" style="margin:0 0 12px 0"><div class="detail-label" style="margin-bottom:8px">🔔 أنواع التنبيهات التي تريد استلامها</div><div style="display:flex;flex-direction:column;gap:8px"><label style="display:flex;align-items:center;gap:8px;background:var(--light);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer"><input type="checkbox" id="notif-pref-maintenance" style="width:18px;height:18px">🔧 صيانة المعدات (متأخرة / قريبة)</label><label style="display:flex;align-items:center;gap:8px;background:var(--light);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer"><input type="checkbox" id="notif-pref-licenses" style="width:18px;height:18px">📜 رخص السائقين (منتهية / قريبة)</label><label style="display:flex;align-items:center;gap:8px;background:var(--light);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer"><input type="checkbox" id="notif-pref-inventory" style="width:18px;height:18px">📦 المخزون المنخفض</label><label style="display:flex;align-items:center;gap:8px;background:var(--light);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer"><input type="checkbox" id="notif-pref-rental" style="width:18px;height:18px">📄 عقود الإيجار (منتهية / قريبة)</label></div></div><button id="enable-notif-btn" class="save-btn" style="background:linear-gradient(135deg,#7c3aed,#4f46e5); margin-bottom:10px">🔔 تفعيل إشعارات المتصفح</button><button id="send-wa-report-btn" class="save-btn" style="background:linear-gradient(135deg,#25d366,#128c7e)">📱 إرسال تقرير واتساب الآن</button><button id="save-notif-settings-btn" class="save-btn">✅ حفظ الإعدادات</button></div></div>
 
 <div class="modal-overlay" id="notif-center-modal"><div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)"><div class="modal-title">🔔 مركز التنبيهات</div><button class="modal-close" onclick="closeModal('notif-center-modal')">✕</button></div><div id="notif-center-body" style="padding:14px"></div></div>
 
@@ -1960,6 +1960,20 @@ let pendingInventoryData = null;
 let importResults = { equipment: 0, fuel: 0, parts: 0 };
 let lastAlertCheck = 0;
 let notifSettings = { whatsappNumber: '', threshold: 50 };
+
+// تفضيلات أنواع التنبيهات التي يريد المستخدم استلامها (محفوظة على هذا الجهاز)
+var notifPrefs = { maintenance: true, licenses: true, inventory: true, rental: true };
+function loadNotifPrefs() {
+    try {
+        var saved = JSON.parse(localStorage.getItem('notifPrefs') || 'null');
+        if (saved && typeof saved === 'object') notifPrefs = Object.assign({ maintenance:true, licenses:true, inventory:true, rental:true }, saved);
+    } catch (e) {}
+}
+function saveNotifPrefs(prefs) {
+    notifPrefs = prefs;
+    try { localStorage.setItem('notifPrefs', JSON.stringify(prefs)); } catch (e) {}
+}
+loadNotifPrefs();
 let SYSTEM_CONFIG = { loginMode: 'direct' };
 
 function showToast(message, isError = false) {
@@ -5419,20 +5433,32 @@ function saveNotifSettings() {
     var number = document.getElementById('whatsapp-number').value.trim();
     var threshold = parseInt(document.getElementById('notif-threshold').value) || 50;
     notifSettings = { whatsappNumber: number, threshold: threshold };
+    saveNotifPrefs({
+        maintenance: document.getElementById('notif-pref-maintenance').checked,
+        licenses: document.getElementById('notif-pref-licenses').checked,
+        inventory: document.getElementById('notif-pref-inventory').checked,
+        rental: document.getElementById('notif-pref-rental').checked
+    });
     // حفظ في Firebase مباشرة
     if (fbDb) {
         fbDb.ref('appSettings/notifSettings').set(notifSettings).catch(function(e) {
             showToast('⚠️ فشل حفظ الإعدادات: ' + e.message, true);
         });
     }
+    runSmartAlertsRefresh();
     closeModal('notif-settings-modal');
     showToast('✅ تم حفظ إعدادات الإشعارات');
 }
 
 function openNotifSettings() {
     loadNotifSettings();
+    loadNotifPrefs();
     document.getElementById('whatsapp-number').value = notifSettings.whatsappNumber || '';
     document.getElementById('notif-threshold').value = notifSettings.threshold || 50;
+    document.getElementById('notif-pref-maintenance').checked = notifPrefs.maintenance !== false;
+    document.getElementById('notif-pref-licenses').checked = notifPrefs.licenses !== false;
+    document.getElementById('notif-pref-inventory').checked = notifPrefs.inventory !== false;
+    document.getElementById('notif-pref-rental').checked = notifPrefs.rental !== false;
     var permission = Notification.permission;
     var statusEl = document.getElementById('notif-permission-status');
     if (permission === 'granted') {
@@ -5515,11 +5541,12 @@ function checkMaintenanceAlerts() {
     if (now - lastAlertCheck < 5 * 60 * 1000) return;
     lastAlertCheck = now;
     loadNotifSettings();
+    loadNotifPrefs();
     var threshold = notifSettings.threshold || 50;
-    var critical = equipmentData.filter(function(eq) {
+    var critical = notifPrefs.maintenance ? equipmentData.filter(function(eq) {
         if (eq.status === 'متوقف') return false;
         return hoursRemaining(eq) <= threshold;
-    });
+    }) : [];
     if (critical.length && Notification.permission === 'granted') {
         var overdue = critical.filter(function(eq) { return hoursRemaining(eq) <= 0; });
         var soon = critical.filter(function(eq) { return hoursRemaining(eq) > 0; });
@@ -5535,7 +5562,7 @@ function checkMaintenanceAlerts() {
 }
 
 function checkDriverLicenses() {
-    if (!driversData.length) return;
+    if (!driversData.length || !notifPrefs.licenses) { runSmartAlertsRefresh(); return; }
     var today = new Date();
     var soon = driversData.filter(function(d) {
         if (!d.licenseExpiry || d.status !== 'نشط') return false;
@@ -5556,7 +5583,7 @@ function checkDriverLicenses() {
 
 var lastInventoryAlertCheck = 0;
 function checkInventoryAlerts() {
-    if (!inventoryItems || !inventoryItems.length) { runSmartAlertsRefresh(); return; }
+    if (!inventoryItems || !inventoryItems.length || !notifPrefs.inventory) { runSmartAlertsRefresh(); return; }
     var now = Date.now();
     if (now - lastInventoryAlertCheck < 5 * 60 * 1000) { runSmartAlertsRefresh(); return; }
     lastInventoryAlertCheck = now;
@@ -5572,7 +5599,7 @@ function checkInventoryAlerts() {
 
 var lastRentalAlertCheck = 0;
 function checkRentalExpiryAlerts() {
-    if (!rentalData || !rentalData.length) { runSmartAlertsRefresh(); return; }
+    if (!rentalData || !rentalData.length || !notifPrefs.rental) { runSmartAlertsRefresh(); return; }
     var now = Date.now();
     if (now - lastRentalAlertCheck < 5 * 60 * 1000) { runSmartAlertsRefresh(); return; }
     lastRentalAlertCheck = now;
@@ -5595,28 +5622,29 @@ function checkRentalExpiryAlerts() {
 // يجمع كل أنواع التنبيهات في مكان واحد
 function getAllSmartAlerts() {
     loadNotifSettings();
+    loadNotifPrefs();
     var threshold = notifSettings.threshold || 50;
-    var maintOverdue = equipmentData.filter(function(eq) { return eq.status !== 'متوقف' && hoursRemaining(eq) <= 0; });
-    var maintSoon = equipmentData.filter(function(eq) { return eq.status !== 'متوقف' && hoursRemaining(eq) > 0 && hoursRemaining(eq) <= threshold; });
+    var maintOverdue = notifPrefs.maintenance ? equipmentData.filter(function(eq) { return eq.status !== 'متوقف' && hoursRemaining(eq) <= 0; }) : [];
+    var maintSoon = notifPrefs.maintenance ? equipmentData.filter(function(eq) { return eq.status !== 'متوقف' && hoursRemaining(eq) > 0 && hoursRemaining(eq) <= threshold; }) : [];
 
     var today = new Date();
-    var licExpired = driversData.filter(function(d) { return d.licenseExpiry && d.status === 'نشط' && new Date(d.licenseExpiry) < today; });
-    var licSoon = driversData.filter(function(d) {
+    var licExpired = notifPrefs.licenses ? driversData.filter(function(d) { return d.licenseExpiry && d.status === 'نشط' && new Date(d.licenseExpiry) < today; }) : [];
+    var licSoon = notifPrefs.licenses ? driversData.filter(function(d) {
         if (!d.licenseExpiry || d.status !== 'نشط') return false;
         var exp = new Date(d.licenseExpiry);
         var daysLeft = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
         return daysLeft >= 0 && daysLeft <= 30;
-    });
+    }) : [];
 
-    var lowStock = (inventoryItems || []).filter(function(it) { return (it.qty || 0) <= (it.minQty || 0); });
+    var lowStock = notifPrefs.inventory ? (inventoryItems || []).filter(function(it) { return (it.qty || 0) <= (it.minQty || 0); }) : [];
 
-    var rentExpired = (rentalData || []).filter(function(r) { return r.endDate && new Date(r.endDate) < today; });
-    var rentSoon = (rentalData || []).filter(function(r) {
+    var rentExpired = notifPrefs.rental ? (rentalData || []).filter(function(r) { return r.endDate && new Date(r.endDate) < today; }) : [];
+    var rentSoon = notifPrefs.rental ? (rentalData || []).filter(function(r) {
         if (!r.endDate) return false;
         var exp = new Date(r.endDate);
         var daysLeft = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
         return daysLeft >= 0 && daysLeft <= 15;
-    });
+    }) : [];
 
     var totalCount = maintOverdue.length + maintSoon.length + licExpired.length + licSoon.length + lowStock.length + rentExpired.length + rentSoon.length;
     return { maintOverdue:maintOverdue, maintSoon:maintSoon, licExpired:licExpired, licSoon:licSoon, lowStock:lowStock, rentExpired:rentExpired, rentSoon:rentSoon, totalCount:totalCount };
