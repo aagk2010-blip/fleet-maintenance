@@ -6688,6 +6688,17 @@ function renderSitesKpiTable(sites, listEl) {
 }
 
 // ==================== التحليلات والتقارير ====================
+function getMonthlyRentalHours(eq, monthStr) {
+    var contracts = rentalData.filter(function(r) { return r.equipmentId === eq.id; });
+    if (!contracts.length) return null;
+    var contractIds = contracts.map(function(r) { return r.id; });
+    var records = rentalDailyData.filter(function(d) {
+        return contractIds.indexOf(d.equipmentId) !== -1 && d.date && d.date.slice(0, 7) === monthStr;
+    });
+    var hours = records.reduce(function(s, r) { return s + (r.basicHours || 0) + (r.breakHours || 0) + (r.extraHours || 0); }, 0);
+    return { hours: hours, hadBaseline: true, daysWorked: records.length };
+}
+
 function getMonthlyHoursForEquipment(eq, monthStr) {
     var log = (eq.hoursLog || []).slice().sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
     if (!log.length) return null;
@@ -6726,8 +6737,8 @@ function renderAnalytics() {
 
     // 1) معدل استخدام المعدات في الشهر المختار
     var usage = eqList.map(function(eq) {
-        var m = getMonthlyHoursForEquipment(eq, month);
-        return { eq: eq, hours: m ? m.hours : null, hadBaseline: m ? m.hadBaseline : false };
+        var m = (eq.ownership === 'إيجار') ? getMonthlyRentalHours(eq, month) : getMonthlyHoursForEquipment(eq, month);
+        return { eq: eq, hours: m ? m.hours : null, hadBaseline: m ? m.hadBaseline : false, daysWorked: m ? m.daysWorked : null };
     });
     var withData = usage.filter(function(u) { return u.hours !== null; }).sort(function(a, b) { return b.hours - a.hours; });
     var maxHours = withData.length ? withData[0].hours : 0;
@@ -6778,12 +6789,18 @@ function renderAnalytics() {
 
     // معدل الاستخدام
     html += '<div style="background:white;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow-sm)">' +
-        '<div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px">📊 أعلى المعدات استخدامًا (' + month + ')</div>';
+        '<div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:4px">📊 أعلى المعدات استخدامًا (' + month + ')</div>' +
+        '<div style="font-size:10.5px;color:var(--gray);margin-bottom:10px">' +
+        '<span style="color:#7c3aed">■</span> ملك — من فرق قراءات العداد &nbsp; ' +
+        '<span style="color:#0e7490">■</span> إيجار — من ساعات العمل المسجّلة يوميًا' +
+        '</div>';
     if (!topUsage.length) {
         html += '<div style="text-align:center;color:var(--gray);padding:14px;font-size:12px">لا توجد بيانات عداد كافية لهذا الشهر</div>';
     } else {
         topUsage.forEach(function(u) {
-            html += analyticsBarRow(u.eq.name + ' (' + u.eq.code + ')', u.hours, maxHours, '#7c3aed', u.hadBaseline ? '' : '≈');
+            var sub = (u.eq.ownership === 'إيجار') ? (u.daysWorked + ' يوم 📋') : (u.hadBaseline ? '' : '≈');
+            var barColor = (u.eq.ownership === 'إيجار') ? '#0e7490' : '#7c3aed';
+            html += analyticsBarRow(u.eq.name + ' (' + u.eq.code + ')', u.hours, maxHours, barColor, sub);
         });
     }
     html += '</div>';
