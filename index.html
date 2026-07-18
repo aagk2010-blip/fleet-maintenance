@@ -852,7 +852,7 @@ var currentUserRole = 'viewer';
 var currentUserPlan = 'free';
 var currentUserStatus = 'active';
 // صلاحيات وضع "الزائر" (دخول مباشر بدون حساب) — يتحكم فيها المدير من لوحة التحكم
-var VIEWER_SECTIONS = { home:'view', equipment:'none', fuel:'none', maintenance:'none', inventory:'none', rental:'view', drivers:'view' };
+var VIEWER_SECTIONS = { home:'view', equipment:'none', fuel:'none', maintenance:'none', inventory:'none', rental:'view', drivers:'view', sites:'none', analytics:'none' };
 
 function initFirestoreUsers() {
     try {
@@ -1021,7 +1021,7 @@ function openAddUserModal() {
 function openEditUserModal(idx) {
     var isNew = idx === null;
     var user = isNew ? { id: 'u_' + Date.now(), username: '', password: '', name: '', role: 'custom', active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view' }, sites: [] } : APP_USERS[idx];
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'none', analytics:'none' }, sites: [] } : APP_USERS[idx];
 
     var old = document.getElementById('user-edit-modal');
     if (old) old.remove();
@@ -1053,7 +1053,7 @@ function openEditUserModal(idx) {
         '<div id="uem-permissions-section" style="border-top:1px solid #f1f5f9;padding-top:10px">' +
         '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">\u{1F511} \u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0627\u0644\u0623\u0642\u0633\u0627\u0645</div>' +
         (function() {
-            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646']];
+            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646'],['sites','\u0627\u0644\u0645\u0648\u0627\u0642\u0639'],['analytics','\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a']];
             return SECS.map(function(s) {
                 var key = s[0], label = s[1];
                 var cur = (user.sections || {})[key] || 'none';
@@ -1112,7 +1112,7 @@ function openEditUserModal(idx) {
     }
 
     // ==== تبديل نوع الحساب: مدير / مستخدم عادي / مشاهدة فقط ====
-    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','drivers'];
+    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','drivers','sites','analytics'];
     var roleAdminBtn = document.getElementById('uem-role-admin');
     var roleUserBtn = document.getElementById('uem-role-user');
     var roleViewerBtn = document.getElementById('uem-role-viewer');
@@ -1120,7 +1120,7 @@ function openEditUserModal(idx) {
     var selectedRole = (user.role === 'admin') ? 'admin' : 'custom';
     // نحفظ آخر صلاحيات مخصّصة كي نرجع لها لو رجع لـ"مستخدم عادي"
     var lastCustomSections = (user.role === 'admin')
-        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view' }
+        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'view', analytics:'view' }
         : Object.assign({}, user.sections || {});
     // هل المستخدم في وضع "مشاهدة فقط" (كل الأقسام عرض فقط أو مخفية، بدون أي صلاحية إضافة/تعديل)؟
     function sectionsAreViewOnly(sections) {
@@ -1231,7 +1231,7 @@ function openEditUserModal(idx) {
         });
         if (dup) { showToast('\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0645\u0648\u062C\u0648\u062F \u0645\u0633\u0628\u0642\u0627\u064B', true); return; }
 
-        var SECS = ['home','equipment','fuel','maintenance','inventory','rental','drivers'];
+        var SECS = ['home','equipment','fuel','maintenance','inventory','rental','drivers','sites','analytics'];
         var sections = {};
         if (selectedRole === 'admin') {
             SECS.forEach(function(k) { sections[k] = 'full'; });
@@ -1367,13 +1367,13 @@ function createUserByAdmin() {
     // تحديد الصلاحيات حسب الدور
     var defaultSections;
     if (role === 'admin') {
-        defaultSections = { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full' };
+        defaultSections = { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', sites:'full', analytics:'full' };
     } else if (role === 'manager') {
-        defaultSections = { home:'full', equipment:'edit', fuel:'edit', maintenance:'edit', inventory:'edit', rental:'edit', drivers:'edit' };
+        defaultSections = { home:'full', equipment:'edit', fuel:'edit', maintenance:'edit', inventory:'edit', rental:'edit', drivers:'edit', sites:'view', analytics:'view' };
     } else if (role === 'editor') {
-        defaultSections = { home:'view', equipment:'add', fuel:'add', maintenance:'add', inventory:'add', rental:'add', drivers:'add' };
+        defaultSections = { home:'view', equipment:'add', fuel:'add', maintenance:'add', inventory:'add', rental:'add', drivers:'add', sites:'none', analytics:'none' };
     } else {
-        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view' };
+        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'none', analytics:'none' };
     }
 
     // إضافة المستخدم في APP_USERS
@@ -1768,7 +1768,7 @@ var APP_USERS = [
         name: 'المدير',
         role: 'admin',
         active: true,
-        sections: { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full' }
+        sections: { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', sites:'full', analytics:'full' }
     },
     {
         id: 'user_mohamed',
@@ -2657,7 +2657,7 @@ function openViewerPermissionsModal() {
     var old = document.getElementById('viewer-perm-modal');
     if (old) old.remove();
 
-    var SECS = [['home','الرئيسية'],['equipment','المعدات'],['fuel','الوقود'],['maintenance','الصيانة'],['inventory','المخزن'],['rental','الإيجار'],['drivers','السائقين']];
+    var SECS = [['home','الرئيسية'],['equipment','المعدات'],['fuel','الوقود'],['maintenance','الصيانة'],['inventory','المخزن'],['rental','الإيجار'],['drivers','السائقين'],['sites','المواقع'],['analytics','التحليلات']];
 
     var modal = document.createElement('div');
     modal.id = 'viewer-perm-modal';
@@ -2918,7 +2918,7 @@ function approveAccountRequest(id) {
         name: req.name,
         role: 'custom',
         active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view' },
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'none', analytics:'none' },
         sites: []
     });
     saveAppUsers().then(function() {
@@ -2998,7 +2998,7 @@ function proceedToApp() {
     var sectionToView = {
         home: 'home', equipment: 'equipment', fuel: 'fuel',
         maintenance: 'maintenance', inventory: 'inventory',
-        rental: 'rental', drivers: 'drivers'
+        rental: 'rental', drivers: 'drivers', sites: 'sites', analytics: 'analytics'
     };
 
     var firstAllowedView = null;
@@ -7654,7 +7654,7 @@ function globalSearch(query) {
 function switchView(view) {
     // التحقق من صلاحية الوصول للقسم
     if (currentUser && currentUser.role !== 'admin') {
-        var sectionMap = { home:'home', sites:'equipment', analytics:'equipment', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental', drivers:'drivers' };
+        var sectionMap = { home:'home', sites:'sites', analytics:'analytics', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental', drivers:'drivers' };
         if (sectionMap[view] && !canView(sectionMap[view])) return;
     }
     document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
