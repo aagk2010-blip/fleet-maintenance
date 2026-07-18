@@ -338,6 +338,12 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
       <span class="login-trust-chip"><svg viewBox="0 0 24 24"><use href="#ic-chart"/></svg>تقارير دقيقة</span>
     </div>
 
+    <div id="login-preload-banner" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(232,160,32,0.15);border:1px solid rgba(232,160,32,0.4);border-radius:12px;padding:10px;margin-bottom:16px;font-size:12px;color:#e8a020">
+      <span style="animation:spin 1s linear infinite;display:inline-block">⏳</span>
+      <span>جاري تحميل بيانات الدخول، الرجاء الانتظار...</span>
+    </div>
+    <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
+
     <!-- أزرار التبويب الثلاثة -->
     <div style="display:flex;gap:5px;margin-bottom:18px;background:rgba(255,255,255,0.05);border-radius:40px;padding:4px">
       <button id="direct-login-btn" onclick="setLoginMode('direct')" style="flex:1;padding:9px 2px;border-radius:30px;border:none;background:#e8a020;color:#0d1b2a;font-weight:700;cursor:pointer;font-family:inherit;font-size:11px">🚪 زائر</button>
@@ -462,7 +468,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     <div id="analytics-body"></div>
   </div></div>
   
-  <div id="view-equipment" style="display:none"><div style="padding:14px"><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><div id="equipment-list"></div></div></div>
+  <div id="view-equipment" style="display:none"><div style="padding:14px"><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><button id="export-owned-daily-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#7c3aed,#4f46e5)">📆 تصدير ساعات معدات الملك (شيت لكل معدة)</button><div id="equipment-list"></div></div></div>
   
   <div id="view-drivers" style="display:none"><div style="padding:14px">
     <div class="search-box"><span>🔍</span><input type="text" id="search-driver" placeholder="بحث باسم السائق..." oninput="debouncedRefresh()"></div>
@@ -1813,6 +1819,66 @@ function manualSaveAppUsers() {
     });
 }
 
+// تحميل مسبق لبيانات المستخدمين فور فتح صفحة الدخول مباشرة من السيرفر
+// حتى يقدر أي مستخدم مسجّل يدخل فورًا دون تعليق، مع إظهار شارة انتظار للتحميل
+var loginDataReady = false;
+function preloadLoginData() {
+    var banner = document.getElementById('login-preload-banner');
+    var secureBtn = document.getElementById('secure-login-submit');
+    var directBtn = document.getElementById('direct-login-submit');
+    function setButtonsEnabled(enabled) {
+        [secureBtn, directBtn].forEach(function(b) {
+            if (!b) return;
+            b.disabled = !enabled;
+            b.style.opacity = enabled ? '1' : '0.5';
+            b.style.cursor = enabled ? 'pointer' : 'not-allowed';
+        });
+    }
+    function finish() {
+        loginDataReady = true;
+        if (banner) banner.style.display = 'none';
+        setButtonsEnabled(true);
+    }
+
+    setButtonsEnabled(false);
+    var finished = false;
+    var safetyTimer = setTimeout(function() {
+        if (finished) return;
+        finished = true;
+        finish(); // لو الإنترنت بطيء جدًا، نسمح بالمحاولة بعد 8 ثوانٍ بدل التعليق للأبد
+    }, 8000);
+
+    try {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        var app = firebase.apps[0];
+        var db = firebase.database(app);
+        Promise.all([
+            db.ref('appUsers').once('value'),
+            db.ref('appSettings/viewerSections').once('value')
+        ]).then(function(results) {
+            var usersSnap = results[0];
+            var data = usersSnap.val();
+            if (data && typeof data === 'object') {
+                var loaded = Object.values(data);
+                var hasAdmin = loaded.find(function(u){ return u.role === 'admin'; });
+                if (!hasAdmin) loaded.unshift(APP_USERS[0]);
+                APP_USERS = loaded;
+            }
+            var viewerVal = results[1].val();
+            if (viewerVal && typeof viewerVal === 'object') VIEWER_SECTIONS = Object.assign({}, VIEWER_SECTIONS, viewerVal);
+        }).catch(function() {
+            // فشل التحميل (لا إنترنت مثلاً) - نسمح بالمتابعة بالبيانات المتاحة محليًا
+        }).finally(function() {
+            if (finished) return;
+            finished = true;
+            clearTimeout(safetyTimer);
+            finish();
+        });
+    } catch (e) {
+        if (!finished) { finished = true; clearTimeout(safetyTimer); finish(); }
+    }
+}
+
 // تحميل المستخدمين من Firebase عند الدخول
 function loadAppUsersFromFirebase(callback) {
     if (!fbDb) { callback(); return; }
@@ -2619,6 +2685,10 @@ function openViewerPermissionsModal() {
 }
 
 function secureLogin() {
+    if (!loginDataReady) {
+        showToast('⏳ جاري تحميل بيانات الدخول، انتظر لحظة...', true);
+        return;
+    }
     var username = (document.getElementById('secure-username').value || '').trim();
     var password = document.getElementById('secure-password').value || '';
     var submitBtn = document.getElementById('secure-login-submit');
@@ -5688,6 +5758,74 @@ function exportAllHoursExcel() {
     }
 }
 
+function sanitizeSheetName(name, used) {
+    var clean = (name || 'ورقة').replace(/[:\\\/\?\*\[\]]/g, '-').slice(0, 28) || 'ورقة';
+    var finalName = clean;
+    var i = 2;
+    while (used[finalName]) { finalName = clean.slice(0, 25) + '_' + i; i++; }
+    used[finalName] = true;
+    return finalName;
+}
+
+function exportOwnedEquipmentHoursExcel() {
+    var owned = equipmentData.filter(function(e) { return e.ownership !== 'إيجار'; });
+    if (!owned.length) { showToast('لا توجد معدات ملك لتصديرها', true); return; }
+    try {
+        var wb = XLSX.utils.book_new();
+        var usedNames = {};
+
+        // ورقة الملخص
+        var summaryRows = [['الكود', 'اسم المعدة', 'النوع', 'الموقع', 'العداد الحالي', 'الحالة', 'عدد قراءات مسجّلة', 'إجمالي ساعات العمل المسجّلة']];
+        owned.forEach(function(eq) {
+            var log = (eq.hoursLog || []).slice().sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+            var totalWorked = 0;
+            for (var i = 1; i < log.length; i++) {
+                var d = log[i].hours - log[i - 1].hours;
+                if (d > 0) totalWorked += d;
+            }
+            summaryRows.push([eq.code || '', eq.name || '', eq.type || '', eq.location || '', eq.hours || 0, eq.status || '', log.length, totalWorked]);
+        });
+        var wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+        wsSummary['!cols'] = [{ wch: 14 }, { wch: 28 }, { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 18 }];
+        XLSX.utils.book_append_sheet(wb, wsSummary, sanitizeSheetName('الملخص', usedNames));
+
+        // ورقة منفصلة لكل معدة
+        owned.forEach(function(eq) {
+            var log = (eq.hoursLog || []).slice().sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+            var rows = [['المعدة: ' + (eq.name || '') + ' (' + (eq.code || '') + ')'], []];
+            rows.push(['التاريخ', 'قراءة العداد', 'ساعات العمل (الفرق)', 'بواسطة']);
+            var monthTotals = {};
+            for (var i = 0; i < log.length; i++) {
+                var prev = log[i - 1];
+                var diff = prev ? Math.max(0, log[i].hours - prev.hours) : '';
+                if (typeof diff === 'number') {
+                    var mo = (log[i].date || '').slice(0, 7);
+                    monthTotals[mo] = (monthTotals[mo] || 0) + diff;
+                }
+                rows.push([log[i].date || '', log[i].hours, diff, log[i].updatedBy || '—']);
+            }
+            if (!log.length) rows.push(['لا يوجد سجل قراءات لهذه المعدة بعد', '', '', '']);
+            rows.push([]);
+            rows.push(['الإجمالي حسب الشهر']);
+            var grandTotal = 0;
+            Object.keys(monthTotals).sort().forEach(function(mo) {
+                rows.push([mo, '', monthTotals[mo], '']);
+                grandTotal += monthTotals[mo];
+            });
+            rows.push(['الإجمالي الكلي', '', grandTotal, '']);
+
+            var ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!cols'] = [{ wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 16 }];
+            XLSX.utils.book_append_sheet(wb, ws, sanitizeSheetName(eq.code || eq.name || 'معدة', usedNames));
+        });
+
+        XLSX.writeFile(wb, 'ساعات_معدات_الملك_' + new Date().toISOString().split('T')[0] + '.xlsx');
+        showToast('✅ تم تصدير ' + owned.length + ' معدة ملك (شيت لكل معدة)');
+    } catch (e) {
+        showToast('خطأ في التصدير: ' + e.message, true);
+    }
+}
+
 function exportInventoryExcel() {
     if (!inventoryItems.length) {
         showToast('لا توجد بيانات في المخزون');
@@ -7744,6 +7882,7 @@ function initOfflineDetector() {
 // ==================== ربط الأحداث النهائي ====================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('تم تحميل الصفحة - جاري تهيئة التطبيق');
+    preloadLoginData();
     
     // أزرار صفحة الدخول
     var directLoginBtn = document.getElementById('direct-login-btn');
@@ -7834,6 +7973,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (meterUpdateBtn) meterUpdateBtn.onclick = function() { openMeterUpdate(); };
     if (forceRefreshBtn) forceRefreshBtn.onclick = function() { forceRefreshData(); };
     if (exportHoursBtn) exportHoursBtn.onclick = function() { exportAllHoursExcel(); };
+    var exportOwnedDailyBtn = document.getElementById('export-owned-daily-btn');
+    if (exportOwnedDailyBtn) exportOwnedDailyBtn.onclick = function() { exportOwnedEquipmentHoursExcel(); };
     if (exportInventoryBtn) exportInventoryBtn.onclick = function() { exportInventoryExcel(); };
     if (orderReportBtn) orderReportBtn.onclick = function() { generateOrderReport(); };
     if (addFuelBtn) addFuelBtn.onclick = function() { openAddFuelModal(); };
@@ -8740,14 +8881,48 @@ function showRentalReport(rentalId) {
     renderRentalReportContent(rentalId, defFrom, defTo);
 }
 
+// يبني قائمة بكل أيام الفترة المحددة، ويحدد حالة كل يوم: مسجّل / غياب (بعد الساعة 7ص التالية) / لم يحن بعد
+function buildRentalDayEntries(rentalId, dateFrom, dateTo) {
+    var records = rentalDailyData.filter(function(d) {
+        return d.equipmentId === rentalId && (!dateFrom || d.date >= dateFrom) && (!dateTo || d.date <= dateTo);
+    });
+    if (!dateFrom || !dateTo) {
+        records = records.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+        return { days: records.map(function(r){ return {date:r.date, record:r, status:'recorded'}; }), records: records };
+    }
+
+    var recMap = {};
+    records.forEach(function(r) { recMap[r.date] = r; });
+    var now = new Date();
+    var todayStr = now.toISOString().split('T')[0];
+    var endBound = dateTo < todayStr ? dateTo : todayStr;
+
+    var days = [];
+    if (dateFrom <= endBound) {
+        var d = new Date(dateFrom + 'T00:00:00');
+        var endD = new Date(endBound + 'T00:00:00');
+        while (d <= endD) {
+            var ds = d.toISOString().split('T')[0];
+            var rec = recMap[ds];
+            if (rec) {
+                days.push({ date: ds, record: rec, status: 'recorded' });
+            } else {
+                var cutoff = new Date(ds + 'T07:00:00');
+                cutoff.setDate(cutoff.getDate() + 1);
+                days.push({ date: ds, record: null, status: (now >= cutoff) ? 'absent' : 'pending' });
+            }
+            d.setDate(d.getDate() + 1);
+        }
+    }
+    return { days: days, records: records };
+}
+
 function renderRentalReportContent(rentalId, dateFrom, dateTo) {
     var isAdmin = currentUser && (currentUser.role === 'admin' || currentUserRole === 'admin');
-    var records=rentalDailyData.filter(function(d){
-        if (d.equipmentId!==rentalId) return false;
-        if (dateFrom && d.date < dateFrom) return false;
-        if (dateTo   && d.date > dateTo)   return false;
-        return true;
-    }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+    var dayData = buildRentalDayEntries(rentalId, dateFrom, dateTo);
+    var days = dayData.days;
+    var records = dayData.records;
+    var absentCount = days.filter(function(d){ return d.status === 'absent'; }).length;
     var sb=records.reduce(function(s,d){ return s+(d.basicHours||0); },0);
     var sk=records.reduce(function(s,d){ return s+(d.breakHours||0); },0);
     var se=records.reduce(function(s,d){ return s+(d.extraHours||0); },0);
@@ -8761,18 +8936,30 @@ function renderRentalReportContent(rentalId, dateFrom, dateTo) {
         '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:22px;font-weight:700">'+records.length+'</div><div>\u064A\u0648\u0645 \u0639\u0645\u0644 (\u0623\u0633\u0627\u0633 8\u0633/\u064A\u0648\u0645)</div></div>'+
         '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:22px;font-weight:700">'+st.toFixed(1)+'</div><div>\u0625\u062C\u0645\u0627\u0644\u064A \u0627\u0644\u0633\u0627\u0639\u0627\u062A</div></div>'+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:13px">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;font-size:13px">'+
         '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700">'+sb.toFixed(1)+'</div><div>\u0623\u0633\u0627\u0633\u064A</div></div>'+
         '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700;color:#fbbf24">'+sk.toFixed(1)+'</div><div>\u0633\u0627\u0639\u0629 \u0631\u0627\u062D\u0629</div></div>'+
         '<div style="background:rgba(255,255,255,.15);padding:8px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700;color:#fbbf24">'+se.toFixed(1)+'</div><div>\u0625\u0636\u0627\u0641\u064A</div></div>'+
+        '<div style="background:'+(absentCount?'rgba(220,38,38,.35)':'rgba(255,255,255,.15)')+';padding:8px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700">'+absentCount+'</div><div>\u{1F6AB} \u063A\u064A\u0627\u0628</div></div>'+
         '</div></div>';
-    if (!records.length) { html+='<div style="text-align:center;padding:30px;color:var(--gray)">\u0644\u0627 \u0633\u062C\u0644\u0627\u062A \u0644\u0647\u0630\u0647 \u0627\u0644\u0641\u062A\u0631\u0629</div>'; cont.innerHTML=html; return; }
+    if (!days.length) { html+='<div style="text-align:center;padding:30px;color:var(--gray)">\u0644\u0627 \u0633\u062C\u0644\u0627\u062A \u0644\u0647\u0630\u0647 \u0627\u0644\u0641\u062A\u0631\u0629</div>'; cont.innerHTML=html; return; }
     var colTemplate = isAdmin ? '52px 36px 36px 30px 28px 30px 32px 44px' : '62px 42px 42px 34px 32px 34px 36px';
     var editHeader = isAdmin ? '<span style="text-align:center">\u062A\u0639\u062F\u064A\u0644</span>' : '';
     html+='<div style="background:white;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;overflow-x:auto">'+
         '<div style="background:var(--light);padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:3px;font-size:11px;font-weight:700">'+
         '<span>\u0627\u0644\u062A\u0627\u0631\u064A\u062E</span><span style="text-align:center">\u062D\u0636\u0648\u0631</span><span style="text-align:center">\u0627\u0646\u0635\u0631\u0627\u0641</span><span style="text-align:center">\u0623\u0633\u0627\u0633\u064A</span><span style="text-align:center">\u0631\u0627\u062D\u0629</span><span style="text-align:center">\u0625\u0636\u0627\u0641\u064A</span><span style="text-align:center">\u0627\u0644\u0645\u062C\u0645\u0648\u0639</span>'+editHeader+'</div>';
-    records.forEach(function(r,i){
+    days.forEach(function(dayEntry,i){
+        var r = dayEntry.record;
+        if (!r) {
+            var isAbsent = dayEntry.status === 'absent';
+            var label = isAbsent ? '\u{1F6AB} \u063A\u064A\u0627\u0628' : '\u23F3 \u0644\u0645 \u064A\u064F\u0633\u062C\u0644 \u0628\u0639\u062F';
+            var rowColor = isAbsent ? '#fee2e2' : (i%2?'#f8fafc':'white');
+            var textColor = isAbsent ? '#991b1b' : 'var(--gray)';
+            html+='<div style="background:'+rowColor+';padding:8px 12px;display:grid;grid-template-columns:'+colTemplate+';gap:3px;font-size:11px;border-top:1px solid #f1f5f9;align-items:center;color:'+textColor+'">'+
+                '<span>'+dayEntry.date+'</span><span style="grid-column:span 6;text-align:center;font-weight:700">'+label+'</span>'+
+                (isAdmin?'<span></span>':'')+'</div>';
+            return;
+        }
         var editBtns = isAdmin ?
             '<span style="display:flex;gap:3px;justify-content:center">'+
             '<button data-action="edit-daily-entry" data-entry-id="'+r.id+'" data-rental-id="'+rentalId+'" style="background:#7c3aed;color:white;border:none;border-radius:5px;padding:3px 5px;cursor:pointer;font-size:10px">\u270F\uFE0F</button>'+
@@ -8905,22 +9092,27 @@ function exportSingleRentalExcel(rentalId) {
     var eq=rental?equipmentData.find(function(e){ return e.id===rental.equipmentId; }):null;
     var drv=rental?driversData.find(function(d){ return d.id===rental.driverId; }):null;
     var range=getReportDateRange();
-    var records=rentalDailyData.filter(function(d){
-        if (d.equipmentId!==rentalId) return false;
-        if (range.from && d.date < range.from) return false;
-        if (range.to   && d.date > range.to)   return false;
-        return true;
-    }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+    var dayData = buildRentalDayEntries(rentalId, range.from, range.to);
+    var days = dayData.days, records = dayData.records;
     var periodLabel=(range.from||'')+(range.to?' → '+range.to:'');
     var rows=[['تقرير معدة إيجار'],
         ['المعدة:',(eq?eq.type+' — '+eq.code:'—'),'الشركة:',(rental?rental.company||'—':'—')],
         ['السائق:',(drv?drv.name:'—'),'الفترة:',periodLabel],[],
         ['التاريخ','حضور','انصراف','أساسي','ساعة راحة','إضافي','المجموع','ملاحظات']];
-    var sb=0,sk=0,se=0;
-    records.forEach(function(r){ sb+=(r.basicHours||0);sk+=(r.breakHours||0);se+=(r.extraHours||0);
+    var sb=0,sk=0,se=0,absentCount=0;
+    days.forEach(function(dayEntry){
+        var r = dayEntry.record;
+        if (!r) {
+            if (dayEntry.status === 'absent') { absentCount++; rows.push([dayEntry.date,'','','','','','','🚫 غياب']); }
+            else { rows.push([dayEntry.date,'','','','','','','⏳ لم يُسجل بعد']); }
+            return;
+        }
+        sb+=(r.basicHours||0);sk+=(r.breakHours||0);se+=(r.extraHours||0);
         var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
-        rows.push([r.date,r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'']); });
+        rows.push([r.date,r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'']);
+    });
     rows.push([]);rows.push(['الإجمالي','','',sb.toFixed(2),sk.toFixed(2),se.toFixed(2),(sb+sk+se).toFixed(2),'']);
+    rows.push(['أيام الغياب',absentCount,'','','','','','']);
     var ws=XLSX.utils.aoa_to_sheet(rows);var wb2=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb2,ws,'تقرير');
     XLSX.writeFile(wb2,'rental_'+(eq?eq.code:'')+'_'+(range.from||'all')+'.xlsx');
 }
@@ -8930,29 +9122,35 @@ function exportSingleRentalPDF(rentalId) {
     var eq=rental?equipmentData.find(function(e){ return e.id===rental.equipmentId; }):null;
     var drv=rental?driversData.find(function(d){ return d.id===rental.driverId; }):null;
     var range=getReportDateRange();
-    var records=rentalDailyData.filter(function(d){
-        if (d.equipmentId!==rentalId) return false;
-        if (range.from && d.date < range.from) return false;
-        if (range.to   && d.date > range.to)   return false;
-        return true;
-    }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+    var dayData = buildRentalDayEntries(rentalId, range.from, range.to);
+    var days = dayData.days, records = dayData.records;
     var sb=records.reduce(function(s,r){ return s+(r.basicHours||0); },0);
     var sk=records.reduce(function(s,r){ return s+(r.breakHours||0); },0);
     var se=records.reduce(function(s,r){ return s+(r.extraHours||0); },0);
+    var absentCount=days.filter(function(d){ return d.status==='absent'; }).length;
     var periodLabel=(range.from||'')+(range.to?' → '+range.to:'');
-    var rows=records.map(function(r,i){
+    var rows=days.map(function(dayEntry,i){
+        var r = dayEntry.record;
+        if (!r) {
+            var isAbsent = dayEntry.status === 'absent';
+            var label = isAbsent ? '🚫 غياب' : '⏳ لم يُسجل بعد';
+            var bg = isAbsent ? '#fee2e2' : (i%2?'#f8fafc':'white');
+            var clr = isAbsent ? '#991b1b' : '#666';
+            return '<tr style="background:'+bg+'"><td>'+dayEntry.date+'</td><td colspan="6" style="color:'+clr+';font-weight:bold">'+label+'</td><td></td></tr>';
+        }
         var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
         return '<tr style="background:'+(i%2?'#f8fafc':'white')+'"><td>'+r.date+'</td><td>'+(r.inTime||'—')+'</td><td>'+(r.outTime||'—')+'</td><td>'+(r.basicHours||0).toFixed(2)+'</td><td style="color:'+(r.breakHours>0?'#d97706':'#666')+'">'+(r.breakHours||0).toFixed(2)+'</td><td style="color:'+(r.extraHours>0?'#d97706':'#666')+'">'+(r.extraHours||0).toFixed(2)+'</td><td style="font-weight:bold">'+rowTotal.toFixed(2)+'</td><td>'+(r.notes||'')+'</td></tr>';
     }).join('');
     var w=window.open('','_blank');
-    w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;padding:20px;direction:rtl}h2{color:#7c3aed}.info{background:#f1f5f9;padding:10px;border-radius:8px;margin-bottom:15px;font-size:13px}.summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px}.sum-box{background:#7c3aed;color:white;padding:12px;border-radius:8px;text-align:center}.sum-box .num{font-size:22px;font-weight:bold}.sum-box .lbl{font-size:11px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#7c3aed;color:white;padding:7px;text-align:center}td{padding:6px 7px;border-bottom:1px solid #e2e8f0;text-align:center}tfoot td{background:#f1f5f9;font-weight:bold}</style></head><body>'+
+    w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;padding:20px;direction:rtl}h2{color:#7c3aed}.info{background:#f1f5f9;padding:10px;border-radius:8px;margin-bottom:15px;font-size:13px}.summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px}.sum-box{background:#7c3aed;color:white;padding:12px;border-radius:8px;text-align:center}.sum-box .num{font-size:22px;font-weight:bold}.sum-box .lbl{font-size:11px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#7c3aed;color:white;padding:7px;text-align:center}td{padding:6px 7px;border-bottom:1px solid #e2e8f0;text-align:center}tfoot td{background:#f1f5f9;font-weight:bold}</style></head><body>'+
         '<h2>📋 تقرير معدة إيجار</h2>'+
         '<div class="info"><b>المعدة:</b> '+(eq?eq.type+' — '+eq.name:'—')+'&nbsp;&nbsp;<b>الكود:</b> '+(eq?eq.code:'—')+'&nbsp;&nbsp;<b>السائق:</b> '+(drv?drv.name:'—')+'<br>'+
         '<b>الشركة:</b> '+(rental?rental.company||'—':'—')+'&nbsp;&nbsp;<b>الفترة:</b> '+periodLabel+'&nbsp;&nbsp;<b>الطباعة:</b> '+new Date().toLocaleDateString('ar-EG')+'</div>'+
         '<div class="summary"><div class="sum-box"><div class="num">'+records.length+'</div><div class="lbl">يوم عمل</div></div>'+
         '<div class="sum-box"><div class="num">'+sb.toFixed(1)+'</div><div class="lbl">ساعة أساسية</div></div>'+
         '<div class="sum-box" style="background:#d97706"><div class="num">'+sk.toFixed(1)+'</div><div class="lbl">ساعة راحة</div></div>'+
-        '<div class="sum-box" style="background:#d97706"><div class="num">'+se.toFixed(1)+'</div><div class="lbl">ساعة إضافية</div></div></div>'+
+        '<div class="sum-box" style="background:#d97706"><div class="num">'+se.toFixed(1)+'</div><div class="lbl">ساعة إضافية</div></div>'+
+        '<div class="sum-box" style="background:#dc2626"><div class="num">'+absentCount+'</div><div class="lbl">يوم غياب</div></div></div>'+
         '<table><thead><tr><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>أساسي</th><th>راحة</th><th>إضافي</th><th>المجموع</th><th>ملاحظات</th></tr></thead>'+
         '<tbody>'+rows+'</tbody>'+
         '<tfoot><tr><td colspan="3">الإجمالي</td><td>'+sb.toFixed(2)+'</td><td>'+sk.toFixed(2)+'</td><td>'+se.toFixed(2)+'</td><td>'+(sb+sk+se).toFixed(2)+'</td><td></td></tr></tfoot>'+
