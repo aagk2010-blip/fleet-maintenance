@@ -426,6 +426,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     <div class="sidebar-links">
       <button class="tab-btn sidebar-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button>
       <button class="tab-btn sidebar-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button>
+      <button class="tab-btn sidebar-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button>
       <button class="tab-btn sidebar-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button>
       <button class="tab-btn sidebar-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button>
       <button class="tab-btn sidebar-btn" data-view="drivers"><span class="tab-icon"><svg class="icon"><use href="#ic-drivers"/></svg></span><span>السائقين</span></button>
@@ -451,6 +452,14 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     <button id="sites-report-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#16a34a,#15803d);font-size:13px;padding:9px">📤 إرسال تقرير دوري لكل المواقع</button>
     <div id="sites-summary-row" style="display:flex;gap:8px;margin-bottom:12px"></div>
     <div id="sites-dashboard-list"></div>
+  </div></div>
+
+  <div id="view-analytics" style="display:none"><div style="padding:14px">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+      <label style="font-size:12px;color:var(--gray);white-space:nowrap">📅 الشهر:</label>
+      <input type="month" id="analytics-month" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:9px 14px;font-size:13px;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+    </div>
+    <div id="analytics-body"></div>
   </div></div>
   
   <div id="view-equipment" style="display:none"><div style="padding:14px"><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><div id="equipment-list"></div></div></div>
@@ -557,7 +566,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   </div>
   
   </div><!-- /.app-main -->
-  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="drivers"><span class="tab-icon"><svg class="icon"><use href="#ic-drivers"/></svg></span><span>السائقين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
+  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="drivers"><span class="tab-icon"><svg class="icon"><use href="#ic-drivers"/></svg></span><span>السائقين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
   <button class="fab" id="fab-btn">+</button>
 </div>
 
@@ -589,6 +598,9 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 <div class="modal-overlay" id="import-progress-modal"><div class="modal-header" style="background:linear-gradient(135deg,var(--success),var(--info))"><div class="modal-title">📊 جاري استيراد البيانات...</div><button class="modal-close" onclick="closeModal('import-progress-modal')">✕</button></div><div style="padding:20px; text-align:center"><div style="font-size:40px; margin-bottom:15px">⏳</div><div id="import-progress-text" style="margin-bottom:10px">جارٍ قراءة الملف...</div><div class="progress-bar" style="height:10px"><div id="import-progress-bar" class="progress-fill" style="width:0%"></div></div><div id="import-status-list" style="margin-top:15px; font-size:12px; text-align:right; max-height:200px; overflow:auto"></div></div></div>
 
 <div class="modal-overlay" id="notif-settings-modal"><div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)"><div class="modal-title">🔔 إعدادات الإشعارات</div><button class="modal-close" onclick="closeModal('notif-settings-modal')">✕</button></div><div style="padding:16px"><div class="detail-section" style="margin:0 0 12px 0"><div class="detail-label" style="margin-bottom:8px">📱 رقم واتساب لاستقبال التنبيهات</div><input class="form-input" id="whatsapp-number" type="tel" placeholder="مثال: 201012345678" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px 14px; width:100%; font-size:14px"><div style="font-size:11px; color:var(--gray); margin-top:6px">أدخل الرقم مع كود الدولة بدون + مثلاً 201012345678</div></div><div class="detail-section" style="margin:0 0 12px 0"><div class="detail-label" style="margin-bottom:8px">⏰ إشعار عند باقي (ساعات)</div><select class="form-select" id="notif-threshold" style="border:1px solid #e2e8f0; border-radius:12px; padding:10px 14px; width:100%"><option value="10">10 ساعات فأقل</option><option value="25">25 ساعة فأقل</option><option value="50" selected>50 ساعة فأقل</option><option value="100">100 ساعة فأقل</option></select></div><div class="detail-section" style="margin:0 0 12px 0; display:flex; justify-content:space-between; align-items:center"><div><div class="detail-label">🔔 إشعارات المتصفح</div><div style="font-size:11px; color:var(--gray)">تنبيه تلقائي عند فتح التطبيق</div></div><div id="notif-permission-status" style="font-size:12px; font-weight:600"></div></div><button id="enable-notif-btn" class="save-btn" style="background:linear-gradient(135deg,#7c3aed,#4f46e5); margin-bottom:10px">🔔 تفعيل إشعارات المتصفح</button><button id="send-wa-report-btn" class="save-btn" style="background:linear-gradient(135deg,#25d366,#128c7e)">📱 إرسال تقرير واتساب الآن</button><button id="save-notif-settings-btn" class="save-btn">✅ حفظ الإعدادات</button></div></div>
+
+<div class="modal-overlay" id="notif-center-modal"><div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)"><div class="modal-title">🔔 مركز التنبيهات</div><button class="modal-close" onclick="closeModal('notif-center-modal')">✕</button></div><div id="notif-center-body" style="padding:14px"></div></div>
+
 
 <div class="modal-overlay" id="date-range-modal">
     <div class="modal-header" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">
@@ -628,6 +640,8 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   <!-- تبويبات لوحة المدير -->
   <div style="display:flex;gap:6px;padding:12px 14px 0;background:white;border-bottom:1px solid #e2e8f0;position:sticky;top:56px;z-index:9">
     <button id="atab-users-btn" onclick="switchAdminTab('users')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">👥 المستخدمون</button>
+    <button id="atab-backup-btn" onclick="switchAdminTab('backup')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">💾 نسخ احتياطي</button>
+    <button id="atab-loginlog-btn" onclick="switchAdminTab('loginlog')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">📝 سجل الدخول</button>
     <button id="atab-firebase-btn" onclick="switchAdminTab('firebase')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">🔥 إعدادات Firebase</button>
     <button id="atab-danger-btn" onclick="switchAdminTab('danger')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">⚠️ منطقة الخطر</button>
   </div>
@@ -709,6 +723,40 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   </div>
 
   <!-- تبويب إعدادات Firebase -->
+  <!-- تبويب النسخ الاحتياطي -->
+  <div id="atab-backup" style="padding:14px;display:none">
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:12px;margin-bottom:14px;font-size:12px;color:#1e40af">
+      💡 النسخة الاحتياطية عبارة عن ملف JSON يحتوي كل بيانات التطبيق (معدات، صيانة، إيجار، مخزون، مستخدمين...). احتفظ بنسخة على جهازك أو Google Drive بشكل دوري.
+    </div>
+
+    <div style="background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow-sm)">
+      <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px">📅 آخر نسخة احتياطية</div>
+      <div id="backup-last-info" style="font-size:12.5px;color:var(--gray);margin-bottom:12px">جاري التحقق...</div>
+      <button id="backup-download-btn" style="width:100%;background:linear-gradient(135deg,#059669,#047857);color:white;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;font-size:13px;font-family:inherit">⬇️ تنزيل نسخة احتياطية كاملة الآن</button>
+      <div id="backup-download-status" style="display:none;margin-top:10px;border-radius:10px;padding:10px;font-size:12px;text-align:center"></div>
+    </div>
+
+    <div style="background:white;border:1.5px solid #fed7aa;border-radius:14px;padding:14px">
+      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px">⬆️ استعادة نسخة احتياطية</div>
+      <div style="font-size:11.5px;color:var(--gray);margin-bottom:10px;line-height:1.6">
+        سيتم استبدال كل البيانات الحالية في قاعدة البيانات بمحتوى الملف المرفوع. لا يمكن التراجع عن هذه الخطوة إلا بنسخة احتياطية أخرى.
+      </div>
+      <input type="file" id="backup-restore-file" accept="application/json" style="width:100%;font-size:12px;margin-bottom:10px">
+      <button id="backup-restore-btn" style="width:100%;background:#fff7ed;color:#92400e;border:1.5px solid #fdba74;border-radius:12px;padding:11px;font-weight:700;cursor:pointer;font-size:13px;font-family:inherit">⚠️ استعادة من الملف</button>
+      <div id="backup-restore-status" style="display:none;margin-top:10px;border-radius:10px;padding:10px;font-size:12px;text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- تبويب سجل الدخول -->
+  <div id="atab-loginlog" style="padding:14px;display:none">
+    <div id="loginlog-summary" style="margin-bottom:14px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;font-weight:700;color:var(--primary)">📋 آخر عمليات الدخول/الخروج</div>
+      <button onclick="loadLoginLog()" style="background:#f1f5f9;border:none;border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit">🔄 تحديث</button>
+    </div>
+    <div id="loginlog-events" style="max-height:400px;overflow-y:auto"></div>
+  </div>
+
   <div id="atab-firebase" style="padding:14px;display:none">
     <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;margin-bottom:14px;font-size:12px;color:#92400e">
       ⚠️ تأكد من صحة البيانات قبل الحفظ. بيانات خاطئة ستمنع التطبيق من الاتصال بقاعدة البيانات.
@@ -1384,7 +1432,7 @@ function deleteAdminUser(uid, email) {
 
 // ==================== إعدادات Firebase ====================
 function switchAdminTab(tab) {
-    var tabs = ['users', 'firebase', 'danger'];
+    var tabs = ['users', 'backup', 'loginlog', 'firebase', 'danger'];
     tabs.forEach(function(t) {
         var panel = document.getElementById('atab-' + t);
         var btn = document.getElementById('atab-' + t + '-btn');
@@ -1399,6 +1447,12 @@ function switchAdminTab(tab) {
             btn.style.color = '#64748b';
         }
     });
+    if (tab === 'backup') {
+        loadLastBackupInfo();
+    }
+    if (tab === 'loginlog') {
+        loadLoginLog();
+    }
     if (tab === 'firebase') {
         loadFBConfigFields();
         // عرض مصدر الإعدادات الحالية
@@ -1410,6 +1464,146 @@ function switchAdminTab(tab) {
                 : '<span style="color:#94a3b8">📄 إعدادات افتراضية (مدمجة في الكود)</span>';
         }
     }
+}
+
+// ==================== النسخ الاحتياطي ====================
+function loadLoginLog() {
+    var summaryEl = document.getElementById('loginlog-summary');
+    var eventsEl = document.getElementById('loginlog-events');
+    if (summaryEl) summaryEl.innerHTML = '<div style="text-align:center;color:var(--gray);padding:10px">جاري التحميل...</div>';
+    if (eventsEl) eventsEl.innerHTML = '';
+
+    Promise.all([
+        fbDb.ref('loginCounts').once('value'),
+        fbDb.ref('loginLogs').limitToLast(150).once('value')
+    ]).then(function(results) {
+        var counts = results[0].val() || {};
+        var logsObj = results[1].val() || {};
+        var logs = Object.values(logsObj).sort(function(a,b){ return new Date(b.at) - new Date(a.at); });
+
+        // آخر ظهور لكل مستخدم
+        var lastSeen = {};
+        logs.forEach(function(ev) {
+            if (!lastSeen[ev.userKey] || new Date(ev.at) > new Date(lastSeen[ev.userKey])) lastSeen[ev.userKey] = ev.at;
+        });
+
+        var keys = Object.keys(counts).sort(function(a,b){ return (counts[b]||0) - (counts[a]||0); });
+        if (summaryEl) {
+            if (!keys.length) {
+                summaryEl.innerHTML = '<div style="text-align:center;color:var(--gray);padding:10px">لا يوجد سجل دخول بعد</div>';
+            } else {
+                var rows = keys.map(function(k) {
+                    var displayName = k === 'viewer' ? '👁️ زوّار (مشاهدين)' : decodeURIComponent(k);
+                    var last = lastSeen[k] ? new Date(lastSeen[k]).toLocaleString('ar-EG') : '—';
+                    return '<div style="display:flex;justify-content:space-between;align-items:center;background:var(--light);border-radius:10px;padding:8px 12px;margin-bottom:5px;font-size:12px">' +
+                        '<span style="font-weight:600">' + escapeHtml(displayName) + '</span>' +
+                        '<span style="color:var(--gray);font-size:11px">آخر دخول: ' + last + '</span>' +
+                        '<span style="background:#7c3aed;color:white;border-radius:99px;padding:2px 10px;font-weight:700">' + (counts[k]||0) + '</span></div>';
+                }).join('');
+                summaryEl.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:8px">👥 عدد مرات الدخول لكل مستخدم</div>' + rows;
+            }
+        }
+
+        if (eventsEl) {
+            if (!logs.length) {
+                eventsEl.innerHTML = '<div style="text-align:center;color:var(--gray);padding:20px">لا يوجد أحداث مسجّلة</div>';
+                return;
+            }
+            eventsEl.innerHTML = logs.map(function(ev) {
+                var icon = ev.type === 'login' ? '🟢' : (ev.type === 'logout' ? '🔴' : '⚪');
+                var label = ev.type === 'login' ? 'دخول' : (ev.type === 'logout' ? 'خروج' : 'خروج تلقائي');
+                var displayName = ev.role === 'viewer' ? '👁️ مشاهد' : escapeHtml(ev.name || ev.username || '—');
+                var loc = (ev.lat && ev.lng) ?
+                    '<a href="https://maps.google.com/?q=' + ev.lat + ',' + ev.lng + '" target="_blank" style="color:#0e7490;text-decoration:none">📍 عرض الموقع</a>' :
+                    '<span style="color:var(--gray)">📍 غير متاح</span>';
+                var when = ev.at ? new Date(ev.at).toLocaleString('ar-EG') : '—';
+                return '<div style="border-bottom:1px solid #f1f5f9;padding:8px 4px;font-size:12px">' +
+                    '<div style="display:flex;justify-content:space-between"><span>' + icon + ' <strong>' + displayName + '</strong> — ' + label + '</span><span style="color:var(--gray);font-size:11px">' + when + '</span></div>' +
+                    '<div style="color:var(--gray);font-size:11px;margin-top:2px">' + loc + (ev.ua ? ' | 📱 ' + escapeHtml((ev.ua||'').slice(0,60)) : '') + '</div></div>';
+            }).join('');
+        }
+    }).catch(function(err) {
+        if (summaryEl) summaryEl.innerHTML = '<div style="color:#dc2626;padding:10px">خطأ: ' + err.message + '</div>';
+    });
+}
+
+function loadLastBackupInfo() {
+    var el = document.getElementById('backup-last-info');
+    if (!el) return;
+    el.textContent = 'جاري التحقق...';
+    fbDb.ref('appSettings/lastBackup').once('value').then(function(snap) {
+        var v = snap.val();
+        if (!v || !v.at) { el.innerHTML = '<span style="color:#d97706">⚠️ لا توجد نسخة احتياطية مسجّلة بعد</span>'; return; }
+        var d = new Date(v.at);
+        var daysAgo = Math.floor((Date.now() - d.getTime()) / 86400000);
+        var byWho = v.by ? (' بواسطة ' + escapeHtml(v.by)) : '';
+        var warn = daysAgo >= 7 ? ' <span style="color:#d97706;font-weight:700">(مر ' + daysAgo + ' يوم — يُفضّل عمل نسخة جديدة)</span>' : ' <span style="color:#059669">✅</span>';
+        el.innerHTML = d.toLocaleDateString('ar-EG') + ' — ' + d.toLocaleTimeString('ar-EG') + byWho + warn;
+    }).catch(function(){ el.textContent = 'تعذّر التحقق'; });
+}
+
+function performFullBackup() {
+    var btn = document.getElementById('backup-download-btn');
+    var status = document.getElementById('backup-download-status');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ جاري التجهيز...'; }
+    fbDb.ref('/').once('value').then(function(snap) {
+        var data = snap.val() || {};
+        var payload = { exportedAt: new Date().toISOString(), exportedBy: (currentUser && currentUser.name) || 'admin', app: 'HACPMV', data: data };
+        var jsonStr = JSON.stringify(payload, null, 2);
+        var blob = new Blob([jsonStr], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        var stamp = new Date().toISOString().split('T')[0];
+        a.href = url; a.download = 'hacpmv_backup_' + stamp + '.json';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+        var lastBackup = { at: new Date().toISOString(), by: (currentUser && currentUser.name) || 'admin' };
+        return fbDb.ref('appSettings/lastBackup').set(lastBackup);
+    }).then(function() {
+        if (status) { status.style.display = 'block'; status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '✅ تم تنزيل النسخة الاحتياطية بنجاح'; }
+        loadLastBackupInfo();
+        showToast('✅ تم تنزيل النسخة الاحتياطية');
+    }).catch(function(err) {
+        if (status) { status.style.display = 'block'; status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = 'خطأ: ' + err.message; }
+        showToast('خطأ: ' + err.message, true);
+    }).finally(function() {
+        if (btn) { btn.disabled = false; btn.textContent = '⬇️ تنزيل نسخة احتياطية كاملة الآن'; }
+    });
+}
+
+function restoreFromBackupFile() {
+    var fileInput = document.getElementById('backup-restore-file');
+    var status = document.getElementById('backup-restore-status');
+    var file = fileInput && fileInput.files && fileInput.files[0];
+    if (!file) { showToast('اختر ملف النسخة الاحتياطية أولاً', true); return; }
+    if (!currentUser || currentUser.role !== 'admin') { showToast('هذه العملية للمدير فقط', true); return; }
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var parsed;
+        try { parsed = JSON.parse(e.target.result); } catch(err) {
+            showToast('الملف غير صالح (ليس JSON سليم)', true); return;
+        }
+        var data = (parsed && parsed.data && parsed.app === 'HACPMV') ? parsed.data : parsed;
+        if (!data || typeof data !== 'object') { showToast('الملف لا يحتوي بيانات صالحة', true); return; }
+
+        var keysCount = Object.keys(data).length;
+        var sure1 = confirm('⚠️ سيتم استبدال كل البيانات الحالية بمحتوى هذا الملف (' + keysCount + ' قسم بيانات). هل أنت متأكد؟');
+        if (!sure1) return;
+        var typed = prompt('اكتب كلمة "استعادة" للتأكيد النهائي:');
+        if (typed !== 'استعادة') { showToast('تم الإلغاء — الكلمة غير مطابقة', true); return; }
+
+        if (status) { status.style.display = 'block'; status.style.background = '#fff7ed'; status.style.color = '#92400e'; status.textContent = '⏳ جاري الاستعادة...'; }
+        fbDb.ref('/').set(data).then(function() {
+            if (status) { status.style.background = '#d1fae5'; status.style.color = '#065f46'; status.textContent = '✅ تمت الاستعادة بنجاح — سيُعاد تحميل الصفحة'; }
+            showToast('✅ تمت الاستعادة بنجاح');
+            setTimeout(function(){ location.reload(); }, 1800);
+        }).catch(function(err) {
+            if (status) { status.style.background = '#fee2e2'; status.style.color = '#991b1b'; status.textContent = 'خطأ: ' + err.message; }
+            showToast('خطأ: ' + err.message, true);
+        });
+    };
+    reader.readAsText(file);
 }
 
 function loadFBConfigFields() {
@@ -2229,6 +2423,7 @@ function attachFirebaseListeners() {
     listen('inventoryItems', function(snapshot) {
         inventoryItems = snapshotToArray(snapshot);
         debouncedRefresh();
+        setTimeout(function() { checkInventoryAlerts(); }, 500);
     });
     
     listen('equipmentFilterLinks', function(snapshot) {
@@ -2253,6 +2448,7 @@ function attachFirebaseListeners() {
     listen('rental', function(snapshot) {
         rentalData = snapshotToArray(snapshot);
         renderRentalEquipment();
+        setTimeout(function() { checkRentalExpiryAlerts(); }, 500);
     });
 
     listen('rentalDaily', function(snapshot) {
@@ -2690,6 +2886,7 @@ function saveLoginMode() {
 }
 
 function proceedToApp() {
+    logLoginEvent('login');
     var loginScreen = document.getElementById('login-screen');
     var appContainer = document.getElementById('app-container');
     loginScreen.style.display = 'none';
@@ -2790,11 +2987,21 @@ function proceedToApp() {
         setTimeout(function() {
             checkOnlineAndWarn();
             checkDriverLicenses();
+            lastInventoryAlertCheck = 0;
+            checkInventoryAlerts();
+            lastRentalAlertCheck = 0;
+            checkRentalExpiryAlerts();
         }, 1500);
         setInterval(function() {
             lastAlertCheck = 0;
             checkMaintenanceAlerts();
+            lastInventoryAlertCheck = 0;
+            checkInventoryAlerts();
+            lastRentalAlertCheck = 0;
+            checkRentalExpiryAlerts();
         }, 30 * 60 * 1000);
+    } else {
+        setTimeout(function() { runSmartAlertsRefresh(); }, 1500);
     }
 }
 
@@ -2815,6 +3022,7 @@ function initSessionTimeout() {
 }
 
 function logout() {
+    logLoginEvent('logout');
     detachFirebaseListeners();
     currentUser = null;
     currentUid = null;
@@ -2828,6 +3036,65 @@ function logout() {
     try { firebase.auth().signOut(); } catch(e) {}
     showToast('تم تسجيل الخروج');
 }
+
+// ==================== سجل الدخول/الخروج ====================
+var currentLoginSessionId = null;
+function logLoginEvent(type) {
+    if (!currentUser || !fbDb) return;
+    if (type === 'login') currentLoginSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+    var key = currentUser.role === 'viewer' ? 'viewer' : (currentUser.username || currentUser.id || 'unknown');
+
+    function pushEvent(loc) {
+        var event = {
+            type: type,
+            sessionId: currentLoginSessionId,
+            userKey: key,
+            username: currentUser.username || '',
+            name: currentUser.name || '',
+            role: currentUser.role || 'viewer',
+            at: new Date().toISOString(),
+            ua: (navigator.userAgent || '').slice(0, 180),
+            platform: navigator.platform || '',
+            lat: loc ? loc.lat : null,
+            lng: loc ? loc.lng : null
+        };
+        fbDb.ref('loginLogs').push(event).catch(function(){});
+        if (type === 'login') {
+            fbDb.ref('loginCounts/' + encodeURIComponent(key)).transaction(function(cur) {
+                return (cur || 0) + 1;
+            }).catch(function(){});
+        }
+    }
+
+    if (navigator.geolocation) {
+        var done = false;
+        var timer = setTimeout(function() { if (!done) { done = true; pushEvent(null); } }, 4000);
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            if (done) return; done = true; clearTimeout(timer);
+            pushEvent({ lat: Math.round(pos.coords.latitude * 10000) / 10000, lng: Math.round(pos.coords.longitude * 10000) / 10000 });
+        }, function() {
+            if (done) return; done = true; clearTimeout(timer);
+            pushEvent(null);
+        }, { timeout: 3500, maximumAge: 300000 });
+    } else {
+        pushEvent(null);
+    }
+}
+
+// تسجيل خروج تلقائي (بأفضل جهد) عند إغلاق التبويب/التطبيق
+window.addEventListener('pagehide', function() {
+    if (currentUser && fbDb) {
+        try {
+            fbDb.ref('loginLogs').push({
+                type: 'logout_implicit', sessionId: currentLoginSessionId,
+                userKey: currentUser.role === 'viewer' ? 'viewer' : (currentUser.username || currentUser.id || 'unknown'),
+                username: currentUser.username || '', name: currentUser.name || '', role: currentUser.role || 'viewer',
+                at: new Date().toISOString()
+            });
+        } catch(e) {}
+    }
+});
+
 
 // ==================== دوال المعدات ====================
 function openAddEquipmentModal() {
@@ -5194,6 +5461,7 @@ function checkMaintenanceAlerts() {
             icon: 'https://cdn-icons-png.flaticon.com/512/1995/1995562.png'
         });
     }
+    runSmartAlertsRefresh();
 }
 
 function checkDriverLicenses() {
@@ -5213,40 +5481,144 @@ function checkDriverLicenses() {
             icon: 'https://cdn-icons-png.flaticon.com/512/1995/1995562.png'
         });
     }
+    runSmartAlertsRefresh();
 }
 
-function showSmartAlertBar(critical, licenseAlerts) {
-    licenseAlerts = licenseAlerts || null;
+var lastInventoryAlertCheck = 0;
+function checkInventoryAlerts() {
+    if (!inventoryItems || !inventoryItems.length) { runSmartAlertsRefresh(); return; }
+    var now = Date.now();
+    if (now - lastInventoryAlertCheck < 5 * 60 * 1000) { runSmartAlertsRefresh(); return; }
+    lastInventoryAlertCheck = now;
+    var low = inventoryItems.filter(function(it) { return (it.qty || 0) <= (it.minQty || 0); });
+    if (low.length && Notification.permission === 'granted') {
+        new Notification('📦 تنبيه مخزون منخفض - ' + low.length + ' صنف', {
+            body: low.map(function(it) { return it.name + ' (' + (it.qty||0) + '/' + (it.minQty||0) + ')'; }).join('، '),
+            icon: 'https://cdn-icons-png.flaticon.com/512/1995/1995562.png'
+        });
+    }
+    runSmartAlertsRefresh();
+}
+
+var lastRentalAlertCheck = 0;
+function checkRentalExpiryAlerts() {
+    if (!rentalData || !rentalData.length) { runSmartAlertsRefresh(); return; }
+    var now = Date.now();
+    if (now - lastRentalAlertCheck < 5 * 60 * 1000) { runSmartAlertsRefresh(); return; }
+    lastRentalAlertCheck = now;
+    var today = new Date();
+    var soon = rentalData.filter(function(r) {
+        if (!r.endDate) return false;
+        var exp = new Date(r.endDate);
+        var daysLeft = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+        return daysLeft <= 15;
+    });
+    if (soon.length && Notification.permission === 'granted') {
+        new Notification('📄 تنبيه عقود إيجار - ' + soon.length + ' عقد', {
+            body: soon.map(function(r) { return (r.equipmentCode||r.equipmentType||'') + ' (' + r.endDate + ')'; }).join('، '),
+            icon: 'https://cdn-icons-png.flaticon.com/512/1995/1995562.png'
+        });
+    }
+    runSmartAlertsRefresh();
+}
+
+// يجمع كل أنواع التنبيهات في مكان واحد
+function getAllSmartAlerts() {
+    loadNotifSettings();
+    var threshold = notifSettings.threshold || 50;
+    var maintOverdue = equipmentData.filter(function(eq) { return eq.status !== 'متوقف' && hoursRemaining(eq) <= 0; });
+    var maintSoon = equipmentData.filter(function(eq) { return eq.status !== 'متوقف' && hoursRemaining(eq) > 0 && hoursRemaining(eq) <= threshold; });
+
+    var today = new Date();
+    var licExpired = driversData.filter(function(d) { return d.licenseExpiry && d.status === 'نشط' && new Date(d.licenseExpiry) < today; });
+    var licSoon = driversData.filter(function(d) {
+        if (!d.licenseExpiry || d.status !== 'نشط') return false;
+        var exp = new Date(d.licenseExpiry);
+        var daysLeft = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+        return daysLeft >= 0 && daysLeft <= 30;
+    });
+
+    var lowStock = (inventoryItems || []).filter(function(it) { return (it.qty || 0) <= (it.minQty || 0); });
+
+    var rentExpired = (rentalData || []).filter(function(r) { return r.endDate && new Date(r.endDate) < today; });
+    var rentSoon = (rentalData || []).filter(function(r) {
+        if (!r.endDate) return false;
+        var exp = new Date(r.endDate);
+        var daysLeft = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+        return daysLeft >= 0 && daysLeft <= 15;
+    });
+
+    var totalCount = maintOverdue.length + maintSoon.length + licExpired.length + licSoon.length + lowStock.length + rentExpired.length + rentSoon.length;
+    return { maintOverdue:maintOverdue, maintSoon:maintSoon, licExpired:licExpired, licSoon:licSoon, lowStock:lowStock, rentExpired:rentExpired, rentSoon:rentSoon, totalCount:totalCount };
+}
+
+function showSmartAlertBar() {
+    var a = getAllSmartAlerts();
     var alertDiv = document.getElementById('alert-bar');
     if (!alertDiv) return;
-    var msg = '';
-    if (licenseAlerts && licenseAlerts.length) {
-        msg += '📜 ' + licenseAlerts.length + ' سائق لديه رخصة منتهية أو تنتهي قريباً! ';
-    }
-    if (critical && critical.length) {
-        var overdue = critical.filter(function(eq) { return hoursRemaining(eq) <= 0; });
-        var urgent = critical.filter(function(eq) { return hoursRemaining(eq) > 0 && hoursRemaining(eq) <= 10; });
-        if (overdue.length) msg += '🚨 ' + overdue.length + ' معدة تجاوزت الصيانة! ';
-        if (urgent.length) msg += '⚠️ ' + urgent.length + ' معدة متبقٍ أقل من 10 ساعات.';
-    }
-    if (msg === '') {
-        alertDiv.style.display = 'none';
-        return;
-    }
+    var parts = [];
+    if (a.maintOverdue.length) parts.push('🚨 ' + a.maintOverdue.length + ' معدة تجاوزت الصيانة');
+    if (a.maintSoon.length) parts.push('🔧 ' + a.maintSoon.length + ' معدة قريبة من الصيانة');
+    if (a.licExpired.length || a.licSoon.length) parts.push('📜 ' + (a.licExpired.length + a.licSoon.length) + ' رخصة سائق منتهية/قريبة');
+    if (a.lowStock.length) parts.push('📦 ' + a.lowStock.length + ' صنف مخزون منخفض');
+    if (a.rentExpired.length || a.rentSoon.length) parts.push('📄 ' + (a.rentExpired.length + a.rentSoon.length) + ' عقد إيجار منتهي/قريب');
+    if (!parts.length) { alertDiv.style.display = 'none'; return; }
+    var msg = parts.join(' | ') + ' — <button onclick="openNotifCenter()" style="background:rgba(0,0,0,.15);border:none;color:inherit;border-radius:8px;padding:2px 8px;cursor:pointer;font-size:11px">عرض التفاصيل</button>';
     alertDiv.innerHTML = '<div class="smart-alert-bar"><span>' + msg + '</span><button class="close-alert" onclick="document.getElementById(\'alert-bar\').style.display=\'none\'">✕</button></div>';
     alertDiv.style.display = 'block';
 }
 
 function updateBellCounter() {
-    loadNotifSettings();
-    var threshold = notifSettings.threshold || 50;
-    var critCount = equipmentData.filter(function(eq) {
-        return eq.status !== 'متوقف' && hoursRemaining(eq) <= threshold;
-    }).length;
+    var a = getAllSmartAlerts();
     var bellBtn = document.getElementById('notif-settings-btn');
     if (bellBtn) {
-        bellBtn.innerHTML = critCount > 0 ? '🔔 <span style="background:#ef4444;color:white;border-radius:10px;padding:1px 6px;font-size:11px">' + critCount + '</span>' : '🔔 الإشعارات';
+        bellBtn.innerHTML = a.totalCount > 0 ? '🔔 <span style="background:#ef4444;color:white;border-radius:10px;padding:1px 6px;font-size:11px">' + a.totalCount + '</span>' : '🔔 الإشعارات';
     }
+}
+
+function runSmartAlertsRefresh() {
+    updateBellCounter();
+    showSmartAlertBar();
+}
+
+function openNotifCenter() {
+    var a = getAllSmartAlerts();
+    var body = document.getElementById('notif-center-body');
+    if (!body) return;
+    function section(title, color, items, renderRow) {
+        if (!items.length) return '';
+        return '<div style="margin-bottom:14px"><div style="font-weight:700;font-size:13px;color:' + color + ';margin-bottom:6px">' + title + ' (' + items.length + ')</div>' +
+            items.map(renderRow).join('') + '</div>';
+    }
+    var row = function(text, sub) {
+        return '<div style="background:var(--light);border-radius:10px;padding:8px 10px;margin-bottom:5px;font-size:12px"><div style="font-weight:600">' + escapeHtml(text) + '</div>' + (sub ? '<div style="color:var(--gray);font-size:11px">' + escapeHtml(sub) + '</div>' : '') + '</div>';
+    };
+    var html = '';
+    html += section('🚨 معدات تجاوزت الصيانة', '#dc2626', a.maintOverdue, function(eq) {
+        return row(eq.name + ' (' + eq.code + ')', 'العداد: ' + eq.hours + ' س — تجاوز ' + Math.abs(hoursRemaining(eq)) + ' س');
+    });
+    html += section('🔧 معدات قريبة من الصيانة', '#d97706', a.maintSoon, function(eq) {
+        return row(eq.name + ' (' + eq.code + ')', 'باقي ' + hoursRemaining(eq) + ' س');
+    });
+    html += section('📜 رخص سائقين منتهية', '#dc2626', a.licExpired, function(d) {
+        return row(d.name, 'انتهت في ' + d.licenseExpiry);
+    });
+    html += section('📜 رخص سائقين قريبة الانتهاء', '#d97706', a.licSoon, function(d) {
+        return row(d.name, 'تنتهي في ' + d.licenseExpiry);
+    });
+    html += section('📦 أصناف مخزون منخفضة', '#d97706', a.lowStock, function(it) {
+        return row(it.name, 'الكمية: ' + (it.qty||0) + ' / الحد الأدنى: ' + (it.minQty||0) + ' ' + (it.unit||''));
+    });
+    html += section('📄 عقود إيجار منتهية', '#dc2626', a.rentExpired, function(r) {
+        return row((r.equipmentType||'') + ' — ' + (r.equipmentCode||''), 'انتهى العقد في ' + r.endDate + (r.company?' | '+r.company:''));
+    });
+    html += section('📄 عقود إيجار قريبة الانتهاء', '#d97706', a.rentSoon, function(r) {
+        return row((r.equipmentType||'') + ' — ' + (r.equipmentCode||''), 'ينتهي في ' + r.endDate + (r.company?' | '+r.company:''));
+    });
+    if (!a.totalCount) html = '<div style="text-align:center;padding:30px;color:var(--gray)">✅ لا توجد تنبيهات حالياً — كل شيء تمام</div>';
+    html += '<button class="save-btn" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);margin-top:6px" onclick="closeModal(\'notif-center-modal\');openNotifSettings()">⚙️ إعدادات الإشعارات</button>';
+    body.innerHTML = html;
+    document.getElementById('notif-center-modal').classList.add('active');
 }
 
 // ==================== دوال التصدير ====================
@@ -6315,7 +6687,148 @@ function renderSitesKpiTable(sites, listEl) {
     }, 0);
 }
 
-// ==================== التقرير الدوري لكل المواقع ====================
+// ==================== التحليلات والتقارير ====================
+function getMonthlyHoursForEquipment(eq, monthStr) {
+    var log = (eq.hoursLog || []).slice().sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+    if (!log.length) return null;
+    var monthStart = new Date(monthStr + '-01T00:00:00');
+    var monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59);
+    var before = null;
+    var uptoEnd = [];
+    log.forEach(function(l) {
+        var d = new Date(l.date);
+        if (d < monthStart) before = l;
+        if (d <= monthEnd) uptoEnd.push(l);
+    });
+    if (!uptoEnd.length) return null;
+    var endReading = uptoEnd[uptoEnd.length - 1];
+    var startReading = before || uptoEnd[0];
+    var hours = Math.max(0, (endReading.hours || 0) - (startReading.hours || 0));
+    return { hours: hours, hadBaseline: !!before };
+}
+
+function analyticsBarRow(label, value, maxValue, color, sub) {
+    var pct = maxValue > 0 ? Math.max(2, Math.round((value / maxValue) * 100)) : 0;
+    return '<div style="margin-bottom:9px">' +
+        '<div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px"><span style="font-weight:600">' + escapeHtml(label) + '</span><span style="font-weight:700;color:' + color + '">' + value.toFixed(1) + ' س' + (sub ? ' <span style="color:var(--gray);font-weight:400">' + sub + '</span>' : '') + '</span></div>' +
+        '<div style="background:#eef2f7;border-radius:8px;height:10px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:8px"></div></div>' +
+        '</div>';
+}
+
+function renderAnalytics() {
+    var body = document.getElementById('analytics-body');
+    var monthInput = document.getElementById('analytics-month');
+    if (!body || !monthInput) return;
+    if (!monthInput.value) monthInput.value = new Date().toISOString().slice(0, 7);
+    var month = monthInput.value;
+
+    var eqList = getVisibleEquipment();
+
+    // 1) معدل استخدام المعدات في الشهر المختار
+    var usage = eqList.map(function(eq) {
+        var m = getMonthlyHoursForEquipment(eq, month);
+        return { eq: eq, hours: m ? m.hours : null, hadBaseline: m ? m.hadBaseline : false };
+    });
+    var withData = usage.filter(function(u) { return u.hours !== null; }).sort(function(a, b) { return b.hours - a.hours; });
+    var maxHours = withData.length ? withData[0].hours : 0;
+    var topUsage = withData.slice(0, 12);
+    var idle = usage.filter(function(u) { return u.eq.status !== 'متوقف' && (u.hours === null || u.hours === 0); });
+
+    // 2) توزيع حالة الأسطول (كل المعدات المرئية الآن، بغض النظر عن الشهر)
+    var working = eqList.filter(function(e) { return e.status === 'يعمل'; }).length;
+    var stopped = eqList.filter(function(e) { return e.status === 'متوقف'; }).length;
+    var overdue = eqList.filter(function(e) { return e.status !== 'متوقف' && hoursRemaining(e) <= 0; }).length;
+    var soon = eqList.filter(function(e) { return e.status !== 'متوقف' && hoursRemaining(e) > 0 && hoursRemaining(e) <= 50; }).length;
+    var healthy = Math.max(0, eqList.length - stopped - overdue - soon);
+    var fleetTotal = eqList.length || 1;
+    var donutStops = [
+        { v: healthy, c: '#059669' }, { v: soon, c: '#d97706' },
+        { v: overdue, c: '#dc2626' }, { v: stopped, c: '#64748b' }
+    ];
+    var acc = 0;
+    var gradientParts = donutStops.map(function(s) {
+        var start = acc / fleetTotal * 360;
+        acc += s.v;
+        var end = acc / fleetTotal * 360;
+        return s.c + ' ' + start.toFixed(1) + 'deg ' + end.toFixed(1) + 'deg';
+    }).join(', ');
+
+    // 3) اتجاه الصيانة المكتملة آخر 6 شهور
+    var monthsBack = [];
+    var refDate = new Date(month + '-01T00:00:00');
+    for (var i = 5; i >= 0; i--) {
+        var d = new Date(refDate.getFullYear(), refDate.getMonth() - i, 1);
+        monthsBack.push(d.toISOString().slice(0, 7));
+    }
+    var maintByMonth = monthsBack.map(function(mo) {
+        var count = maintenanceSchedules.filter(function(ms) {
+            return ms.status === 'مكتمل' && ms.completedAt && ms.completedAt.slice(0, 7) === mo;
+        }).length;
+        return { month: mo, count: count };
+    });
+    var maxMaint = Math.max.apply(null, maintByMonth.map(function(m) { return m.count; }).concat([1]));
+
+    var html = '';
+
+    // بطاقات ملخص
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">' +
+        '<div class="stat-card"><div class="stat-number">' + withData.reduce(function(s,u){return s+u.hours;},0).toFixed(0) + '</div><div class="stat-label">إجمالي ساعات العمل (الشهر) ⏱️</div></div>' +
+        '<div class="stat-card"><div class="stat-number" style="color:' + (idle.length?'var(--danger)':'var(--success)') + '">' + idle.length + '</div><div class="stat-label">معدة بدون استخدام ⚠️</div></div>' +
+        '</div>';
+
+    // معدل الاستخدام
+    html += '<div style="background:white;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow-sm)">' +
+        '<div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px">📊 أعلى المعدات استخدامًا (' + month + ')</div>';
+    if (!topUsage.length) {
+        html += '<div style="text-align:center;color:var(--gray);padding:14px;font-size:12px">لا توجد بيانات عداد كافية لهذا الشهر</div>';
+    } else {
+        topUsage.forEach(function(u) {
+            html += analyticsBarRow(u.eq.name + ' (' + u.eq.code + ')', u.hours, maxHours, '#7c3aed', u.hadBaseline ? '' : '≈');
+        });
+    }
+    html += '</div>';
+
+    // معدات بدون استخدام
+    if (idle.length) {
+        html += '<div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:14px;padding:14px;margin-bottom:14px">' +
+            '<div style="font-weight:700;font-size:13px;color:#92400e;margin-bottom:8px">⚠️ معدات بدون أي استخدام هذا الشهر (' + idle.length + ')</div>' +
+            idle.map(function(u) {
+                return '<div style="background:white;border-radius:10px;padding:7px 10px;margin-bottom:5px;font-size:12px;display:flex;justify-content:space-between"><span>' + escapeHtml(u.eq.name) + ' (' + escapeHtml(u.eq.code) + ')</span><span style="color:var(--gray)">' + escapeHtml(u.eq.location||'—') + '</span></div>';
+            }).join('') + '</div>';
+    }
+
+    // توزيع حالة الأسطول (دونات)
+    html += '<div style="background:white;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow-sm)">' +
+        '<div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px">🥯 توزيع حالة الأسطول</div>' +
+        '<div style="display:flex;align-items:center;gap:16px">' +
+        '<div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(' + gradientParts + ');flex-shrink:0"></div>' +
+        '<div style="flex:1;font-size:12px">' +
+        '<div style="margin-bottom:4px"><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:3px;margin-left:5px"></span>سليمة: <b>' + healthy + '</b></div>' +
+        '<div style="margin-bottom:4px"><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:3px;margin-left:5px"></span>قريبة الصيانة: <b>' + soon + '</b></div>' +
+        '<div style="margin-bottom:4px"><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:3px;margin-left:5px"></span>متأخرة: <b>' + overdue + '</b></div>' +
+        '<div><span style="display:inline-block;width:10px;height:10px;background:#64748b;border-radius:3px;margin-left:5px"></span>متوقفة: <b>' + stopped + '</b></div>' +
+        '</div></div></div>';
+
+    // اتجاه الصيانة المكتملة
+    html += '<div style="background:white;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow-sm)">' +
+        '<div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px">🔧 الصيانات المكتملة آخر 6 شهور</div>' +
+        '<div style="display:flex;align-items:flex-end;gap:8px;height:110px">' +
+        maintByMonth.map(function(m) {
+            var h = Math.max(4, Math.round((m.count / maxMaint) * 90));
+            return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">' +
+                '<div style="font-size:10px;font-weight:700;color:#0e7490;margin-bottom:3px">' + m.count + '</div>' +
+                '<div style="width:100%;max-width:34px;height:' + h + 'px;background:linear-gradient(180deg,#0e7490,#0369a1);border-radius:6px 6px 0 0"></div>' +
+                '<div style="font-size:9px;color:var(--gray);margin-top:4px">' + m.month.slice(5) + '/' + m.month.slice(2,4) + '</div>' +
+                '</div>';
+        }).join('') +
+        '</div></div>';
+
+    html += '<button class="big-btn" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)" onclick="switchView(\'sites\')">🏢 مقارنة تفصيلية بين المواقع</button>';
+
+    body.innerHTML = html;
+}
+
+
 function sendSitesPeriodicReport() {
     var equipmentDataVisible = getVisibleEquipment();
     var sitesMap = computeSitesStats(equipmentDataVisible);
@@ -6366,6 +6879,9 @@ function refreshUI() {
     }
     if (activeView === 'sites') {
         renderSitesDashboard();
+    }
+    if (activeView === 'analytics') {
+        renderAnalytics();
     }
     if (activeView === 'equipment') {
         var _eqList = getVisibleEquipment();
@@ -6955,11 +7471,12 @@ function globalSearch(query) {
 function switchView(view) {
     // التحقق من صلاحية الوصول للقسم
     if (currentUser && currentUser.role !== 'admin') {
-        var sectionMap = { home:'home', sites:'equipment', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental', drivers:'drivers' };
+        var sectionMap = { home:'home', sites:'equipment', analytics:'equipment', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental', drivers:'drivers' };
         if (sectionMap[view] && !canView(sectionMap[view])) return;
     }
     document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
     document.getElementById('view-sites').style.display = view === 'sites' ? 'block' : 'none';
+    document.getElementById('view-analytics').style.display = view === 'analytics' ? 'block' : 'none';
     document.getElementById('view-equipment').style.display = view === 'equipment' ? 'block' : 'none';
     document.getElementById('view-drivers').style.display = view === 'drivers' ? 'block' : 'none';
     document.getElementById('view-fuel').style.display = view === 'fuel' ? 'block' : 'none';
@@ -6974,6 +7491,7 @@ function switchView(view) {
     var titles = {
         home: '📊 لوحة القيادة',
         sites: '🏢 لوحة المواقع',
+        analytics: '📈 التحليلات والتقارير',
         equipment: '🏗️ المعدات',
         drivers: '👨‍✈️ السائقين',
         fuel: '⛽ الوقود',
@@ -7233,6 +7751,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (deleteAllFuelBtn) deleteAllFuelBtn.onclick = function() { deleteAllFuelRecords(); };
     if (deleteAllMaintenanceBtn) deleteAllMaintenanceBtn.onclick = function() { deleteAllMaintenance(); };
     if (deleteAllInventoryBtn) deleteAllInventoryBtn.onclick = function() { deleteAllInventory(); };
+    var backupDownloadBtn = document.getElementById('backup-download-btn');
+    if (backupDownloadBtn) backupDownloadBtn.onclick = function() { performFullBackup(); };
+    var backupRestoreBtn = document.getElementById('backup-restore-btn');
+    if (backupRestoreBtn) backupRestoreBtn.onclick = function() { restoreFromBackupFile(); };
     
     // تحميل وضع الدخول من Firebase إن وُجد
     var fbCfgForMode = null;
@@ -7288,7 +7810,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (globalSearchBtn) globalSearchBtn.onclick = function() { toggleGlobalSearch(); };
     if (exportPdfBtn) exportPdfBtn.onclick = function() { exportMaintenancePDF(); };
-    if (notifSettingsBtn) notifSettingsBtn.onclick = function() { openNotifSettings(); };
+    if (notifSettingsBtn) notifSettingsBtn.onclick = function() { openNotifCenter(); };
     if (enableNotifBtn) enableNotifBtn.onclick = function() { enableBrowserNotifications(); };
     if (sendWaReportBtn) sendWaReportBtn.onclick = function() { sendWhatsAppMaintenanceAlert(); };
     if (saveNotifBtn) saveNotifBtn.onclick = function() { saveNotifSettings(); };
@@ -7343,6 +7865,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (sitesModeKpiBtn) sitesModeKpiBtn.onclick = function() { sitesViewMode = 'kpi'; renderSitesDashboard(); };
     var sitesReportBtn = document.getElementById('sites-report-btn');
     if (sitesReportBtn) sitesReportBtn.onclick = function() { sendSitesPeriodicReport(); };
+    var analyticsMonthEl = document.getElementById('analytics-month');
+    if (analyticsMonthEl) analyticsMonthEl.onchange = function() { renderAnalytics(); };
     if (searchDriver) searchDriver.oninput = function() { debouncedRefresh(); };
     if (categoryFilter) categoryFilter.onchange = function() { filterInventory(); };
     var searchInventory = document.getElementById('search-inventory');
@@ -7764,6 +8288,8 @@ var editingRentalDailyId = null;
       '<input class="form-input" id="rental-company" placeholder="اسم الشركة"></div>' +
       '<div class="form-field"><label class="form-label">تاريخ بداية العقد</label>' +
       '<input class="form-input" type="date" id="rental-start-date"></div>' +
+      '<div class="form-field"><label class="form-label">تاريخ نهاية العقد (اختياري — لتفعيل تنبيه الانتهاء)</label>' +
+      '<input class="form-input" type="date" id="rental-end-date"></div>' +
       '<div class="form-field"><label class="form-label">ملاحظات</label>' +
       '<textarea class="form-textarea" id="rental-notes"></textarea></div></div>' +
       '<button class="save-btn" onclick="saveRentalEquipment()">✅ حفظ</button></div></div>' +
@@ -7968,6 +8494,7 @@ function openAddRentalModal() {
     document.getElementById('rental-eq-type-display').value='';
     document.getElementById('rental-company').value='';
     document.getElementById('rental-start-date').value=new Date().toISOString().split('T')[0];
+    document.getElementById('rental-end-date').value='';
     document.getElementById('rental-notes').value='';
     document.getElementById('rental-modal').classList.add('active');
 }
@@ -7987,6 +8514,7 @@ function editRentalEquipment(id) {
     onRentalEqChange();
     document.getElementById('rental-company').value=r.company||'';
     document.getElementById('rental-start-date').value=r.startDate||'';
+    document.getElementById('rental-end-date').value=r.endDate||'';
     document.getElementById('rental-notes').value=r.notes||'';
     document.getElementById('rental-modal').classList.add('active');
 }
@@ -7998,6 +8526,7 @@ function saveRentalEquipment() {
         equipmentName:eq?(eq.name||''):'', driverId:document.getElementById('rental-driver-select').value,
         company:document.getElementById('rental-company').value.trim(),
         startDate:document.getElementById('rental-start-date').value,
+        endDate:document.getElementById('rental-end-date').value,
         notes:document.getElementById('rental-notes').value.trim(), updatedAt:new Date().toISOString() };
     var ref=editingRentalId?fbDb.ref('rental/'+editingRentalId):fbDb.ref('rental').push();
     ref.set(record).then(function(){ closeModal('rental-modal'); showToast(editingRentalId?'تم التحديث':'تم الحفظ'); }).catch(function(err){ showToast('خطأ: '+err.message,true); });
