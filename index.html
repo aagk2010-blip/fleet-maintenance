@@ -29,6 +29,23 @@ body{font-family:'Cairo','Segoe UI',sans-serif;background:var(--light);direction
 .stats-row{display:flex;gap:10px;padding:14px;overflow-x:auto;scrollbar-width:none}.stats-row::-webkit-scrollbar{display:none}.stat-card{background:var(--white);border-radius:20px;padding:12px 16px;min-width:85px;text-align:center;box-shadow:var(--shadow-sm)}.stat-number{font-size:26px;font-weight:800}.stat-label{font-size:11px;color:var(--gray);margin-top:4px}
 .section{padding:0 14px;margin-top:20px}.section-title{font-size:13px;font-weight:700;color:var(--gray);margin-bottom:12px;display:flex;justify-content:space-between}
 .equipment-card,.driver-card,.fuel-card,.maintenance-card,.inventory-item-card{background:var(--white);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all 0.2s}.equipment-card{border-right:3px solid var(--accent)}.driver-card{border-right:3px solid var(--info)}.fuel-card{border-right:3px solid var(--success)}.maintenance-card{border-right:3px solid var(--warning)}.inventory-item-card{border-right:3px solid var(--purple)}.card-header{display:flex;justify-content:space-between;align-items:flex-start}.card-title{font-size:15px;font-weight:700;color:var(--primary)}.card-code{font-size:11px;color:var(--gray)}.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}.badge-working{background:#d1fae5;color:#065f46}.badge-maintenance{background:#fef3c7;color:#78350f}.badge-stopped{background:#fee2e2;color:#7f1d1d}.badge-active{background:#dbeafe;color:#1e40af}.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}.progress-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+.employee-card{background:var(--white);border-radius:12px;padding:8px 12px;margin-bottom:0;box-shadow:var(--shadow-sm);cursor:pointer;transition:all 0.2s;border-right:3px solid var(--info);display:flex;align-items:center;justify-content:space-between;gap:8px}.employee-card .emp-name{font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.employee-card .emp-title{font-size:10.5px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.employee-card .emp-meta{font-size:10px;color:var(--gray);white-space:nowrap}.employee-card .emp-badge{padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:700;white-space:nowrap;flex-shrink:0}
+#employees-list{display:flex;flex-direction:column;gap:6px;max-width:720px}
+@media (min-width:1024px){ #employees-list{gap:7px} }
+.driver-card{border-radius:12px;padding:8px 12px;margin-bottom:0;display:flex;flex-direction:column;gap:2px}
+.driver-card .drv-row1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.driver-card .drv-name{font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.driver-card .drv-meta{font-size:10.5px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.driver-card .drv-badge{padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:700;white-space:nowrap;flex-shrink:0}
+#drivers-list{display:flex;flex-direction:column;gap:6px;max-width:720px}
+@media (min-width:1024px){ #drivers-list{gap:7px} }
+.fuel-card-compact{background:var(--white);border-radius:12px;padding:8px 12px;margin-bottom:0;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:space-between;gap:8px;border-right:3px solid var(--success)}
+.fuel-card-compact .fc-name{font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fuel-card-compact .fc-meta{font-size:10.5px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fuel-card-compact .fc-badge{padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.fuel-card-compact .fc-edit{border:none;background:#f1f5f9;color:var(--accent);border-radius:8px;padding:4px 7px;font-size:11px;cursor:pointer;flex-shrink:0}
+#fuel-list{display:flex;flex-direction:column;gap:6px;max-width:720px}
+@media (min-width:1024px){ #fuel-list{gap:7px} }
 .status-bar{background:var(--primary);color:white;padding:8px 16px;display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-top:24px}
 .tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-around;padding:8px 0 20px;z-index:100;overflow-x:auto}.tab-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;font-family:inherit;cursor:pointer;font-size:10px;color:var(--gray);min-width:60px}.tab-btn.active{color:var(--accent);font-weight:600}.tab-icon{font-size:20px}
 .fab{position:fixed;bottom:85px;right:20px;width:56px;height:56px;border-radius:28px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:none;color:var(--primary);font-size:26px;cursor:pointer;box-shadow:0 4px 15px rgba(232,160,32,0.4);z-index:150;display:flex;align-items:center;justify-content:center}
@@ -48,6 +65,13 @@ body{font-family:'Cairo','Segoe UI',sans-serif;background:var(--light);direction
 .close-alert{cursor:pointer;font-weight:bold;background:none;border:none;font-size:16px}
 .loading-spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:white;animation:spin 0.8s linear infinite;margin-left:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes cardIconPop{0%{transform:scale(1) rotate(0deg)}30%{transform:scale(1.3) rotate(-12deg)}60%{transform:scale(1.05) rotate(8deg)}100%{transform:scale(1) rotate(0deg)}}
+.c-ico{display:inline-block;transform-origin:center}
+.equipment-card:hover .c-ico,.driver-card:hover .c-ico,.employee-card:hover .c-ico,.fuel-card-compact:hover .c-ico,
+.maintenance-card:hover .c-ico,.inventory-item-card:hover .c-ico,.rental-card:hover .c-ico,.site-dashboard-card:hover .c-ico,
+.equipment-card.touch-active .c-ico,.driver-card.touch-active .c-ico,.employee-card.touch-active .c-ico,.fuel-card-compact.touch-active .c-ico,
+.maintenance-card.touch-active .c-ico,.inventory-item-card.touch-active .c-ico,.rental-card.touch-active .c-ico,.site-dashboard-card.touch-active .c-ico{
+  animation:cardIconPop 0.6s ease}
 .admin-panel-overlay{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;height:100%;background:var(--light);z-index:500;overflow-y:auto;display:none}.admin-panel-overlay.active{display:block}
 .user-row{background:white;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:var(--shadow-sm)}.user-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.user-email{font-size:13px;font-weight:700;color:var(--primary)}.user-meta{font-size:11px;color:var(--gray)}.user-controls{display:flex;gap:6px;flex-wrap:wrap}.role-badge{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer}.role-admin{background:#fef3c7;color:#92400e}.role-manager{background:#dbeafe;color:#1e40af}.role-editor{background:#d1fae5;color:#065f46}.role-viewer{background:#f3f4f6;color:#374151}.plan-badge{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;cursor:pointer}.plan-free{background:#f1f5f9;color:#475569}.plan-basic{background:#dbeafe;color:#1e40af}.plan-premium{background:#fef3c7;color:#92400e}
 
@@ -134,7 +158,7 @@ button:not(.tab-btn):not(.sidebar-btn):active{transform:scale(0.9)}
   #alert-bar,.smart-alert-bar{margin-right:28px;margin-left:28px}
 
   /* كل القوائم عمود واحد تحت بعض، بعرض مريح للقراءة على الشاشات الكبيرة */
-  #equipment-list-home,#equipment-list,#drivers-list,#fuel-list,#maintenance-list,#inv-list,
+  #equipment-list,#maintenance-list,#inv-list,
   #sites-dashboard-list,#rental-equipment-list,#rental-daily-list{
     display:flex;flex-direction:column;gap:12px;max-width:720px}
   .equipment-card,.driver-card,.fuel-card,.maintenance-card,.inventory-item-card{margin-bottom:0}
@@ -198,15 +222,37 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 .section-title{position:relative;padding-right:12px;font-size:13.5px;letter-spacing:.2px}
 .section-title::before{content:'';position:absolute;right:0;top:1px;bottom:1px;width:4px;border-radius:4px;background:linear-gradient(180deg,var(--accent),var(--accent-dark))}
 
-/* --- الكروت: ظل متعدد الطبقات + دخول ناعم --- */
-.equipment-card,.driver-card,.fuel-card,.maintenance-card,.inventory-item-card{
+/* --- الكروت: ظل متعدد الطبقات + دخول ناعم + رفعة + لمعة عند الوقوف (كل صفحات التطبيق) --- */
+.equipment-card,.driver-card,.employee-card,.fuel-card,.fuel-card-compact,.maintenance-card,.inventory-item-card,.rental-card{
+  position:relative;overflow:hidden;
   box-shadow:0 1px 2px rgba(13,27,42,.04),0 1px 6px rgba(13,27,42,.05);
   border:1px solid rgba(13,27,42,.04);
   transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s ease,border-color .18s ease}
-.equipment-card:hover,.driver-card:hover,.fuel-card:hover,.maintenance-card:hover,.inventory-item-card:hover{
-  transform:translateY(-3px);box-shadow:0 14px 30px rgba(13,27,42,.13);border-color:rgba(13,27,42,.06)}
-.equipment-card:active,.driver-card:active,.fuel-card:active,.maintenance-card:active,.inventory-item-card:active{transform:translateY(-1px) scale(.995)}
+.equipment-card:hover,.driver-card:hover,.employee-card:hover,.fuel-card:hover,.fuel-card-compact:hover,.maintenance-card:hover,.inventory-item-card:hover,.rental-card:hover,
+.equipment-card.touch-active,.driver-card.touch-active,.employee-card.touch-active,.fuel-card.touch-active,.fuel-card-compact.touch-active,.maintenance-card.touch-active,.inventory-item-card.touch-active,.rental-card.touch-active{
+  transform:translateY(-3px) scale(1.008);box-shadow:0 14px 30px rgba(13,27,42,.13);border-color:rgba(13,27,42,.06)}
+.equipment-card:active,.driver-card:active,.employee-card:active,.fuel-card:active,.fuel-card-compact:active,.maintenance-card:active,.inventory-item-card:active,.rental-card:active{transform:translateY(-1px) scale(.995)}
+.equipment-card::before,.driver-card::before,.employee-card::before,.fuel-card::before,.fuel-card-compact::before,.maintenance-card::before,.inventory-item-card::before,.rental-card::before{
+  content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(115deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+  transform:skewX(-20deg);pointer-events:none}
+.equipment-card:hover::before,.driver-card:hover::before,.employee-card:hover::before,.fuel-card:hover::before,.fuel-card-compact:hover::before,.maintenance-card:hover::before,.inventory-item-card:hover::before,.rental-card:hover::before,
+.equipment-card.touch-active::before,.driver-card.touch-active::before,.employee-card.touch-active::before,.fuel-card.touch-active::before,.fuel-card-compact.touch-active::before,.maintenance-card.touch-active::before,.inventory-item-card.touch-active::before,.rental-card.touch-active::before{
+  animation:eqCardShine 0.85s ease}
 .card-title{letter-spacing:.1px}
+.emp-subtab-btn{flex:1;border:none;background:transparent;padding:9px 10px;border-radius:11px;font-family:inherit;font-size:13px;font-weight:700;color:var(--gray);cursor:pointer;transition:all .18s ease}
+.emp-subtab-btn.active{background:white;color:var(--primary);box-shadow:0 2px 6px rgba(13,27,42,.12)}
+
+/* --- شبكة الأقسام (لوحة التحكم الرئيسية بأسلوب أودو) --- */
+.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px;padding:4px 2px 10px}
+@media (max-width:380px){ .app-grid{grid-template-columns:repeat(3,1fr)} }
+.app-tile{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+.app-tile:hover,.app-tile.touch-active{transform:translateY(-3px) scale(1.04)}
+.app-tile:active{transform:translateY(-1px) scale(.97)}
+.app-tile-icon{position:relative;width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 16px rgba(13,27,42,.16);transition:box-shadow .18s ease}
+.app-tile:hover .app-tile-icon,.app-tile.touch-active .app-tile-icon{box-shadow:0 10px 22px rgba(13,27,42,.24)}
+.app-tile-label{font-size:11px;font-weight:700;color:var(--primary);text-align:center;line-height:1.3}
+.app-tile-badge{position:absolute;top:-6px;left:-6px;background:var(--danger);color:white;font-size:10px;font-weight:800;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 5px rgba(0,0,0,.25)}
 
 /* --- الشارات (Badges): نقطة حالة + ظل ناعم --- */
 .badge{position:relative;padding-right:18px;box-shadow:0 1px 2px rgba(0,0,0,.04);letter-spacing:.1px}
@@ -299,11 +345,11 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
    كل الكروت (معدات، سائقين، وقود، صيانة، مخزن، إيجار، مواقع) عمود واحد
    تحت بعض على كل الشاشات، بعرض مريح للقراءة على الشاشات الكبيرة.
    ======================================================================= */
-#equipment-list-home,#equipment-list,#drivers-list,#fuel-list,#maintenance-list,#inv-list,
+#equipment-list,#maintenance-list,#inv-list,
 #sites-dashboard-list,#rental-equipment-list,#rental-daily-list{
   display:flex !important;flex-direction:column !important;gap:12px}
 @media (min-width:1024px){
-  #equipment-list-home,#equipment-list,#drivers-list,#fuel-list,#maintenance-list,#inv-list,
+  #equipment-list,#maintenance-list,#inv-list,
   #sites-dashboard-list,#rental-equipment-list,#rental-daily-list{max-width:720px;gap:14px}
 }
 /* كارت المعدة في صفحة التحليلات - رفع + لمعة + حركة عند الوقوف (hover) */
@@ -338,6 +384,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 <symbol id="ic-equipment" viewBox="0 0 24 24"><path d="M3 20h9"/><path d="M6 20v-6l6-4 3 3-5 4"/><circle cx="18" cy="17" r="3"/><path d="M15 8l3-4 3 4"/></symbol>
 <symbol id="ic-rental" viewBox="0 0 24 24"><rect x="2" y="8" width="12" height="8" rx="1"/><path d="M14 11h4l3 3v2h-3"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></symbol>
 <symbol id="ic-drivers" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 4v6M6.5 15.5l4-2M17.5 15.5l-4-2"/></symbol>
+<symbol id="ic-employees" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17.5" cy="8.5" r="2.3"/><path d="M15.7 14.8c2.6.3 4.3 2.1 4.3 5.2"/></symbol>
 <symbol id="ic-fuel" viewBox="0 0 24 24"><path d="M5 20V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v14"/><path d="M4 20h10"/><path d="M13 10h2l3 3v4a1 1 0 0 1-2 0v-1a1 1 0 0 0-1-1h-2"/><path d="M7 6v3h4V6"/></symbol>
 <symbol id="ic-maintenance" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 1 5.4-5.4l-2.6 2.6-2-2z"/></symbol>
 <symbol id="ic-inventory" viewBox="0 0 24 24"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v9l9 5 9-5V8"/><path d="M12 13v9"/></symbol>
@@ -470,7 +517,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
       <button class="tab-btn sidebar-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button>
       <button class="tab-btn sidebar-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button>
       <button class="tab-btn sidebar-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button>
-      <button class="tab-btn sidebar-btn" data-view="drivers"><span class="tab-icon"><svg class="icon"><use href="#ic-drivers"/></svg></span><span>السائقين</span></button>
+      <button class="tab-btn sidebar-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button>
       <button class="tab-btn sidebar-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button>
       <button class="tab-btn sidebar-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button>
       <button class="tab-btn sidebar-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button>
@@ -483,7 +530,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   <div class="header"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:20px;font-weight:900;color:white;letter-spacing:2px;flex-shrink:0;font-family:serif">HAC</span><div class="header-title" id="header-title" style="margin-bottom:0">📊 لوحة القيادة</div></div><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><div class="header-sub" id="sync-status-placeholder" style="display:none"></div><div style="display:flex;gap:6px;align-items:center"><span id="conn-indicator" title="حالة الاتصال" style="font-size:18px;line-height:1;cursor:default">🔴</span><button id="global-search-toggle" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 10px;font-size:14px;cursor:pointer" title="بحث عالمي">🔍</button><button id="export-pdf-btn" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 10px;font-size:12px;cursor:pointer">📄 PDF</button><button id="notif-settings-btn" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px">🔔 الإشعارات</button></div></div><div class="header-sub" id="sync-status">جاري الاتصال...</div></div>
   <div id="alert-bar" style="display:none"></div>
   
-  <div id="view-home"><div class="dash-hero"><div class="dash-hero-deco"><svg viewBox="0 0 24 24"><use href="#ic-crane"/></svg></div><div class="dash-hero-text"><div class="dash-hero-eyebrow">Equipment Maintenance Service</div><div class="dash-hero-title">لوحة القيادة</div><div class="dash-hero-sub">متابعة حالة المعدات والصيانة والوقود لحظة بلحظة عبر جميع المواقع.</div></div><div class="dash-hero-art"><svg viewBox="0 0 24 24"><use href="#ic-gauge"/></svg></div></div><div id="report-reminder-banner"></div><div class="stats-row" id="stats-summary"></div><button id="meter-update-btn" class="big-btn">⏱️ تحديث العدادات اليومي</button><button id="force-refresh-btn" class="big-btn" style="background:linear-gradient(135deg,var(--purple),var(--info)); margin-top:5px">🔄 تحديث البيانات يدوياً</button><div class="section"><div class="section-title">🚜 جميع المعدات <span id="equipment-count"></span></div><div id="home-ownership-filter" style="display:flex;gap:6px;margin-bottom:10px"><button class="home-own-btn" data-own="" style="flex:1;padding:8px;border-radius:30px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🌐 الكل</button><button class="home-own-btn" data-own="ملك" style="flex:1;padding:8px;border-radius:30px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🔑 ملك</button><button class="home-own-btn" data-own="إيجار" style="flex:1;padding:8px;border-radius:30px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">📋 إيجار</button></div><div id="equipment-list-home"></div></div></div>
+  <div id="view-home"><div class="dash-hero"><div class="dash-hero-deco"><svg viewBox="0 0 24 24"><use href="#ic-crane"/></svg></div><div class="dash-hero-text"><div class="dash-hero-eyebrow">Equipment Maintenance Service</div><div class="dash-hero-title">لوحة القيادة</div><div class="dash-hero-sub">متابعة حالة المعدات والصيانة والوقود لحظة بلحظة عبر جميع المواقع.</div></div><div class="dash-hero-art"><svg viewBox="0 0 24 24"><use href="#ic-gauge"/></svg></div></div><div id="report-reminder-banner"></div><div class="stats-row" id="stats-summary"></div><button id="force-refresh-btn" class="big-btn" style="background:linear-gradient(135deg,var(--purple),var(--info))">🔄 تحديث البيانات يدوياً</button><div class="section" style="margin-top:14px"><div class="section-title">📂 الأقسام</div><div id="home-app-grid" class="app-grid"></div></div></div>
   <div id="view-sites" style="display:none"><div style="padding:14px">
     <div class="search-box"><span>🔍</span><input type="text" id="search-site" placeholder="بحث باسم الموقع..."></div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -508,23 +555,50 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     <div id="analytics-body"></div>
   </div></div>
   
-  <div id="view-equipment" style="display:none"><div style="padding:14px"><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><button id="export-owned-daily-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#7c3aed,#4f46e5)">📆 تصدير ساعات معدات الملك (شيت لكل معدة)</button><div id="equipment-list"></div></div></div>
+  <div id="view-equipment" style="display:none"><div style="padding:14px"><button id="meter-update-btn" class="big-btn" style="margin:0 0 10px 0">⏱️ تحديث العدادات اليومي</button><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><button id="export-owned-daily-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#7c3aed,#4f46e5)">📆 تصدير ساعات معدات الملك (شيت لكل معدة)</button><div id="equipment-list"></div></div></div>
   
-  <div id="view-drivers" style="display:none"><div style="padding:14px">
-    <div class="search-box"><span>🔍</span><input type="text" id="search-driver" placeholder="بحث باسم السائق..." oninput="debouncedRefresh()"></div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="driver-project-filter" onchange="debouncedRefresh()" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer">
-        <option value="">🏗️ كل المشاريع</option>
-      </select>
-      <select id="driver-status-filter" onchange="debouncedRefresh()" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer">
-        <option value="">👤 كل الحالات</option>
-        <option value="نشط">✅ نشط</option>
-        <option value="في إجازة">🏖️ في إجازة</option>
-        <option value="منتهي العقد">❌ منتهي العقد</option>
-      </select>
+  <div id="view-employees" style="display:none"><div style="padding:14px">
+    <div id="employees-subtabs" style="display:flex;gap:8px;margin-bottom:12px;background:#eef1f5;padding:4px;border-radius:14px">
+      <button class="emp-subtab-btn active" data-subtab="employees" onclick="switchEmployeesSubTab('employees')">👥 الموظفين</button>
+      <button class="emp-subtab-btn" data-subtab="drivers" onclick="switchEmployeesSubTab('drivers')">👨‍✈️ السائقين</button>
     </div>
-    <div id="drivers-stats-bar" style="display:flex;gap:8px;margin-bottom:10px"></div>
-    <div id="drivers-list"></div>
+
+    <div id="emp-panel-employees">
+      <div class="search-box"><span>🔍</span><input type="text" id="search-employee" placeholder="بحث باسم الموظف..." oninput="debouncedRefresh()"></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select id="employee-project-filter" onchange="debouncedRefresh()" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer">
+          <option value="">🏗️ كل المواقع</option>
+        </select>
+        <select id="employee-type-filter" onchange="debouncedRefresh()" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer">
+          <option value="">👤 معين وسركي</option>
+          <option value="معين">📌 معين</option>
+          <option value="سركي">🧾 سركي</option>
+        </select>
+      </div>
+      <div id="employees-stats-bar" style="display:flex;gap:8px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="big-btn" style="margin:0;flex:1;font-size:12.5px;padding:9px;background:linear-gradient(135deg,#059669,#047857)" onclick="exportEmployeesExcel()">📊 تصدير Excel</button>
+        <button class="big-btn" style="margin:0;flex:1;font-size:12.5px;padding:9px;background:linear-gradient(135deg,#dc2626,#991b1b)" onclick="exportEmployeesPDF()">📄 تصدير PDF</button>
+      </div>
+      <div id="employees-list"></div>
+    </div>
+
+    <div id="emp-panel-drivers" style="display:none">
+      <div class="search-box"><span>🔍</span><input type="text" id="search-driver" placeholder="بحث باسم السائق..." oninput="debouncedRefresh()"></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select id="driver-project-filter" onchange="debouncedRefresh()" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer">
+          <option value="">🏗️ كل المشاريع</option>
+        </select>
+        <select id="driver-status-filter" onchange="debouncedRefresh()" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer">
+          <option value="">👤 كل الحالات</option>
+          <option value="نشط">✅ نشط</option>
+          <option value="في إجازة">🏖️ في إجازة</option>
+          <option value="منتهي العقد">❌ منتهي العقد</option>
+        </select>
+      </div>
+      <div id="drivers-stats-bar" style="display:flex;gap:8px;margin-bottom:10px"></div>
+      <div id="drivers-list"></div>
+    </div>
   </div></div>
   
   <div id="view-fuel" style="display:none">
@@ -612,7 +686,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   </div>
   
   </div><!-- /.app-main -->
-  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="drivers"><span class="tab-icon"><svg class="icon"><use href="#ic-drivers"/></svg></span><span>السائقين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
+  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
   <button class="fab" id="fab-btn">+</button>
 </div>
 
@@ -620,6 +694,8 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 <div class="modal-overlay" id="equipment-modal"><div class="modal-header"><div class="modal-title" id="modal-title-equipment">إضافة معدة جديدة</div><button class="modal-close" onclick="closeModal('equipment-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label">كود المعدة *</label><input class="form-input" id="eq-code" placeholder="EX-001"></div><div class="form-field"><label class="form-label">اسم المعدة *</label><input class="form-input" id="eq-name" placeholder="حفارة كاتربيلار"></div><div class="form-field"><label class="form-label">النوع</label><select class="form-select" id="eq-type"><option>حفارة</option><option>لودر</option><option>رافعة</option><option>بلدوزر</option><option>شاحنة</option><option>جرار</option><option>مولد كهربائي</option><option>برج إنارة</option><option>ماكينة لحام</option><option>دكاك</option><option>هزاز</option><option>رافعة شوكية 14</option><option>رافعة شوكية 17</option><option>أخرى</option></select><div id="eq-type-lock-msg" style="display:none;margin-top:5px;font-size:11px;color:var(--warning);background:#fef3c7;padding:5px 10px;border-radius:8px">🔒 لا يمكن تغيير نوع المعدة بعد الإنشاء</div></div><div class="form-field"><label class="form-label">رقم الشاسيه</label><input class="form-input" id="eq-chassis"></div><div class="form-field"><label class="form-label">الموقع</label><input class="form-input" id="eq-location"></div><div class="form-field"><label class="form-label">🏗️ اسم المشروع</label><input class="form-input" id="eq-project-site" placeholder="مثال: مشروع القاهرة الجديدة"></div><div class="form-field"><label class="form-label">السائق المسند</label><select class="form-select" id="eq-driver"></select></div><div class="form-field"><label class="form-label">⏱️ العداد الحالي</label><input class="form-input" type="number" id="eq-hours" value="0"></div><div class="form-field"><label class="form-label">🔧 عداد الصيانة القادمة</label><input class="form-input" type="number" id="eq-next-hours" value="250"></div><div class="form-field"><label class="form-label">🔄 دورة الصيانة</label><select class="form-select" id="eq-interval"><option value="250">كل 250 ساعة</option><option value="500">كل 500 ساعة</option><option value="750">كل 750 ساعة</option><option value="1000">كل 1000 ساعة</option><option value="1250">كل 1250 ساعة</option><option value="1500">كل 1500 ساعة</option><option value="1750">كل 1750 ساعة</option><option value="2000">كل 2000 ساعة</option></select></div><div class="form-field"><label class="form-label">موديل المحرك</label><input class="form-input" id="eq-engine-model" placeholder="موديل المحرك"></div><div class="form-field"><label class="form-label">رقم المحرك</label><input class="form-input" id="eq-engine-sn" placeholder="رقم المحرك"></div><div class="form-field"><label class="form-label">تاريخ الوصول</label><input class="form-input" type="date" id="eq-arrival-date"></div><div class="form-field"><label class="form-label">العداد عند الوصول</label><input class="form-input" type="number" id="eq-arrival-hours" value="0"></div><div class="form-field"><label class="form-label">تاريخ آخر صيانة</label><input class="form-input" type="date" id="eq-last-maintenance-date"></div><div class="form-field"><label class="form-label">العداد عند آخر صيانة</label><input class="form-input" type="number" id="eq-last-maintenance-hours" value="0"></div><div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="eq-status"><option>يعمل</option><option>صيانة</option><option>متوقف</option></select></div><div class="form-field"><label class="form-label">🏷️ نوع الملكية</label><select class="form-select" id="eq-ownership"><option value="ملك">🔑 ملك</option><option value="إيجار">📋 إيجار</option></select></div><div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="eq-notes"></textarea></div></div><button class="save-btn" onclick="saveEquipment()">✅ حفظ المعدة</button></div></div>
 
 <div class="modal-overlay" id="driver-modal"><div class="modal-header"><div class="modal-title" id="modal-title-driver">إضافة سائق جديد</div><button class="modal-close" onclick="closeModal('driver-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label">الاسم الكامل *</label><input class="form-input" id="driver-name" placeholder="أحمد محمد"></div><div class="form-field"><label class="form-label">رقم الهاتف</label><input class="form-input" id="driver-phone" placeholder="05xxxxxxxx"></div><div class="form-field"><label class="form-label">رقم رخصة القيادة</label><input class="form-input" id="driver-license"></div><div class="form-field"><label class="form-label">تاريخ انتهاء الرخصة</label><input class="form-input" type="date" id="driver-license-expiry"></div><div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="driver-status"><option>نشط</option><option>في إجازة</option><option>منتهي العقد</option></select></div><div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="driver-notes"></textarea></div></div><button class="save-btn" onclick="saveDriver()">✅ حفظ السائق</button></div></div>
+
+<div class="modal-overlay" id="employee-modal"><div class="modal-header"><div class="modal-title" id="modal-title-employee">إضافة موظف جديد</div><button class="modal-close" onclick="closeModal('employee-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label">اسم الموظف *</label><input class="form-input" id="employee-name" placeholder="الاسم الكامل"></div><div class="form-field"><label class="form-label">المهنة / الوظيفة *</label><input class="form-input" id="employee-title" placeholder="مثال: فورمان كهرباء قوي"></div><div class="form-field"><label class="form-label">🏗️ الموقع / المشروع *</label><input class="form-input" id="employee-project" list="employee-locations-list" placeholder="اكتب اسم الموقع أو اختر من القائمة"><datalist id="employee-locations-list"></datalist></div><div class="form-field"><label class="form-label">رقم الموبايل</label><input class="form-input" id="employee-phone" placeholder="01xxxxxxxxx"></div><div class="form-field"><label class="form-label">الكود الوظيفي</label><input class="form-input" id="employee-code" placeholder="مثال: 10213419"></div><div class="form-field"><label class="form-label">معين / سركي</label><select class="form-select" id="employee-type"><option>معين</option><option>سركي</option></select></div><div class="form-field"><label class="form-label">الحالة</label><select class="form-select" id="employee-status"><option>نشط</option><option>منتهي الخدمة</option></select></div><div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="employee-notes"></textarea></div></div><button class="save-btn" onclick="saveEmployee()">✅ حفظ الموظف</button></div></div>
 
 <div class="modal-overlay" id="fuel-modal"><div class="modal-header" style="background:linear-gradient(135deg,#065f46,#0e7490)"><div class="modal-title">⛽ تسجيل تزود بالوقود</div><button class="modal-close" onclick="closeModal('fuel-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label">المعدة</label><select class="form-select" id="fuel-equipment"></select></div><div class="form-field"><label class="form-label">الكمية (لتر)</label><input class="form-input" type="number" id="fuel-amount"></div><div class="form-field"><label class="form-label">التكلفة (ج.م)</label><input class="form-input" type="number" id="fuel-cost"></div><div class="form-field"><label class="form-label">العداد الحالي</label><input class="form-input" type="number" id="fuel-hours"></div><div class="form-field"><label class="form-label">التاريخ</label><input class="form-input" type="date" id="fuel-date"></div><div class="form-field"><label class="form-label">السائق</label><select class="form-select" id="fuel-driver"></select></div><div class="form-field"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="fuel-notes"></textarea></div></div><button class="save-btn" onclick="saveFuelRecord()">✅ حفظ التزود</button></div></div>
 
@@ -974,7 +1050,7 @@ var currentUserRole = 'viewer';
 var currentUserPlan = 'free';
 var currentUserStatus = 'active';
 // صلاحيات وضع "الزائر" (دخول مباشر بدون حساب) — يتحكم فيها المدير من لوحة التحكم
-var VIEWER_SECTIONS = { home:'view', equipment:'none', fuel:'none', maintenance:'none', inventory:'none', rental:'view', drivers:'view', sites:'none', analytics:'none' };
+var VIEWER_SECTIONS = { home:'view', equipment:'none', fuel:'none', maintenance:'none', inventory:'none', rental:'view', drivers:'view', employees:'none', sites:'none', analytics:'none' };
 
 function initFirestoreUsers() {
     try {
@@ -1143,7 +1219,7 @@ function openAddUserModal() {
 function openEditUserModal(idx) {
     var isNew = idx === null;
     var user = isNew ? { id: 'u_' + Date.now(), username: '', password: '', name: '', role: 'custom', active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'none', analytics:'none' }, sites: [] } : APP_USERS[idx];
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'none', analytics:'none' }, sites: [] } : APP_USERS[idx];
 
     var old = document.getElementById('user-edit-modal');
     if (old) old.remove();
@@ -1175,7 +1251,7 @@ function openEditUserModal(idx) {
         '<div id="uem-permissions-section" style="border-top:1px solid #f1f5f9;padding-top:10px">' +
         '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">\u{1F511} \u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0627\u0644\u0623\u0642\u0633\u0627\u0645</div>' +
         (function() {
-            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646'],['sites','\u0627\u0644\u0645\u0648\u0627\u0642\u0639'],['analytics','\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a']];
+            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646'],['employees','\u0627\u0644\u0645\u0648\u0638\u0641\u064a\u0646'],['sites','\u0627\u0644\u0645\u0648\u0627\u0642\u0639'],['analytics','\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a']];
             return SECS.map(function(s) {
                 var key = s[0], label = s[1];
                 var cur = (user.sections || {})[key] || 'none';
@@ -1234,7 +1310,7 @@ function openEditUserModal(idx) {
     }
 
     // ==== تبديل نوع الحساب: مدير / مستخدم عادي / مشاهدة فقط ====
-    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','drivers','sites','analytics'];
+    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','sites','analytics'];
     var roleAdminBtn = document.getElementById('uem-role-admin');
     var roleUserBtn = document.getElementById('uem-role-user');
     var roleViewerBtn = document.getElementById('uem-role-viewer');
@@ -1242,7 +1318,7 @@ function openEditUserModal(idx) {
     var selectedRole = (user.role === 'admin') ? 'admin' : 'custom';
     // نحفظ آخر صلاحيات مخصّصة كي نرجع لها لو رجع لـ"مستخدم عادي"
     var lastCustomSections = (user.role === 'admin')
-        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'view', analytics:'view' }
+        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'view', analytics:'view' }
         : Object.assign({}, user.sections || {});
     // هل المستخدم في وضع "مشاهدة فقط" (كل الأقسام عرض فقط أو مخفية، بدون أي صلاحية إضافة/تعديل)؟
     function sectionsAreViewOnly(sections) {
@@ -1353,7 +1429,7 @@ function openEditUserModal(idx) {
         });
         if (dup) { showToast('\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0645\u0648\u062C\u0648\u062F \u0645\u0633\u0628\u0642\u0627\u064B', true); return; }
 
-        var SECS = ['home','equipment','fuel','maintenance','inventory','rental','drivers','sites','analytics'];
+        var SECS = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','sites','analytics'];
         var sections = {};
         if (selectedRole === 'admin') {
             SECS.forEach(function(k) { sections[k] = 'full'; });
@@ -1489,13 +1565,13 @@ function createUserByAdmin() {
     // تحديد الصلاحيات حسب الدور
     var defaultSections;
     if (role === 'admin') {
-        defaultSections = { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', sites:'full', analytics:'full' };
+        defaultSections = { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', employees:'full', sites:'full', analytics:'full' };
     } else if (role === 'manager') {
-        defaultSections = { home:'full', equipment:'edit', fuel:'edit', maintenance:'edit', inventory:'edit', rental:'edit', drivers:'edit', sites:'view', analytics:'view' };
+        defaultSections = { home:'full', equipment:'edit', fuel:'edit', maintenance:'edit', inventory:'edit', rental:'edit', drivers:'edit', employees:'edit', sites:'view', analytics:'view' };
     } else if (role === 'editor') {
-        defaultSections = { home:'view', equipment:'add', fuel:'add', maintenance:'add', inventory:'add', rental:'add', drivers:'add', sites:'none', analytics:'none' };
+        defaultSections = { home:'view', equipment:'add', fuel:'add', maintenance:'add', inventory:'add', rental:'add', drivers:'add', employees:'add', sites:'none', analytics:'none' };
     } else {
-        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'none', analytics:'none' };
+        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'none', analytics:'none' };
     }
 
     // إضافة المستخدم في APP_USERS
@@ -1870,6 +1946,7 @@ const FIREBASE_CONFIG = _savedFBConfig || FIREBASE_CONFIG_DEFAULT;
 let fbDb = null;
 let equipmentData = [];
 let driversData = [];
+let employeesData = [];
 let fuelData = [];
 let maintenanceSchedules = [];
 let inventoryItems = [];
@@ -1890,7 +1967,7 @@ var APP_USERS = [
         name: 'المدير',
         role: 'admin',
         active: true,
-        sections: { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', sites:'full', analytics:'full' }
+        sections: { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', employees:'full', sites:'full', analytics:'full' }
     },
     {
         id: 'user_mohamed',
@@ -2044,6 +2121,21 @@ function canAdd(section)    { var p=sectionPerm(section); return p==='add'||p===
 function canEdit(section)   { var p=sectionPerm(section); return p==='edit'||p==='full'; }
 function canFull(section)   { return sectionPerm(section)==='full'; }
 
+// هل المستخدم الحالي في وضع "مشاهدة فقط" بشكل عام (سواء كان دوره "زائر"،
+// أو مستخدم مخصّص كل أقسامه إما "عرض" أو بدون صلاحية إطلاقًا)؟
+// تُستخدم لإخفاء كل أزرار الأوامر (إضافة/تعديل/حذف/تصدير/إرسال...) في كامل البرنامج.
+function isViewOnlyUser() {
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return false;
+    if (currentUser.role === 'viewer') return true;
+    var secs = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','sites','analytics'];
+    var sections = currentUser.sections || {};
+    return secs.every(function(k) {
+        var v = sections[k] || 'none';
+        return v === 'view' || v === 'none';
+    });
+}
+
 // صلاحية الوصول لموقع معين (لمستخدمي المركز الرئيسي مقابل مسؤولي المواقع)
 function userCanAccessSite(siteName) {
     if (!currentUser) return false;
@@ -2064,6 +2156,7 @@ function getVisibleEquipment() {
 let currentUser = null;
 let editingEquipmentId = null;
 let editingDriverId = null;
+let editingEmployeeId = null;
 let editingInventoryId = null;
 let currentLinkingItem = null;
 let currentLinkingOilItem = null;
@@ -2138,6 +2231,17 @@ function localDateStr(d) {
     var m = String(d.getMonth() + 1).padStart(2, '0');
     var day = String(d.getDate()).padStart(2, '0');
     return y + '-' + m + '-' + day;
+}
+// "يوم العمل" الخاص بشاشة الإضافة السريعة لمعدات الإيجار: يبدأ الساعة 5 صباحًا
+// وليس منتصف الليل، عشان لو حد بيسهر بعد 12 بالليل يقدر يسجل ساعاته
+// ضمن نفس يوم العمل اللي سبقه (لحد الساعة 5 صباحًا يعتبر لسه نفس اليوم القديم)
+function businessDateStr(d) {
+    d = d || new Date();
+    var dt = new Date(d.getTime());
+    if (dt.getHours() < 5) {
+        dt.setDate(dt.getDate() - 1);
+    }
+    return localDateStr(dt);
 }
 // نفس الفكرة لكن لصيغة الشهر فقط (YYYY-MM)
 function localMonthStr(d) {
@@ -2451,13 +2555,13 @@ function deleteAllData() {
         showToast('غير مصرح - هذه الخاصية للمدير فقط', true);
         return;
     }
-    var totalItems = equipmentData.length + fuelData.length + maintenanceSchedules.length + inventoryItems.length + driversData.length;
+    var totalItems = equipmentData.length + fuelData.length + maintenanceSchedules.length + inventoryItems.length + driversData.length + employeesData.length;
     if (totalItems === 0) {
         showToast('لا توجد بيانات للحذف');
         return;
     }
     // تأكيد أول
-    if (!confirm('⚠️ تحذير شديد الخطورة!\n\nسيتم حذف جميع البيانات المسجلة نهائياً:\n• ' + equipmentData.length + ' معدة\n• ' + driversData.length + ' سائق\n• ' + fuelData.length + ' سجل وقود\n• ' + maintenanceSchedules.length + ' صيانة\n• ' + inventoryItems.length + ' صنف مخزون\n\nهل أنت متأكد من رغبتك في حذف جميع البيانات؟')) {
+    if (!confirm('⚠️ تحذير شديد الخطورة!\n\nسيتم حذف جميع البيانات المسجلة نهائياً:\n• ' + equipmentData.length + ' معدة\n• ' + driversData.length + ' سائق\n• ' + employeesData.length + ' موظف\n• ' + fuelData.length + ' سجل وقود\n• ' + maintenanceSchedules.length + ' صيانة\n• ' + inventoryItems.length + ' صنف مخزون\n\nهل أنت متأكد من رغبتك في حذف جميع البيانات؟')) {
         return;
     }
     // تأكيد ثانٍ
@@ -2468,6 +2572,7 @@ function deleteAllData() {
     var paths = [
         { data: equipmentData, path: 'equipment' },
         { data: driversData, path: 'drivers' },
+        { data: employeesData, path: 'employees' },
         { data: fuelData, path: 'fuelRecords' },
         { data: maintenanceSchedules, path: 'maintenanceSchedules' },
         { data: inventoryItems, path: 'inventoryItems' },
@@ -2687,6 +2792,11 @@ function attachFirebaseListeners() {
         debouncedRefresh();
         updateDriverSelects();
         checkDriverLicenses();
+    });
+
+    listen('employees', function(snapshot) {
+        employeesData = snapshotToArray(snapshot);
+        debouncedRefresh();
     });
     
     listen('fuelRecords', function(snapshot) {
@@ -3131,7 +3241,7 @@ function approveAccountRequest(id) {
         name: req.name,
         role: 'custom',
         active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', sites:'none', analytics:'none' },
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'none', analytics:'none' },
         sites: []
     });
     saveAppUsers().then(function() {
@@ -3211,7 +3321,7 @@ function proceedToApp() {
     var sectionToView = {
         home: 'home', equipment: 'equipment', fuel: 'fuel',
         maintenance: 'maintenance', inventory: 'inventory',
-        rental: 'rental', drivers: 'drivers', sites: 'sites', analytics: 'analytics'
+        rental: 'rental', sites: 'sites', analytics: 'analytics'
     };
 
     var firstAllowedView = null;
@@ -3219,18 +3329,21 @@ function proceedToApp() {
     // إخفاء التبويبات غير المسموح بها
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
         var view = btn.dataset.view;
-        // إيجاد القسم المقابل
-        var sectionKey = null;
-        for (var k in sectionToView) { if (sectionToView[k] === view) { sectionKey = k; break; } }
-
-        if (isAdmin) {
-            btn.style.display = 'flex';
-            if (!firstAllowedView) firstAllowedView = view;
-        } else if (!sectionKey || !canView(sectionKey)) {
-            btn.style.display = 'none';
+        var allowed;
+        if (view === 'employees') {
+            // زرار "الموظفين" المدمج يظهر لو عند المستخدم صلاحية على قسم الموظفين أو السائقين (أيهما)
+            allowed = canView('employees') || canView('drivers');
         } else {
+            var sectionKey = null;
+            for (var k in sectionToView) { if (sectionToView[k] === view) { sectionKey = k; break; } }
+            allowed = sectionKey && canView(sectionKey);
+        }
+
+        if (isAdmin || allowed) {
             btn.style.display = 'flex';
             if (!firstAllowedView) firstAllowedView = view;
+        } else {
+            btn.style.display = 'none';
         }
     });
 
@@ -3238,7 +3351,7 @@ function proceedToApp() {
     if (!isAdmin) {
         // CSS ديناميكي بحسب صلاحيات كل قسم
         var css = '';
-        var sections = ['home','equipment','fuel','maintenance','inventory','rental','drivers'];
+        var sections = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees'];
         sections.forEach(function(sec) {
             if (!canAdd(sec)) {
                 css += '[data-section="' + sec + '"] .add-btn,' +
@@ -3257,7 +3370,7 @@ function proceedToApp() {
         // إخفاء عام لأزرار التعديل إذا لم تكن للمستخدم صلاحية تعديل المعدات
         if (!canEdit('equipment')) css += '.edit-equipment-btn{display:none!important}';
         if (!canEdit('fuel'))      css += '.fuel-edit-btn{display:none!important}';
-        if (!canAdd('equipment') && !canAdd('fuel') && !canAdd('maintenance') && !canAdd('inventory') && !canAdd('rental') && !canAdd('drivers'))
+        if (!canAdd('equipment') && !canAdd('fuel') && !canAdd('maintenance') && !canAdd('inventory') && !canAdd('rental') && !canAdd('drivers') && !canAdd('employees'))
             css += '#fab-btn{display:none!important}';
         if (!canFull('equipment')) css += '#delete-all-equipment-btn,#delete-all-equipment-global-btn{display:none!important}';
         if (!canFull('fuel'))      css += '#delete-all-fuel-btn{display:none!important}';
@@ -3266,6 +3379,15 @@ function proceedToApp() {
         if (!canAdd('rental'))      css += '#add-rental-btn,#add-rental-daily-btn,#delete-all-rental-btn{display:none!important}';
         if (!canEdit('rental'))     css += '#rental-wa-btn{display:none!important}';
         css += '#admin-panel-btn,#notif-settings-btn{display:none!important}';
+
+        // مستخدم "مشاهدة فقط" بالكامل: نخفي كل زرار أمر/إجراء في البرنامج كله
+        // (إضافة، تعديل، حذف، تصدير، إرسال تقرير...الخ)، ونسيب بس أزرار التنقل والفلترة
+        if (isViewOnlyUser()) {
+            css += '.save-btn,.big-btn,.add-btn,.edit-btn,.delete-btn,.danger-btn,' +
+                   '.fab-section,#fab-btn,.edit-equipment-btn,.fuel-edit-btn,.qty-btn' +
+                   '{display:none!important}';
+        }
+
         var st = document.createElement('style');
         st.id = 'perm-style';
         st.textContent = css;
@@ -3604,14 +3726,14 @@ function openEquipmentDetail(id) {
         var filterItem = inventoryItems.find(function(i) { return i && i.partNo === link.filterPartNo; });
         if (!filterItem) return '';
         var need = calculateNeededFor1000Hours(equipment, filterItem);
-        return '<div style="padding:6px 0;border-bottom:1px solid #eef2f6"><div style="font-weight:600">🔧 ' + escapeHtml(filterItem.name) + '</div><div>' + (link.quantityPerChange || 1) + '/صيانة | المطلوب: ' + need + '</div></div>';
+        return '<div style="padding:6px 0;border-bottom:1px solid #eef2f6"><div style="font-weight:600">🔧 ' + escapeHtml(filterItem.name) + '</div><div>' + (link.quantityPerChange || 1) + '/صيانة | تقدير التخزين لكل 1000 ساعة: ' + need + '</div></div>';
     }).join('');
     
     var oilsHtml = eqOils.map(function(link) {
         var oilItem = inventoryItems.find(function(i) { return i && i.partNo === link.oilPartNo; });
         if (!oilItem) return '';
         var need = calculateNeededFor1000Hours(equipment, oilItem);
-        return '<div style="padding:6px 0;border-bottom:1px solid #eef2f6"><div style="font-weight:600">🛢️ ' + escapeHtml(oilItem.name) + '</div><div>' + (link.quantityPerChange || 1) + ' لتر/صيانة | المطلوب: ' + need + ' لتر</div></div>';
+        return '<div style="padding:6px 0;border-bottom:1px solid #eef2f6"><div style="font-weight:600">🛢️ ' + escapeHtml(oilItem.name) + '</div><div>' + (link.quantityPerChange || 1) + ' لتر/صيانة | تقدير التخزين لكل 1000 ساعة: ' + need + ' لتر</div></div>';
     }).join('');
     
     var contentHtml = '<div class="detail-section"><div class="grid-2">' +
@@ -3988,7 +4110,7 @@ function generateEquipmentMaintenanceOrder(eqId) {
         return filterItem ? {
             name: filterItem.name,
             partNo: filterItem.partNo,
-            needed: calculateNeededFor1000Hours(equipment, filterItem),
+            needed: link.quantityPerChange || 1,
             qty: link.quantityPerChange || 1
         } : null;
     }).filter(Boolean);
@@ -3998,7 +4120,7 @@ function generateEquipmentMaintenanceOrder(eqId) {
         return oilItem ? {
             name: oilItem.name,
             partNo: oilItem.partNo,
-            needed: calculateNeededFor1000Hours(equipment, oilItem),
+            needed: link.quantityPerChange || 1,
             qty: link.quantityPerChange || 1
         } : null;
     }).filter(Boolean);
@@ -4322,6 +4444,211 @@ function getLicenseWarningBadge(driver) {
         return '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:10px;display:inline-block;margin-top:4px">⚠️ تنتهي خلال ' + days + ' يوم</span>';
     }
     return '';
+}
+
+// ==================== دوال الموظفين ====================
+function populateEmployeeLocationsDatalist() {
+    var dl = document.getElementById('employee-locations-list');
+    if (!dl) return;
+    var locs = [];
+    equipmentData.forEach(function(e){ var l = (e.projectSite || e.location || '').trim(); if (l && locs.indexOf(l) === -1) locs.push(l); });
+    employeesData.forEach(function(e){ var l = (e.projectSite || '').trim(); if (l && locs.indexOf(l) === -1) locs.push(l); });
+    locs.sort();
+    dl.innerHTML = locs.map(function(l) { return '<option value="' + escapeHtml(l) + '">' + escapeHtml(l) + '</option>'; }).join('');
+}
+
+function openAddEmployeeModal() {
+    if (!canAdd('employees') && !hasPermission('all')) {
+        showToast('غير مصرح بإضافة موظفين', true);
+        return;
+    }
+    editingEmployeeId = null;
+    document.getElementById('modal-title-employee').innerHTML = 'إضافة موظف جديد';
+    var fields = ['employee-name', 'employee-title', 'employee-project', 'employee-phone', 'employee-code', 'employee-notes'];
+    fields.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('employee-type').value = 'معين';
+    document.getElementById('employee-status').value = 'نشط';
+    populateEmployeeLocationsDatalist();
+    document.getElementById('employee-modal').classList.add('active');
+}
+
+function saveEmployee() {
+    if (!hasPermission("all") && !canAdd('employees') && !canEdit('employees')) { showToast("⛔ غير مصرح", true); return; }
+    var employee = {
+        name: document.getElementById('employee-name').value.trim(),
+        title: document.getElementById('employee-title').value.trim(),
+        projectSite: document.getElementById('employee-project').value.trim(),
+        phone: document.getElementById('employee-phone').value.trim(),
+        jobCode: document.getElementById('employee-code').value.trim(),
+        employmentType: document.getElementById('employee-type').value,
+        status: document.getElementById('employee-status').value,
+        notes: document.getElementById('employee-notes').value,
+        updatedAt: new Date().toISOString()
+    };
+
+    if (!employee.name) {
+        showToast('أدخل اسم الموظف', true);
+        return;
+    }
+    if (!employee.title) {
+        showToast('أدخل المهنة / الوظيفة', true);
+        return;
+    }
+    if (!employee.projectSite) {
+        showToast('أدخل الموقع / المشروع', true);
+        return;
+    }
+
+    if (editingEmployeeId) {
+        var existingEmployee = employeesData.find(function(e) { return e.id === editingEmployeeId; });
+        if (existingEmployee && !checkDocumentOwnership(existingEmployee)) {
+            showToast('⛔ لا يمكنك تعديل موظف لا تملكه', true);
+            return;
+        }
+        if (existingEmployee && existingEmployee.ownerId) employee.ownerId = existingEmployee.ownerId;
+        saveToFirebase('employees', Object.assign({ id: editingEmployeeId }, employee));
+        showToast('تم تحديث بيانات الموظف');
+    } else {
+        employee.createdAt = new Date().toISOString();
+        saveToFirebase('employees', employee);
+        showToast('تم إضافة الموظف');
+    }
+    closeModal('employee-modal');
+}
+
+function openEmployeeDetail(id) {
+    var employee = employeesData.find(function(e) { return e.id === id; });
+    if (!employee) return;
+
+    var contentHtml = '<div class="detail-section"><div class="grid-2">' +
+        '<div><div class="detail-label">المهنة</div><div class="detail-value">' + escapeHtml(employee.title || '—') + '</div></div>' +
+        '<div><div class="detail-label">🏗️ الموقع / المشروع</div><div class="detail-value">' + escapeHtml(employee.projectSite || '—') + '</div></div>' +
+        '<div><div class="detail-label">الهاتف</div><div class="detail-value">' + escapeHtml(employee.phone || '—') + '</div></div>' +
+        '<div><div class="detail-label">الكود الوظيفي</div><div class="detail-value">' + escapeHtml(employee.jobCode || '—') + '</div></div>' +
+        '<div><div class="detail-label">معين / سركي</div><div class="detail-value">' + escapeHtml(employee.employmentType || '—') + '</div></div>' +
+        '<div><div class="detail-label">الحالة</div><div class="detail-value">' + escapeHtml(employee.status || '—') + '</div></div>' +
+        '</div></div>';
+
+    if (employee.notes) {
+        contentHtml += '<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">' + escapeHtml(employee.notes) + '</div></div>';
+    }
+    contentHtml += '<div class="grid-2" style="margin:12px 14px">';
+    if (hasPermission('all') || canEdit('employees')) {
+        contentHtml += '<button class="save-btn" style="margin:0;background:var(--accent)" onclick="editEmployee(\'' + employee.id + '\')">✏️ تعديل</button>';
+    }
+    if (hasPermission('all')) {
+        contentHtml += '<button class="save-btn" style="margin:0;background:var(--danger)" onclick="confirmDelete(\'employees\',\'' + employee.id + '\')">🗑️ حذف</button>';
+    }
+    contentHtml += '</div>';
+
+    document.getElementById('detail-title').innerHTML = '👤 ' + escapeHtml(employee.name);
+    document.getElementById('detail-content').innerHTML = contentHtml;
+    document.getElementById('detail-modal').classList.add('active');
+}
+
+function editEmployee(id) {
+    if (!hasPermission('all') && !canEdit('employees')) {
+        showToast('غير مصرح', true);
+        return;
+    }
+    var employee = employeesData.find(function(e) { return e.id === id; });
+    if (!employee) return;
+
+    editingEmployeeId = id;
+    document.getElementById('modal-title-employee').innerHTML = 'تعديل بيانات الموظف';
+    document.getElementById('employee-name').value = employee.name || '';
+    document.getElementById('employee-title').value = employee.title || '';
+    document.getElementById('employee-project').value = employee.projectSite || '';
+    document.getElementById('employee-phone').value = employee.phone || '';
+    document.getElementById('employee-code').value = employee.jobCode || '';
+    document.getElementById('employee-type').value = employee.employmentType || 'معين';
+    document.getElementById('employee-status').value = employee.status || 'نشط';
+    document.getElementById('employee-notes').value = employee.notes || '';
+    populateEmployeeLocationsDatalist();
+    closeModal('detail-modal');
+    document.getElementById('employee-modal').classList.add('active');
+}
+
+function getFilteredEmployeesForExport() {
+    var empSearch = (document.getElementById('search-employee') ? document.getElementById('search-employee').value : '').trim();
+    var empProjectFilter = document.getElementById('employee-project-filter') ? document.getElementById('employee-project-filter').value : '';
+    var empTypeFilter = document.getElementById('employee-type-filter') ? document.getElementById('employee-type-filter').value : '';
+    return employeesData.filter(function(e) {
+        if (empSearch && !(e.name && e.name.includes(empSearch))) return false;
+        if (empTypeFilter && e.employmentType !== empTypeFilter) return false;
+        if (empProjectFilter && (e.projectSite || '').trim() !== empProjectFilter) return false;
+        return true;
+    });
+}
+
+function exportEmployeesExcel() {
+    var list = getFilteredEmployeesForExport();
+    if (!list.length) {
+        showToast('لا يوجد موظفون لتصديرهم');
+        return;
+    }
+    try {
+        var rows = [['م', 'اسم الموظف', 'المهنة', 'الموقع / المشروع', 'رقم الموبايل', 'الكود الوظيفي', 'معين / سركي', 'الحالة', 'ملاحظات']];
+        list.slice().sort(function(a, b) {
+            return (a.projectSite || '').localeCompare(b.projectSite || '') || (a.name || '').localeCompare(b.name || '');
+        }).forEach(function(e, i) {
+            rows.push([i + 1, e.name || '', e.title || '', e.projectSite || '', e.phone || '', e.jobCode || '', e.employmentType || '', e.status || '', e.notes || '']);
+        });
+        var ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [{ wch: 5 }, { wch: 28 }, { wch: 22 }, { wch: 20 }, { wch: 15 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 30 }];
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'الموظفين');
+        XLSX.writeFile(wb, 'قائمة_الموظفين_' + localDateStr(new Date()) + '.xlsx');
+        showToast('✅ تم تصدير ' + list.length + ' موظف');
+    } catch (e) {
+        showToast('خطأ في التصدير: ' + e.message, true);
+    }
+}
+
+function exportEmployeesPDF() {
+    var list = getFilteredEmployeesForExport();
+    if (!list.length) {
+        showToast('لا يوجد موظفون لتصديرهم');
+        return;
+    }
+    var groups = {};
+    list.forEach(function(e) {
+        var p = (e.projectSite || '').trim() || 'غير محدد';
+        if (!groups[p]) groups[p] = [];
+        groups[p].push(e);
+    });
+    var bodyHtml = Object.keys(groups).sort().map(function(site) {
+        var rows = groups[site].map(function(e, i) {
+            return '<tr><td>' + (i + 1) + '</td><td style="text-align:right">' + escapeHtml(e.name || '') + '</td>' +
+                '<td>' + escapeHtml(e.title || '') + '</td><td>' + escapeHtml(e.phone || '') + '</td>' +
+                '<td>' + escapeHtml(e.jobCode || '') + '</td><td>' + escapeHtml(e.employmentType || '') + '</td></tr>';
+        }).join('');
+        return '<h3>🏗️ ' + escapeHtml(site) + ' <span style="font-size:11px;color:#64748b;font-weight:400">(' + groups[site].length + ' موظف)</span></h3>' +
+            '<table><thead><tr><th>م</th><th>اسم الموظف</th><th>المهنة</th><th>الموبايل</th><th>الكود الوظيفي</th><th>معين/سركي</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody></table>';
+    }).join('');
+
+    var w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>قائمة الموظفين</title><style>' +
+        'body{font-family:Arial;padding:20px;direction:rtl}' +
+        '.info{background:#f1f5f9;padding:10px;border-radius:8px;margin-bottom:16px;font-size:13px}' +
+        'h3{color:#0d1b2a;border-bottom:2px solid #e8a020;padding-bottom:4px;margin-top:22px}' +
+        'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}' +
+        'th{background:#0d1b2a;color:white;padding:8px;text-align:center}' +
+        'td{padding:7px;border-bottom:1px solid #e2e8f0;text-align:center}' +
+        '.footer{margin-top:26px;font-size:10px;color:#999;text-align:center}' +
+        '@media print{ .no-print{display:none} }' +
+        '</style></head><body>' +
+        reportHeaderHtml('قائمة الموظفين', 'حصر فنيين الصيانة والمشغلين') +
+        '<div class="info">📅 <b>تاريخ التصدير:</b> ' + new Date().toLocaleDateString('ar-EG') + '&nbsp;&nbsp; 👥 <b>إجمالي:</b> ' + list.length + ' موظف</div>' +
+        bodyHtml +
+        '<div class="footer">Hassan Allam Holding | قائمة الموظفين</div>' +
+        '</body></html>');
+    w.document.close();
+    setTimeout(function() { w.print(); }, 500);
 }
 
 // ==================== دوال الوقود ====================
@@ -5379,7 +5706,7 @@ function renderInventory() {
         return '<div class="inventory-item-card" onclick="showInventoryItemDetail(\'' + item.id + '\')">' +
             '<div class="card-header">' +
             '<div>' +
-            '<div class="card-title">' + (item.category === 'oil' ? '🛢️ ' : filterAlternatives.find(function(a){return a.alternativeFilterId===item.id;}) ? '🔄 ' : item.category === 'filter' ? '🔧 ' : '📦 ') + escapeHtml(item.name) + '</div>' +
+            '<div class="card-title"><span class="c-ico">' + (item.category === 'oil' ? '🛢️' : filterAlternatives.find(function(a){return a.alternativeFilterId===item.id;}) ? '🔄' : item.category === 'filter' ? '🔧' : '📦') + '</span> ' + escapeHtml(item.name) + '</div>' +
             '<div class="card-code">' + escapeHtml(item.partNo) + ' ' + getItemBadgeWithAltStatus(item) + '</div>' +
             (item.fullMaterial ? '<div class="card-code" style="font-size:9px;color:var(--info);margin-top:3px">📋 ' + escapeHtml(item.fullMaterial.substring(0, 50)) + (item.fullMaterial.length > 50 ? '...' : '') + '</div>' : '') +
             '<div style="font-size:10px;color:var(--info)">🔄 دورة ' + (item.interval || 250) + ' س</div>' +
@@ -7176,7 +7503,8 @@ function forceRefreshData() {
         fbDb.ref('equipmentOilLinks').once('value'),
         fbDb.ref('filterAlternatives').once('value'),
         fbDb.ref('transferLogs').once('value'),
-        fbDb.ref('changeLogs').once('value')
+        fbDb.ref('changeLogs').once('value'),
+        fbDb.ref('employees').once('value')
     ]).then(function(results) {
         equipmentData = toArr(results[0].val());
         inventoryItems = toArr(results[1].val());
@@ -7188,6 +7516,7 @@ function forceRefreshData() {
         filterAlternatives = toArr(results[7].val());
         transferLogs = toArr(results[8].val());
         changeLogs = toArr(results[9].val());
+        employeesData = toArr(results[10].val());
         debouncedRefresh();
         updateBellCounter();
         showToast('✅ تم التحديث: ' + equipmentData.length + ' معدة، ' + inventoryItems.length + ' صنف');
@@ -7419,7 +7748,7 @@ function renderSitesDashboard() {
 
         html += '<div class="equipment-card site-dashboard-card" data-site="' + escapeHtml(s.name) + '" style="cursor:pointer;margin-bottom:10px;padding:14px;border-right:4px solid ' + statusColor + '">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-            '<div style="font-weight:800;font-size:15px;color:var(--primary)">' + statusDot + ' ' + escapeHtml(s.name) + '</div>' +
+            '<div style="font-weight:800;font-size:15px;color:var(--primary)"><span class="c-ico">' + statusDot + '</span> ' + escapeHtml(s.name) + '</div>' +
             '<span style="font-size:11px;color:' + statusColor + ';font-weight:700">' + statusText + '</span>' +
             '</div>' +
             '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:#475569;margin-bottom:8px">' +
@@ -8082,6 +8411,23 @@ function renderAnalytics() {
 
 
 // ==================== التقرير الشهري الموحّد (كل الأقسام + كل المواقع) ====================
+// تحويل تاريخ سجل الصيانة (كما يُقرأ من ملف الإكسل، مثل D/M/YYYY) إلى صيغة YYYY-MM-DD للمقارنة مع الفترة
+function parsePMHistoryDate(dateStr) {
+    if (!dateStr) return null;
+    var s = String(dateStr).trim();
+    var m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+    if (m) {
+        var dd = parseInt(m[1], 10), mm = parseInt(m[2], 10), yyyy = parseInt(m[3], 10);
+        if (yyyy < 100) yyyy += 2000;
+        if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
+            return yyyy + '-' + String(mm).padStart(2, '0') + '-' + String(dd).padStart(2, '0');
+        }
+    }
+    var m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m2) return m2[0];
+    return null;
+}
+
 function exportUnifiedMonthlyReport() {
     var monthInput = document.getElementById('unified-report-month');
     var monthStr = (monthInput && monthInput.value) || getCurrentCycleMonthStr();
@@ -8103,8 +8449,52 @@ function exportUnifiedMonthlyReport() {
     var totalFuelLiters = fuelInPeriod.reduce(function(s,f){ return s+(f.amount||0); }, 0);
     var totalFuelCost = fuelInPeriod.reduce(function(s,f){ return s+(f.cost||0); }, 0);
 
-    // الصيانة في الفترة
-    var maintCompleted = (maintenanceSchedules||[]).filter(function(m){ return m.status==='مكتمل' && m.completedAt && m.completedAt.slice(0,10) >= range.from && m.completedAt.slice(0,10) <= range.to; }).length;
+    // الصيانة في الفترة — تُقرأ من داخل كارت كل معدة (سجل الصيانات: pmHistory) بنفس منطق مطابقة الكود المستخدم في شاشة "📋 سجل الصيانات"
+    // بمجرد تسجيل قطع/زيت مصروفة على المعدة في تاريخ داخل الفترة، تُحتسب عملية الصيانة كأنها تمت
+    function findPmSessionsForEquipment(eq) {
+        var code = (eq.code || '').replace(/\s+/g, '');
+        var safeCode = code.replace(/[.#$\/\[\]]/g, '_');
+        for (var k in pmHistory) {
+            var entry = pmHistory[k];
+            var entryCode = (entry.originalCode || k).replace(/\s+/g, '');
+            var safeK = k.replace(/[.#$\/\[\]]/g, '_');
+            if (entryCode.toUpperCase() === code.toUpperCase() || safeK.toUpperCase() === safeCode.toUpperCase()) {
+                return entry.sessions || entry || [];
+            }
+        }
+        return [];
+    }
+    var maintCompleted = 0;
+    var maintPartsCount = 0, maintOilCount = 0;
+    var maintEquipmentSet = {};
+    var maintDetailRows = [];
+    eqList.forEach(function(eq) {
+        var pmSessions = findPmSessionsForEquipment(eq);
+        pmSessions.forEach(function(s) {
+            var d = parsePMHistoryDate(s.date);
+            if (d && d >= range.from && d <= range.to) {
+                maintCompleted++;
+                maintEquipmentSet[eq.id] = true;
+                var oilsInSession = 0, partsInSession = 0;
+                (s.items||[]).forEach(function(it){
+                    if ((it.name||'').toLowerCase().indexOf('oil') !== -1) { maintOilCount++; oilsInSession++; }
+                    else { maintPartsCount++; partsInSession++; }
+                });
+                maintDetailRows.push({
+                    equipmentName: eq.name || eq.code,
+                    equipmentCode: eq.code || '',
+                    location: (eq.location && eq.location.trim()) || 'غير محدد',
+                    date: d,
+                    dateDisplay: s.date || d,
+                    hours: s.hours,
+                    parts: partsInSession,
+                    oils: oilsInSession
+                });
+            }
+        });
+    });
+    var maintEquipmentCount = Object.keys(maintEquipmentSet).length;
+    maintDetailRows.sort(function(a, b){ return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
 
     // ساعات الإيجار في الفترة (كل معدات الإيجار)
     var rentalEq = eqList.filter(function(e){ return e.ownership === 'إيجار'; });
@@ -8128,6 +8518,32 @@ function exportUnifiedMonthlyReport() {
             '<td style="color:#dc2626">'+s.overdue+'</td><td style="color:#64748b">'+s.stopped+'</td>' +
             '<td>'+siteFuel.toFixed(0)+' لتر</td></tr>';
     }).join('');
+
+    var maintRows = maintDetailRows.map(function(r) {
+        return '<tr><td style="text-align:right">' + escapeHtml(r.equipmentName) + '</td><td>' + escapeHtml(r.equipmentCode) + '</td>' +
+            '<td>' + escapeHtml(r.location) + '</td><td>' + escapeHtml(r.dateDisplay) + '</td>' +
+            '<td>' + (r.hours ? r.hours.toLocaleString() : '—') + '</td>' +
+            '<td>' + r.parts + '</td><td>' + r.oils + '</td></tr>';
+    }).join('');
+
+    // الموظفين — إجمالي وتفصيل حسب الموقع
+    var totalEmployees = employeesData.length;
+    var hiredEmployees = employeesData.filter(function(e){ return e.employmentType === 'معين'; }).length;
+    var casualEmployees = employeesData.filter(function(e){ return e.employmentType === 'سركي'; }).length;
+    var employeesBySite = {};
+    employeesData.forEach(function(e) {
+        var p = (e.projectSite || '').trim() || 'غير محدد';
+        if (!employeesBySite[p]) employeesBySite[p] = { total: 0, hired: 0, casual: 0 };
+        employeesBySite[p].total++;
+        if (e.employmentType === 'معين') employeesBySite[p].hired++;
+        else if (e.employmentType === 'سركي') employeesBySite[p].casual++;
+    });
+    var employeeSiteRows = Object.keys(employeesBySite)
+        .sort(function(a, b) { return employeesBySite[b].total - employeesBySite[a].total; })
+        .map(function(name) {
+            var d = employeesBySite[name];
+            return '<tr><td>' + escapeHtml(name) + '</td><td>' + d.total + '</td><td style="color:#1e40af">' + d.hired + '</td><td style="color:#3730a3">' + d.casual + '</td></tr>';
+        }).join('');
 
     var w = window.open('', '_blank');
     w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>التقرير الشهري الموحّد</title><style>' +
@@ -8163,9 +8579,18 @@ function exportUnifiedMonthlyReport() {
         '<h3>🔧 الصيانة (خلال الفترة)</h3>' +
         '<div class="summary">' +
         '<div class="sbox"><div class="snum" style="color:#059669">' + maintCompleted + '</div><div class="slbl">صيانة مكتملة</div></div>' +
+        '<div class="sbox"><div class="snum">' + maintEquipmentCount + '</div><div class="slbl">عدد المعدات المصانة</div></div>' +
         '<div class="sbox"><div class="snum" style="color:#dc2626">' + overdue + '</div><div class="slbl">متأخرة حاليًا</div></div>' +
+        '</div>' +
+        '<div class="summary">' +
+        '<div class="sbox"><div class="snum">' + maintPartsCount + '</div><div class="slbl">قطع غيار مصروفة</div></div>' +
+        '<div class="sbox"><div class="snum">' + maintOilCount + '</div><div class="slbl">أصناف زيوت مصروفة</div></div>' +
         '<div class="sbox"><div class="snum">' + stopped + '</div><div class="slbl">معدات متوقفة</div></div>' +
         '</div>' +
+        (maintDetailRows.length ?
+            '<table><thead><tr><th>المعدة</th><th>الكود</th><th>الموقع</th><th>تاريخ الصيانة</th><th>الساعات</th><th>قطع</th><th>زيوت</th></tr></thead>' +
+            '<tbody>' + maintRows + '</tbody></table>'
+            : '<div style="text-align:center;padding:14px;color:#94a3b8;font-size:12.5px">لا توجد صيانات مسجّلة في الفترة</div>') +
 
         '<h3>📋 الإيجار (خلال الفترة)</h3>' +
         '<div class="summary">' +
@@ -8173,6 +8598,16 @@ function exportUnifiedMonthlyReport() {
         '<div class="sbox"><div class="snum">' + rentalTotalHours.toFixed(0) + '</div><div class="slbl">إجمالي ساعات العمل</div></div>' +
         '<div class="sbox"><div class="snum" style="color:#dc2626">' + rentalTotalAbsent + '</div><div class="slbl">أيام غياب</div></div>' +
         '</div>' +
+
+        '<h3>👥 الموظفين</h3>' +
+        '<div class="summary">' +
+        '<div class="sbox"><div class="snum">' + totalEmployees + '</div><div class="slbl">إجمالي الموظفين</div></div>' +
+        '<div class="sbox"><div class="snum" style="color:#1e40af">' + hiredEmployees + '</div><div class="slbl">📌 معين</div></div>' +
+        '<div class="sbox"><div class="snum" style="color:#3730a3">' + casualEmployees + '</div><div class="slbl">🧾 سركي</div></div>' +
+        '</div>' +
+        (employeeSiteRows ?
+            '<table><thead><tr><th>الموقع</th><th>الإجمالي</th><th>معين</th><th>سركي</th></tr></thead><tbody>' + employeeSiteRows + '</tbody></table>'
+            : '<div style="text-align:center;padding:14px;color:#94a3b8;font-size:12.5px">لا يوجد موظفون مسجّلون</div>') +
 
         '<h3>🏢 تفصيل حسب الموقع</h3>' +
         '<table><thead><tr><th>الموقع</th><th>الإجمالي</th><th>تعمل</th><th>متأخرة</th><th>متوقفة</th><th>وقود الفترة</th></tr></thead>' +
@@ -8266,7 +8701,7 @@ function refreshUI() {
             var matchLocation = !locationFilter || (e.location && e.location === locationFilter);
             var matchOwnership = !ownershipFilter || (e.ownership || 'ملك') === ownershipFilter;
             return matchSearch && matchProject && matchLocation && matchOwnership;
-        }).forEach(function(eq) {
+        }).sort(function(a, b) { return hoursRemaining(a) - hoursRemaining(b); }).forEach(function(eq) {
             var rem = hoursRemaining(eq);
             var GAUGE_MAX = 250;
             var remainingClamped = Math.max(0, Math.min(rem, GAUGE_MAX));
@@ -8278,9 +8713,9 @@ function refreshUI() {
             else if (rem <= 100) gaugeColor = '#f59e0b';
             else gaugeColor = '#10b981';
             
-            var remLabel = rem <= 0 ? '⚠️ تجاوز ' + Math.abs(rem) + ' س' : 
-                           rem <= 50 ? '🔴 ' + rem + ' س' : 
-                           rem <= 100 ? '🟡 ' + rem + ' س' : '🟢 ' + rem + ' س';
+            var remLabel = rem <= 0 ? '<span class="c-ico">⚠️</span> تجاوز ' + Math.abs(rem) + ' س' : 
+                           rem <= 50 ? '<span class="c-ico">🔴</span> ' + rem + ' س' : 
+                           rem <= 100 ? '<span class="c-ico">🟡</span> ' + rem + ' س' : '<span class="c-ico">🟢</span> ' + rem + ' س';
             
             var sBadge = '<span class="badge ' + (eq.status === 'يعمل' ? 'badge-working' : eq.status === 'صيانة' ? 'badge-maintenance' : 'badge-stopped') + '" style="font-size:10px;padding:2px 6px">' + eq.status + '</span>';
             
@@ -8328,7 +8763,7 @@ function refreshUI() {
             });
         }, 100);
     }
-    if (activeView === 'drivers') {
+    if (activeView === 'employees') {
         var search = (document.getElementById('search-driver') ? document.getElementById('search-driver').value : '').trim();
         var projectFilter = document.getElementById('driver-project-filter') ? document.getElementById('driver-project-filter').value : '';
         var statusFilter = document.getElementById('driver-status-filter') ? document.getElementById('driver-status-filter').value : '';
@@ -8391,18 +8826,16 @@ function refreshUI() {
             });
             var expired = d.licenseExpiry && new Date(d.licenseExpiry) < new Date();
             var statusColor = d.status === 'نشط' ? 'badge-active' : d.status === 'في إجازة' ? 'badge-maintenance' : 'badge-stopped';
+            var metaParts = [];
+            if (d.phone) metaParts.push('📱 ' + escapeHtml(d.phone));
+            metaParts.push('🚜 ' + (assigned.map(function(e){ return escapeHtml(e.name); }).join(', ') || '—'));
+            metaParts.push('🏗️ ' + (projects.length ? escapeHtml(projects.join(', ')) : 'عام'));
+            if (d.licenseExpiry) metaParts.push('📜 ' + (expired ? '<span style="color:var(--danger)">' : '') + escapeHtml(d.licenseExpiry) + (expired ? '</span>' : ''));
             return '<div class="driver-card" onclick="openDriverDetail(\'' + d.id + '\')">' +
-                '<div class="card-header">' +
-                '<div><div class="card-title">👨‍✈️ ' + escapeHtml(d.name) + '</div>' +
-                '<div class="card-code">' + escapeHtml(d.phone || '') + '</div></div>' +
-                '<span class="badge ' + statusColor + '">' + escapeHtml(d.status) + '</span>' +
-                '</div>' +
-                '<div class="grid-2">' +
-                '<div><span class="detail-label">🚜 معدة</span><br><span class="detail-value">' + (assigned.map(function(e){ return escapeHtml(e.name); }).join(', ') || '—') + '</span></div>' +
-                '<div><span class="detail-label">🏗️ المشروع</span><br><span class="detail-value">' + (projects.length ? projects.join(', ') : '<span style="color:#94a3b8">عام</span>') + '</span></div>' +
-                '</div>' +
-                '<div style="margin-top:6px"><span class="detail-label">📜 الرخصة: </span><span class="detail-value" style="color:' + (expired ? 'var(--danger)' : 'var(--success)') + '">' + escapeHtml(d.licenseExpiry || '—') + '</span></div>' +
-                getLicenseWarningBadge(d) + '</div>';
+                '<div class="drv-row1"><span class="drv-name"><span class="c-ico">👨‍✈️</span> ' + escapeHtml(d.name) + '</span>' +
+                '<span class="badge drv-badge ' + statusColor + '">' + escapeHtml(d.status) + '</span></div>' +
+                '<div class="drv-meta">' + metaParts.join(' · ') + '</div>' +
+                '</div>';
         }
 
         if (filtered.length === 0) {
@@ -8444,6 +8877,99 @@ function refreshUI() {
                 html += generalDrivers.map(renderDriverCard).join('');
             }
             document.getElementById('drivers-list').innerHTML = html;
+        }
+    }
+    if (activeView === 'employees') {
+        var empSearch = (document.getElementById('search-employee') ? document.getElementById('search-employee').value : '').trim();
+        var empProjectFilter = document.getElementById('employee-project-filter') ? document.getElementById('employee-project-filter').value : '';
+        var empTypeFilter = document.getElementById('employee-type-filter') ? document.getElementById('employee-type-filter').value : '';
+
+        // تحديث قائمة المواقع في الفلتر (من مواقع المعدات + مواقع الموظفين المسجلة)
+        var empProjectSel = document.getElementById('employee-project-filter');
+        if (empProjectSel) {
+            var allEmpProjects = [];
+            equipmentData.forEach(function(eq) {
+                var proj = (eq.projectSite || eq.location || '').trim();
+                if (proj && allEmpProjects.indexOf(proj) === -1) allEmpProjects.push(proj);
+            });
+            employeesData.forEach(function(e) {
+                var proj = (e.projectSite || '').trim();
+                if (proj && allEmpProjects.indexOf(proj) === -1) allEmpProjects.push(proj);
+            });
+            allEmpProjects.sort();
+            var currentEmpProj = empProjectSel.value;
+            empProjectSel.innerHTML = '<option value="">🏗️ كل المواقع</option>' +
+                allEmpProjects.map(function(p) {
+                    return '<option value="' + escapeHtml(p) + '"' + (p === currentEmpProj ? ' selected' : '') + '>' + escapeHtml(p) + '</option>';
+                }).join('');
+        }
+
+        // فلترة الموظفين
+        var filteredEmployees = employeesData.filter(function(e) {
+            if (empSearch && !(e.name && e.name.includes(empSearch))) return false;
+            if (empTypeFilter && e.employmentType !== empTypeFilter) return false;
+            if (empProjectFilter && (e.projectSite || '').trim() !== empProjectFilter) return false;
+            return true;
+        });
+
+        // إحصائيات شريط السريع
+        var empStatsBar = document.getElementById('employees-stats-bar');
+        if (empStatsBar) {
+            var totalE = filteredEmployees.length;
+            var hiredE = filteredEmployees.filter(function(e){ return e.employmentType === 'معين'; }).length;
+            var casualE = filteredEmployees.filter(function(e){ return e.employmentType === 'سركي'; }).length;
+            var inactiveE = filteredEmployees.filter(function(e){ return e.status === 'منتهي الخدمة'; }).length;
+            empStatsBar.innerHTML =
+                '<div style="background:white;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.07)">👥 ' + totalE + ' موظف</div>' +
+                '<div style="background:#d1fae5;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#065f46">📌 ' + hiredE + ' معين</div>' +
+                '<div style="background:#e0e7ff;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#3730a3">🧾 ' + casualE + ' سركي</div>' +
+                (inactiveE ? '<div style="background:#fee2e2;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#7f1d1d">❌ ' + inactiveE + ' منتهي خدمة</div>' : '');
+        }
+
+        function renderEmployeeCard(e) {
+            var typeColor = e.employmentType === 'معين' ? 'badge-active' : 'badge-maintenance';
+            var statusDot = e.status === 'منتهي الخدمة' ? '⚫' : '🟢';
+            return '<div class="employee-card" onclick="openEmployeeDetail(\'' + e.id + '\')">' +
+                '<div style="min-width:0;flex:1">' +
+                '<div class="emp-name"><span class="c-ico">' + statusDot + '</span> ' + escapeHtml(e.name) + '</div>' +
+                '<div class="emp-title">' + escapeHtml(e.title || '—') + (e.phone ? ' · 📱 ' + escapeHtml(e.phone) : '') + '</div>' +
+                '</div>' +
+                '<span class="badge emp-badge ' + typeColor + '">' + escapeHtml(e.employmentType || '—') + '</span>' +
+                '</div>';
+        }
+
+        if (filteredEmployees.length === 0) {
+            document.getElementById('employees-list').innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8"><div style="font-size:40px;margin-bottom:8px">👤</div><div style="font-size:14px;font-weight:600">لا يوجد موظفون</div><div style="font-size:12px;margin-top:4px">جرّب تغيير الفلتر أو البحث</div></div>';
+        } else if (empProjectFilter) {
+            // عند تحديد موقع: عرض عادي بدون تجميع
+            document.getElementById('employees-list').innerHTML = filteredEmployees.map(renderEmployeeCard).join('');
+        } else {
+            // بدون فلتر: تجميع حسب الموقع + بند "غير محدد"
+            var empGroups = {}; // projectSite -> [employees]
+            var unassignedEmployees = [];
+            filteredEmployees.forEach(function(e) {
+                var p = (e.projectSite || '').trim();
+                if (!p) {
+                    unassignedEmployees.push(e);
+                } else {
+                    if (!empGroups[p]) empGroups[p] = [];
+                    empGroups[p].push(e);
+                }
+            });
+
+            var empHtml = '';
+            var empSectionStyle = 'margin-bottom:4px;padding:8px 12px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:12px;font-size:12px;font-weight:700;color:#374151;display:flex;align-items:center;gap:6px;border-right:3px solid var(--accent)';
+            var empGeneralStyle = 'margin-bottom:4px;padding:8px 12px;background:linear-gradient(135deg,#fafafa,#f3f4f6);border-radius:12px;font-size:12px;font-weight:700;color:#6b7280;display:flex;align-items:center;gap:6px;border-right:3px solid #9ca3af';
+
+            Object.keys(empGroups).sort().forEach(function(proj) {
+                empHtml += '<div style="' + empSectionStyle + '">🏗️ ' + escapeHtml(proj) + ' <span style="font-size:10px;font-weight:400;color:#6b7280">(' + empGroups[proj].length + ' موظف)</span></div>';
+                empHtml += empGroups[proj].map(renderEmployeeCard).join('');
+            });
+            if (unassignedEmployees.length > 0) {
+                empHtml += '<div style="' + empGeneralStyle + '">📋 غير محدد <span style="font-size:10px;font-weight:400;color:#9ca3af">(' + unassignedEmployees.length + ' موظف)</span></div>';
+                empHtml += unassignedEmployees.map(renderEmployeeCard).join('');
+            }
+            document.getElementById('employees-list').innerHTML = empHtml;
         }
     }
     if (activeView === 'fuel') {
@@ -8526,17 +9052,18 @@ function refreshUI() {
             var eq = _allEquip.find(function(e) { return e.id === f.equipmentId; });
             var dr = driversData.find(function(d) { return d.id === f.driverId; });
             var proj = eq ? (eq.projectSite || eq.location || '').trim() : '';
-            return '<div class="fuel-card">' +
-                '<div class="card-header">' +
-                '<div><div class="card-title">⛽ ' + (eq ? escapeHtml(eq.name) : 'معدة') + '</div>' +
-                '<div class="card-code">' + escapeHtml(f.date || '') + (proj ? ' · ' + escapeHtml(proj) : ' · <span style="color:#94a3b8">عام</span>') + '</div></div>' +
-                '<span class="badge badge-working">' + (f.amount || 0) + ' لتر</span>' +
+            var metaParts = [escapeHtml(f.date || ''), (proj ? escapeHtml(proj) : 'عام')];
+            metaParts.push('💰 ' + formatNumber(f.cost || 0) + ' ج.م');
+            metaParts.push('⏱️ ' + (f.hours || 0) + ' س');
+            if (dr) metaParts.push('👨‍✈️ ' + escapeHtml(dr.name));
+            return '<div class="fuel-card-compact">' +
+                '<div style="min-width:0;flex:1">' +
+                '<div class="fc-name"><span class="c-ico">⛽</span> ' + (eq ? escapeHtml(eq.name) : 'معدة') + '</div>' +
+                '<div class="fc-meta">' + metaParts.join(' · ') + '</div>' +
                 '</div>' +
-                '<div class="grid-2">' +
-                '<div><span class="detail-label">💰 ' + formatNumber(f.cost || 0) + ' ج.م</span></div>' +
-                '<div><span class="detail-label">⏱️ ' + (f.hours || 0) + ' س</span></div>' +
-                '<div><span class="detail-label">👨‍✈️ ' + (dr ? escapeHtml(dr.name) : '—') + '</span></div>' +
-                '</div>' + (hasPermission('all') ? '<button class="fuel-edit-btn" onclick="event.stopPropagation();openEditFuelModal(\'' + f.id + '\')">✏️ تعديل</button>' : '') + '</div>';
+                '<span class="badge fc-badge badge-working">' + (f.amount || 0) + ' لتر</span>' +
+                (hasPermission('all') ? '<button class="fc-edit fuel-edit-btn" onclick="event.stopPropagation();openEditFuelModal(\'' + f.id + '\')">✏️</button>' : '') +
+                '</div>';
         }
 
         // قائمة السجلات
@@ -8592,7 +9119,7 @@ function refreshUI() {
             var isToday = m.date === localDateStr(new Date());
             return '<div class="maintenance-card" onclick="showMaintenanceDetail(\'' + m.id + '\')">' +
                 '<div class="card-header">' +
-                '<div><div class="card-title">🔧 ' + escapeHtml(m.type) + '</div>' +
+                '<div><div class="card-title"><span class="c-ico">🔧</span> ' + escapeHtml(m.type) + '</div>' +
                 '<div class="card-code">' + (eq ? escapeHtml(eq.name) : 'معدة') + '</div></div>' +
                 '<span class="badge ' + (isToday ? 'badge-maintenance' : 'badge-active') + '">' + (isToday ? 'اليوم' : escapeHtml(m.date)) + '</span>' +
                 '</div>' +
@@ -8611,7 +9138,6 @@ function refreshUI() {
     updateBellCounter();
 }
 
-var homeOwnershipFilter = '';
 function updateHomeStatsAndList() {
     var equipmentData = getVisibleEquipment();
 
@@ -8658,111 +9184,38 @@ function updateHomeStatsAndList() {
         '<div class="stat-card"><div class="stat-number" style="color:var(--info)">' + formatNumber(totalFuel) + '</div><div class="stat-label">لتر ⛽</div></div>' +
         (expiredLicenses > 0 ? '<div class="stat-card" style="border:2px solid var(--danger)"><div class="stat-number" style="color:var(--danger)">' + expiredLicenses + '</div><div class="stat-label">رخصة منتهية ❌</div></div>' : '') +
         (totalMaintCost > 0 ? '<div class="stat-card"><div class="stat-number" style="color:var(--success);font-size:12px">' + totalMaintCost.toLocaleString() + '</div><div class="stat-label">ج.م صيانة 💰</div></div>' : '');
-    
-    var homeFilteredEquipment = equipmentData.filter(function(e) {
-        return !homeOwnershipFilter || (e.ownership || 'ملك') === homeOwnershipFilter;
-    });
-    var sorted = homeFilteredEquipment.slice().sort(function(a, b) { return hoursRemaining(a) - hoursRemaining(b); });
-    document.getElementById('equipment-count').innerHTML = '(' + homeFilteredEquipment.length + ')';
-    document.querySelectorAll('.home-own-btn').forEach(function(btn) {
-        var active = btn.dataset.own === homeOwnershipFilter;
-        btn.style.background = active ? 'linear-gradient(135deg,#7c3aed,#4f46e5)' : '#f1f5f9';
-        btn.style.color = active ? 'white' : '#374151';
-    });
-    
-    var equipmentListHtml = '';
-    sorted.forEach(function(eq) {
-        var remaining = hoursRemaining(eq);
-        var interval = eq.interval || 250;
-        var GAUGE_MAX = 250;
-        var remainingClamped = Math.max(0, Math.min(remaining, GAUGE_MAX));
-        var gaugeWidth = (remainingClamped / GAUGE_MAX) * 100;
-        
-        var gaugeColor;
-        if (remaining <= 0) gaugeColor = '#ef4444';
-        else if (remaining <= 50) gaugeColor = '#ef4444';
-        else if (remaining <= 100) gaugeColor = '#f59e0b';
-        else gaugeColor = '#10b981';
-        
-        var remainingLabel = remaining <= 0 ? '⚠️ تجاوز ' + Math.abs(remaining) + ' س' : 
-                             remaining <= 50 ? '🔴 ' + remaining + ' س' : 
-                             remaining <= 100 ? '🟡 ' + remaining + ' س' : '🟢 ' + remaining + ' س';
-        
-        var statusBadge = '';
-        if (eq.status === 'يعمل') statusBadge = '<span class="badge badge-working" style="font-size:9px;padding:2px 5px">يعمل</span>';
-        else if (eq.status === 'صيانة') statusBadge = '<span class="badge badge-maintenance" style="font-size:9px;padding:2px 5px">صيانة</span>';
-        else statusBadge = '<span class="badge badge-stopped" style="font-size:9px;padding:2px 5px">متوقف</span>';
-        
-        var isRental = (eq.ownership === 'إيجار');
-        var ownershipBadge = isRental
-            ? '<span style="background:#ede9fe;color:#5b21b6;border-radius:8px;padding:2px 6px;font-size:9px;font-weight:700">📋 إيجار</span>'
-            : '<span style="background:#d1fae5;color:#065f46;border-radius:8px;padding:2px 6px;font-size:9px;font-weight:700">🔑 ملك</span>';
-        
-        if (isRental) {
-            // للمعدات المستأجرة: عرض مبسط بدون تفاصيل العداد والصيانة
-            equipmentListHtml += '<div class="equipment-card" data-eqid="' + eq.id + '" style="padding:3px 6px;cursor:pointer;margin-bottom:4px;border-radius:10px">' +
-                '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">' +
-                '<div style="flex:1;min-width:0">' +
-                '<span style="font-size:12px;font-weight:800;color:var(--primary)">' + escapeHtml(eq.name) + '</span>' +
-                ' <span style="font-size:9px;color:var(--gray);font-weight:500">' + escapeHtml(eq.code) + '</span>' +
-                '</div>' +
-                ownershipBadge +
-                statusBadge +
-                (hasPermission('all') ? '<button class="edit-equipment-btn" data-id="' + eq.id + '" style="background:var(--accent);border:none;color:white;padding:1px 5px;border-radius:4px;cursor:pointer;font-size:8px;flex-shrink:0">✏️</button>' : '') +
-                '</div>' +
-                '</div>';
-        } else {
-            equipmentListHtml += '<div class="equipment-card" data-eqid="' + eq.id + '" style="padding:3px 6px;cursor:pointer;margin-bottom:4px;border-radius:10px">' +
-            '<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;flex-wrap:wrap">' +
-            '<div style="flex:1;min-width:0">' +
-            '<span style="font-size:12px;font-weight:800;color:var(--primary)">' + escapeHtml(eq.name) + '</span>' +
-            ' <span style="font-size:9px;color:var(--gray);font-weight:500">' + escapeHtml(eq.code) + '</span>' +
+
+    renderHomeAppGrid({ equipmentCount: equipmentData.length, overdue: overdue, scheduled: scheduled, shortagesCount: shortagesCount, expiredLicenses: expiredLicenses });
+}
+
+// ==================== شاشة تحكم بأسلوب أودو: شبكة أقسام قابلة للنقر مع عدّادات سريعة ====================
+function renderHomeAppGrid(stats) {
+    var grid = document.getElementById('home-app-grid');
+    if (!grid) return;
+    var isAdmin = hasPermission('all');
+    var apps = [
+        { view: 'equipment',  icon: '🏗️', label: 'المعدات',  color: 'linear-gradient(135deg,#f59e0b,#d97706)', section: 'equipment',  badge: stats.overdue > 0 ? stats.overdue : (stats.equipmentCount || null) },
+        { view: 'employees',  icon: '👥', label: 'الموظفين والسائقين', color: 'linear-gradient(135deg,#0ea5e9,#0369a1)', sectionOr: ['employees','drivers'] },
+        { view: 'fuel',       icon: '⛽', label: 'الوقود',   color: 'linear-gradient(135deg,#10b981,#047857)', section: 'fuel' },
+        { view: 'maintenance',icon: '🔧', label: 'الصيانة',  color: 'linear-gradient(135deg,#ef4444,#b91c1c)', section: 'maintenance', badge: stats.scheduled > 0 ? stats.scheduled : null },
+        { view: 'inventory',  icon: '📦', label: 'المخزن',   color: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', section: 'inventory', badge: stats.shortagesCount > 0 ? stats.shortagesCount : null },
+        { view: 'rental',     icon: '🚧', label: 'الإيجار',  color: 'linear-gradient(135deg,#7c3aed,#4f46e5)', section: 'rental' },
+        { view: 'sites',      icon: '🏢', label: 'لوحة المواقع', color: 'linear-gradient(135deg,#0d1b2a,#334155)', section: 'sites' },
+        { view: 'analytics',  icon: '📈', label: 'التحليلات', color: 'linear-gradient(135deg,#06b6d4,#0e7490)', section: 'analytics' }
+    ];
+    var html = apps.filter(function(app) {
+        if (isAdmin) return true;
+        if (app.sectionOr) return app.sectionOr.some(function(s) { return canView(s); });
+        return canView(app.section);
+    }).map(function(app) {
+        return '<div class="app-tile" onclick="switchView(\'' + app.view + '\')">' +
+            '<div class="app-tile-icon" style="background:' + app.color + '">' + app.icon +
+            (app.badge ? '<span class="app-tile-badge">' + app.badge + '</span>' : '') +
             '</div>' +
-            ownershipBadge +
-            '<span style="font-size:9px;color:#6b7a8d;white-space:nowrap">⏱️<b>' + formatNumber(eq.hours) + '</b> | 🔧<b>' + formatNumber(eq.nextHours) + '</b></span>' +
-            '<span style="color:' + gaugeColor + ';font-weight:800;font-size:9px;white-space:nowrap">' + remainingLabel + '</span>' +
-            statusBadge +
-            (hasPermission('all') ? '<button class="edit-equipment-btn" data-id="' + eq.id + '" style="background:var(--accent);border:none;color:white;padding:1px 5px;border-radius:4px;cursor:pointer;font-size:8px;flex-shrink:0">✏️</button>' : '') +
-            '</div>' +
-            '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:5px;padding:2px 4px">' +
-            '<div style="position:relative;height:8px;background:rgba(0,0,0,0.07);border-radius:4px;overflow:hidden">' +
-            '<div style="position:absolute;top:0;right:0;width:20%;height:100%;background:rgba(239,68,68,0.12);border-left:1px dashed rgba(239,68,68,0.3)"></div>' +
-            '<div style="position:absolute;top:0;right:20%;width:20%;height:100%;background:rgba(245,158,11,0.12);border-left:1px dashed rgba(245,158,11,0.3)"></div>' +
-            '<div style="height:100%;width:' + gaugeWidth + '%;background:linear-gradient(90deg,' + gaugeColor + 'cc,' + gaugeColor + ');border-radius:4px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);position:relative">' +
-            '<div style="position:absolute;left:1px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.7);border-radius:1px"></div>' +
-            '</div></div>' +
-            '<div style="display:flex;justify-content:space-between;font-size:6.5px;color:#9ca3af;margin-top:0px"><span>0</span><span>50</span><span>100</span><span>250 س</span></div>' +
-            '</div>' +
+            '<div class="app-tile-label">' + app.label + '</div>' +
             '</div>';
-        }
-    });
-    
-    document.getElementById('equipment-list-home').innerHTML = equipmentListHtml;
-    if (equipmentData.length === 0) {
-        document.getElementById('equipment-list-home').innerHTML = '<div class="empty-state">لا توجد معدات</div>';
-    }
-    
-    setTimeout(function() {
-        document.querySelectorAll('#equipment-list-home .equipment-card').forEach(function(card) {
-            card.onclick = function(e) {
-                if (e.target.classList.contains('edit-equipment-btn')) {
-                    e.stopPropagation();
-                    return;
-                }
-                var eqId = this.getAttribute('data-eqid');
-                if (eqId) {
-                    openEquipmentDetail(eqId);
-                }
-            };
-        });
-        document.querySelectorAll('#equipment-list-home .edit-equipment-btn').forEach(function(btn) {
-            btn.onclick = function(e) {
-                e.stopPropagation();
-                var id = this.getAttribute('data-id');
-                if (id) editEquipment(id);
-            };
-        });
-    }, 100);
+    }).join('');
+    grid.innerHTML = html || '<div class="empty-state">لا توجد أقسام متاحة</div>';
 }
 
 function toggleGlobalSearch() {
@@ -8806,6 +9259,11 @@ function globalSearch(query) {
             results.push({ icon: '👨‍✈️', type: 'سائق', title: d.name, sub: d.phone || '—', action: 'openDriverDetail(\'' + d.id + '\')' });
         }
     });
+    employeesData.forEach(function(e) {
+        if (e.name && e.name.toLowerCase().includes(ql) || e.phone && e.phone.includes(query) || e.jobCode && e.jobCode.includes(query)) {
+            results.push({ icon: '👤', type: 'موظف', title: e.name, sub: (e.title || '') + (e.projectSite ? ' | ' + e.projectSite : ''), action: 'openEmployeeDetail(\'' + e.id + '\')' });
+        }
+    });
     inventoryItems.forEach(function(i) {
         if (i.name && i.name.toLowerCase().includes(ql) || i.partNo && i.partNo.toLowerCase().includes(ql)) {
             results.push({ icon: '📦', type: 'مخزون', title: i.name, sub: '#' + i.partNo + ' | ' + i.qty + ' ' + i.unit, action: 'switchView(\'inventory\')' });
@@ -8824,17 +9282,65 @@ function globalSearch(query) {
     res.style.display = 'block';
 }
 
+// ==================== صفحة "الموظفين والسائقين" المدمجة — تبويبات داخلية بصلاحيات مستقلة ====================
+let employeesActiveSubTab = 'employees';
+
+// إخفاء تبويب "السائقين" الداخلي لو المستخدم مالوش صلاحية عرض عليه، وإرجاعه لتبويب الموظفين لو كان واقف عليه
+function updateEmployeesSubTabVisibility() {
+    var driversTabBtn = document.querySelector('.emp-subtab-btn[data-subtab="drivers"]');
+    var employeesTabBtn = document.querySelector('.emp-subtab-btn[data-subtab="employees"]');
+    var canSeeDrivers = hasPermission('all') || canView('drivers');
+    var canSeeEmployees = hasPermission('all') || canView('employees');
+    if (driversTabBtn) driversTabBtn.style.display = canSeeDrivers ? '' : 'none';
+    if (employeesTabBtn) employeesTabBtn.style.display = canSeeEmployees ? '' : 'none';
+    if (employeesActiveSubTab === 'drivers' && !canSeeDrivers) employeesActiveSubTab = 'employees';
+    if (employeesActiveSubTab === 'employees' && !canSeeEmployees) employeesActiveSubTab = 'drivers';
+}
+
+function switchEmployeesSubTab(tab) {
+    if (tab === 'drivers' && !hasPermission('all') && !canView('drivers')) { showToast('غير مصرح بعرض السائقين', true); return; }
+    if (tab === 'employees' && !hasPermission('all') && !canView('employees')) { showToast('غير مصرح بعرض الموظفين', true); return; }
+    employeesActiveSubTab = tab;
+    document.getElementById('emp-panel-employees').style.display = tab === 'employees' ? 'block' : 'none';
+    document.getElementById('emp-panel-drivers').style.display = tab === 'drivers' ? 'block' : 'none';
+    document.querySelectorAll('.emp-subtab-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.subtab === tab);
+    });
+    document.getElementById('header-title').innerHTML = tab === 'drivers' ? '👨‍✈️ السائقين' : '👥 الموظفين';
+    updateEmployeesFab();
+    debouncedRefresh();
+}
+
+function updateEmployeesFab() {
+    var fabButton = document.getElementById('fab-btn');
+    if (!fabButton) return;
+    var section = employeesActiveSubTab === 'drivers' ? 'drivers' : 'employees';
+    if (hasPermission('all') || canAdd(section)) {
+        fabButton.style.display = 'flex';
+        fabButton.onclick = employeesActiveSubTab === 'drivers'
+            ? function() { openAddDriverModal(); }
+            : function() { openAddEmployeeModal(); };
+    } else {
+        fabButton.style.display = 'none';
+        fabButton.onclick = null;
+    }
+}
+
 function switchView(view) {
     // التحقق من صلاحية الوصول للقسم
     if (currentUser && currentUser.role !== 'admin') {
-        var sectionMap = { home:'home', sites:'sites', analytics:'analytics', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental', drivers:'drivers' };
-        if (sectionMap[view] && !canView(sectionMap[view])) return;
+        if (view === 'employees') {
+            if (!canView('employees') && !canView('drivers')) return;
+        } else {
+            var sectionMap = { home:'home', sites:'sites', analytics:'analytics', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental' };
+            if (sectionMap[view] && !canView(sectionMap[view])) return;
+        }
     }
     document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
     document.getElementById('view-sites').style.display = view === 'sites' ? 'block' : 'none';
     document.getElementById('view-analytics').style.display = view === 'analytics' ? 'block' : 'none';
     document.getElementById('view-equipment').style.display = view === 'equipment' ? 'block' : 'none';
-    document.getElementById('view-drivers').style.display = view === 'drivers' ? 'block' : 'none';
+    document.getElementById('view-employees').style.display = view === 'employees' ? 'block' : 'none';
     document.getElementById('view-fuel').style.display = view === 'fuel' ? 'block' : 'none';
     document.getElementById('view-maintenance').style.display = view === 'maintenance' ? 'block' : 'none';
     document.getElementById('view-inventory').style.display = view === 'inventory' ? 'block' : 'none';
@@ -8849,17 +9355,25 @@ function switchView(view) {
         sites: '🏢 لوحة المواقع',
         analytics: '📈 التحليلات والتقارير',
         equipment: '🏗️ المعدات',
-        drivers: '👨‍✈️ السائقين',
+        employees: '👥 الموظفين والسائقين',
         fuel: '⛽ الوقود',
         maintenance: '🔧 الصيانة',
         inventory: '📦 المخزن',
         import: '📂 استيراد البيانات'
     };
     document.getElementById('header-title').innerHTML = titles[view];
+
+    // صفحة "الموظفين والسائقين" المدمجة لها منطق صلاحيات وتبويبات داخلية خاص بها
+    if (view === 'employees') {
+        updateEmployeesSubTabVisibility();
+        switchEmployeesSubTab(employeesActiveSubTab);
+        return;
+    }
+
     var fabButton = document.getElementById('fab-btn');
     if (!fabButton) { debouncedRefresh(); return; }
     // إظهار/إخفاء زر الإضافة حسب صلاحية القسم الحالي
-    var fabViewPermMap = { equipment:'equipment', drivers:'drivers', fuel:'fuel', inventory:'inventory', maintenance:'maintenance' };
+    var fabViewPermMap = { equipment:'equipment', fuel:'fuel', inventory:'inventory', maintenance:'maintenance' };
     var fabSection = fabViewPermMap[view];
     if (fabSection && canAdd(fabSection)) {
         fabButton.style.display = 'flex';
@@ -8872,8 +9386,6 @@ function switchView(view) {
     }
     if (view === 'equipment') {
         fabButton.onclick = function() { openAddEquipmentModal(); };
-    } else if (view === 'drivers') {
-        fabButton.onclick = function() { openAddDriverModal(); };
     } else if (view === 'fuel') {
         fabButton.onclick = function() { openAddFuelModal(); };
     } else if (view === 'inventory') {
@@ -9254,12 +9766,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (locationFilterEl) locationFilterEl.onchange = function() { debouncedRefresh(); };
     var ownershipFilterEl = document.getElementById('ownership-filter');
     if (ownershipFilterEl) ownershipFilterEl.onchange = function() { debouncedRefresh(); };
-    document.querySelectorAll('.home-own-btn').forEach(function(btn) {
-        btn.onclick = function() {
-            homeOwnershipFilter = btn.dataset.own || '';
-            updateHomeStatsAndList();
-        };
-    });
     var searchSiteEl = document.getElementById('search-site');
     if (searchSiteEl) searchSiteEl.oninput = function() { renderSitesDashboard(); };
     var sitesModeCardsBtn = document.getElementById('sites-mode-cards-btn');
@@ -9737,22 +10243,25 @@ function calcRentalHours(inTime, outTime, breakWorked) {
     if (outMins <= inMins) outMins += 1440;
     var total = Math.round((outMins - inMins)/60*100)/100;
 
-    var extraMins = Math.max(0, outMins - RENTAL_STANDARD_END_MINS);
-    var extra = Math.round(extraMins/60*100)/100;
-
-    var spanBeforeExtra = total - extra; // الوقت حتى نهاية الدوام الرسمي (5م) أو حتى وقت الانصراف لو أبكر
-    var basic, breakVal;
+    // بدل ما كنا بنحسب "الإضافي" كوقت بعد 5 المساء بس، وده كان بيضيع أي ساعات
+    // زيادة عن الأساسي (8س) لو الحضور كان قبل الوقت القياسي (زي حضور 6ص بدل 8ص) -
+    // دلوقتي بنحسب كل الوقت الفعلي المشتغل: أول 8 ساعات = أساسي، بعد كده لحد ساعة
+    // (لو اشتغلت) = راحة، والباقي كله = إضافي - أيًا كان معاد الحضور أو الانصراف
+    var basic, breakVal, extra;
     if (breakWorked) {
         // ساعة الراحة تُحسب فقط لو فعلاً كان فيه وقت يستحقها ضمن الفترة المسجّلة (لا تُضاف كساعة وهمية على يوم قصير)
-        var paidBeforeExtra = Math.min(spanBeforeExtra, 9);
-        basic = Math.max(0, Math.min(paidBeforeExtra, 8));
-        breakVal = Math.max(0, paidBeforeExtra - basic);
+        basic = Math.max(0, Math.min(total, 8));
+        var afterBasic = total - basic;
+        breakVal = Math.max(0, Math.min(afterBasic, 1));
+        extra = Math.max(0, afterBasic - breakVal);
     } else {
-        basic = Math.max(0, Math.min(spanBeforeExtra - 1, 8)); // خصم ساعة راحة غير مدفوعة
+        var payable = Math.max(0, total - 1); // خصم ساعة راحة غير مدفوعة
+        basic = Math.max(0, Math.min(payable, 8));
         breakVal = 0;
+        extra = Math.max(0, payable - basic);
     }
 
-    return { total:total, basic:Math.round(basic*100)/100, break:Math.round(breakVal*100)/100, extra:extra };
+    return { total:total, basic:Math.round(basic*100)/100, break:Math.round(breakVal*100)/100, extra:Math.round(extra*100)/100 };
 }
 
 function switchRentalTab(tab) {
@@ -9777,7 +10286,7 @@ function renderRentalEquipment() {
     var now = new Date();
     var cycleRange = getPeriodRange(getCurrentCycleMonthStr());
     var cycleDayCount = Math.round((new Date(cycleRange.to) - new Date(cycleRange.from)) / 86400000) + 1;
-    var todayStr = localDateStr(now);
+    var todayStr = businessDateStr(now);
     var html = '';
     rentalData.forEach(function(r) {
         var eq  = equipmentData.find(function(e){ return e.id===r.equipmentId; });
@@ -9799,9 +10308,9 @@ function renderRentalEquipment() {
         var todayStatusColor = todayRec ? '#065f46' : '#92400e';
         var todayStatus = todayRec ? '✅ مسجّل اليوم' : '⏳ لم يسجّل اليوم';
         html +=
-        '<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
+        '<div class="rental-card" style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
         '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:9px 12px;color:white;display:flex;justify-content:space-between;align-items:center">'+
-        '<div><div style="font-weight:700;font-size:14px">🚧 '+escapeHtml(eqLabel)+'</div>'+
+        '<div><div style="font-weight:700;font-size:14px"><span class="c-ico">🚧</span> '+escapeHtml(eqLabel)+'</div>'+
         '<div style="font-size:11px;opacity:.8">'+(r.company?'🏢 '+escapeHtml(r.company)+(drv?' · ':''):'' )+(drv?'👨‍✈️ '+escapeHtml(drv.name):'')+'</div></div>'+
         (isAdmin?'<div style="display:flex;gap:4px">'+
         '<button data-action="edit-rental" data-id="'+rid+'" style="background:rgba(255,255,255,.2);color:white;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:12px">✏️</button>'+
@@ -9964,7 +10473,7 @@ function openAddDailyModal(rentalId) {
         return '<option value="'+r.id+'"'+(r.id===rentalId?' selected':'')+'>'+escapeHtml(label)+'</option>';
     }).join('');
     document.getElementById('rental-daily-modal-title').textContent='📋 تسجيل يوم عمل';
-    document.getElementById('rental-daily-date-input').value=localDateStr(new Date());
+    document.getElementById('rental-daily-date-input').value=businessDateStr(new Date());
     document.getElementById('rental-daily-in').value='08:00';
     document.getElementById('rental-daily-out').value='17:00';
     document.getElementById('rental-daily-break').checked=false;
@@ -10071,9 +10580,9 @@ function renderRentalDailyView() {
             var eq=rental?equipmentData.find(function(e){ return e.id===rental.equipmentId; }):null;
             var drv=rental?driversData.find(function(d){ return d.id===rental.driverId; }):null;
             var label=eq?(eq.type+' — '+eq.code):(r.equipmentCode||'—');
-            html+='<div style="background:white;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:8px;overflow:hidden"><div style="padding:10px 14px">'+
+            html+='<div class="rental-card" style="background:white;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:8px;overflow:hidden"><div style="padding:10px 14px">'+
                 '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
-                '<div><div style="font-weight:700;font-size:14px">🚧 '+escapeHtml(label)+'</div>'+(drv?'<div style="font-size:12px;color:var(--gray)">👨‍✈️ '+escapeHtml(drv.name)+'</div>':'')+'</div>'+
+                '<div><div style="font-weight:700;font-size:14px"><span class="c-ico">🚧</span> '+escapeHtml(label)+'</div>'+(drv?'<div style="font-size:12px;color:var(--gray)">👨‍✈️ '+escapeHtml(drv.name)+'</div>':'')+'</div>'+
                 (isAdmin?'<div style="display:flex;gap:5px">'+
                 '<button data-action="edit-daily" data-id="'+r.id+'" style="background:#e0e7ff;color:#4338ca;border:none;border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer">✏️</button>'+
                 '<button data-action="del-daily" data-id="'+r.id+'" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer">🗑️</button></div>':'')+'</div>'+
@@ -10577,6 +11086,35 @@ function exportRentalToExcel() {
     var ws=XLSX.utils.aoa_to_sheet(rows);var wb2=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb2,ws,'السجل');
     XLSX.writeFile(wb2,'rental_full_'+localDateStr(new Date())+'.xlsx');
 }
+
+// ==================== محاكاة حركة الكروت (hover) عند اللمس على الموبايل ====================
+// شاشات اللمس مفيهاش "hover" حقيقي زي الماوس، فبنضيف كلاس touch-active يدوياً عند اللمس
+// نفس قواعد الـ CSS بتاعة :hover مربوطة بالكلاس ده كمان، فالحركة (رفعة + لمعة + حركة الأيقونة) تشتغل بنفس الشكل على الموبايل
+(function() {
+    var CARD_SELECTOR = '.equipment-card,.driver-card,.employee-card,.fuel-card,.fuel-card-compact,.maintenance-card,.inventory-item-card,.rental-card,.site-dashboard-card,.app-tile';
+    var activeTouchCard = null;
+
+    function clearTouchActive() {
+        if (activeTouchCard) {
+            activeTouchCard.classList.remove('touch-active');
+            activeTouchCard = null;
+        }
+    }
+
+    document.addEventListener('touchstart', function(e) {
+        var card = e.target.closest ? e.target.closest(CARD_SELECTOR) : null;
+        if (!card) return;
+        clearTouchActive();
+        card.classList.add('touch-active');
+        activeTouchCard = card;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function() {
+        setTimeout(clearTouchActive, 180);
+    }, { passive: true });
+
+    document.addEventListener('touchcancel', clearTouchActive, { passive: true });
+})();
 
 
 </script>
