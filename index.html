@@ -159,9 +159,11 @@ button:not(.tab-btn):not(.sidebar-btn):active{transform:scale(0.9)}
 
   /* كل القوائم عمود واحد تحت بعض، بعرض مريح للقراءة على الشاشات الكبيرة */
   #equipment-list,#maintenance-list,#inv-list,
-  #sites-dashboard-list,#rental-equipment-list,#rental-daily-list{
+  #sites-dashboard-list{
     display:flex;flex-direction:column;gap:12px;max-width:720px}
   .equipment-card,.driver-card,.fuel-card,.maintenance-card,.inventory-item-card{margin-bottom:0}
+#rental-daily-list{display:flex;flex-direction:column;gap:5px;max-width:520px}
+#rental-equipment-list{display:flex;flex-direction:column;gap:6px;max-width:720px}
 
   .search-box{max-width:420px}
   #view-equipment>div>div[style*="margin-bottom:10px;display:flex;gap:8px"]{max-width:900px}
@@ -253,6 +255,20 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 .app-tile:hover .app-tile-icon,.app-tile.touch-active .app-tile-icon{box-shadow:0 10px 22px rgba(13,27,42,.24)}
 .app-tile-label{font-size:11px;font-weight:700;color:var(--primary);text-align:center;line-height:1.3}
 .app-tile-badge{position:absolute;top:-6px;left:-6px;background:var(--danger);color:white;font-size:10px;font-weight:800;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 5px rgba(0,0,0,.25)}
+
+/* --- أزرار مراجعة المعدة السريعة (زيت/مياه/فلتر هواء) --- */
+.check-chip{display:flex;align-items:center;gap:10px;width:100%;padding:13px 14px;border-radius:14px;border:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;font-family:inherit;text-align:right;transition:all .15s ease}
+.check-chip-icon{font-size:20px;flex-shrink:0}
+.check-chip-label{flex:1;font-size:13.5px;font-weight:700;color:var(--primary)}
+.check-chip-state{font-size:11px;font-weight:800;color:#94a3b8;white-space:nowrap}
+.check-chip.flagged{border-color:var(--danger);background:#fef2f2}
+.check-chip.flagged .check-chip-state{color:var(--danger)}
+.eq-check-alert-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);margin-left:4px;box-shadow:0 0 0 2px rgba(220,38,38,.25)}
+.equipment-card.eq-check-ok{background:#f0fdf4 !important;border-color:#86efac !important}
+.equipment-card.eq-check-bad{background:#fef2f2 !important;border-color:#fca5a5 !important}
+.eq-quick-btn{border:none;border-radius:6px;cursor:pointer;font-size:12px;line-height:1;padding:3px 6px;flex-shrink:0;font-weight:800}
+.eq-quick-pass{background:#dcfce7;color:#15803d}
+.eq-quick-fail{background:#fee2e2;color:#b91c1c}
 
 /* --- الشارات (Badges): نقطة حالة + ظل ناعم --- */
 .badge{position:relative;padding-right:18px;box-shadow:0 1px 2px rgba(0,0,0,.04);letter-spacing:.1px}
@@ -346,11 +362,11 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
    تحت بعض على كل الشاشات، بعرض مريح للقراءة على الشاشات الكبيرة.
    ======================================================================= */
 #equipment-list,#maintenance-list,#inv-list,
-#sites-dashboard-list,#rental-equipment-list,#rental-daily-list{
+#sites-dashboard-list{
   display:flex !important;flex-direction:column !important;gap:12px}
 @media (min-width:1024px){
   #equipment-list,#maintenance-list,#inv-list,
-  #sites-dashboard-list,#rental-equipment-list,#rental-daily-list{max-width:720px;gap:14px}
+  #sites-dashboard-list{max-width:720px;gap:14px}
 }
 /* كارت المعدة في صفحة التحليلات - رفع + لمعة + حركة عند الوقوف (hover) */
 .eq-usage-card{
@@ -727,6 +743,40 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   </div>
 </div>
 
+<div class="modal-overlay" id="equipment-check-modal">
+  <div class="modal-header" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
+    <div class="modal-title">🔍 مراجعة سريعة للمعدة</div>
+    <button class="modal-close" onclick="closeModal('equipment-check-modal')">✕</button>
+  </div>
+  <div style="padding:16px">
+    <div class="detail-section" style="margin:0 0 12px 0">
+      <div class="detail-label">المعدة</div>
+      <div id="eq-check-eq-name" style="font-weight:700;font-size:15px;color:var(--primary)"></div>
+    </div>
+    <div class="form-field" style="margin-bottom:14px">
+      <label class="form-label">تم بمعرفة</label>
+      <select class="form-select" id="eq-check-employee"><option value="">— اختر الموظف (اختياري) —</option></select>
+    </div>
+    <div style="font-size:12.5px;font-weight:700;color:var(--gray);margin:0 2px 8px">اضغط على أي بند فيه نقص أو محتاج تنظيف:</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <button type="button" class="check-chip" id="chip-oilLow" onclick="toggleCheckItem('oilLow')">
+        <span class="check-chip-icon">🛢️</span><span class="check-chip-label">نقص الزيت</span><span class="check-chip-state"></span>
+      </button>
+      <button type="button" class="check-chip" id="chip-waterLow" onclick="toggleCheckItem('waterLow')">
+        <span class="check-chip-icon">💧</span><span class="check-chip-label">نقص المياه</span><span class="check-chip-state"></span>
+      </button>
+      <button type="button" class="check-chip" id="chip-airFilterDirty" onclick="toggleCheckItem('airFilterDirty')">
+        <span class="check-chip-icon">🌬️</span><span class="check-chip-label">فلتر الهواء يحتاج تنظيف</span><span class="check-chip-state"></span>
+      </button>
+    </div>
+    <div class="form-field" style="margin-bottom:14px">
+      <label class="form-label">ملاحظات (اختياري)</label>
+      <textarea class="form-textarea" id="eq-check-notes" placeholder="أي تفاصيل إضافية..." rows="2"></textarea>
+    </div>
+    <button class="save-btn" style="margin:0;background:linear-gradient(135deg,#0891b2,#0e7490)" onclick="submitEquipmentCheck()">✅ حفظ المراجعة</button>
+  </div>
+</div>
+
 
 <div class="modal-overlay" id="detail-modal"><div class="modal-header"><div class="modal-title" id="detail-title">تفاصيل</div><button class="modal-close" onclick="closeModal('detail-modal')">✕</button></div><div id="detail-content"></div></div>
 
@@ -1050,7 +1100,7 @@ var currentUserRole = 'viewer';
 var currentUserPlan = 'free';
 var currentUserStatus = 'active';
 // صلاحيات وضع "الزائر" (دخول مباشر بدون حساب) — يتحكم فيها المدير من لوحة التحكم
-var VIEWER_SECTIONS = { home:'view', equipment:'none', fuel:'none', maintenance:'none', inventory:'none', rental:'view', drivers:'view', employees:'none', sites:'none', analytics:'none' };
+var VIEWER_SECTIONS = { home:'view', equipment:'none', fuel:'none', maintenance:'none', inventory:'none', rental:'view', drivers:'view', employees:'none', equipmentChecks:'none', sites:'none', analytics:'none' };
 
 function initFirestoreUsers() {
     try {
@@ -1219,7 +1269,7 @@ function openAddUserModal() {
 function openEditUserModal(idx) {
     var isNew = idx === null;
     var user = isNew ? { id: 'u_' + Date.now(), username: '', password: '', name: '', role: 'custom', active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'none', analytics:'none' }, sites: [] } : APP_USERS[idx];
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' }, sites: [] } : APP_USERS[idx];
 
     var old = document.getElementById('user-edit-modal');
     if (old) old.remove();
@@ -1251,7 +1301,7 @@ function openEditUserModal(idx) {
         '<div id="uem-permissions-section" style="border-top:1px solid #f1f5f9;padding-top:10px">' +
         '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">\u{1F511} \u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0627\u0644\u0623\u0642\u0633\u0627\u0645</div>' +
         (function() {
-            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646'],['employees','\u0627\u0644\u0645\u0648\u0638\u0641\u064a\u0646'],['sites','\u0627\u0644\u0645\u0648\u0627\u0642\u0639'],['analytics','\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a']];
+            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646'],['employees','\u0627\u0644\u0645\u0648\u0638\u0641\u064a\u0646'],['equipmentChecks','\u0645\u0631\u0627\u062c\u0639\u0629 \u0627\u0644\u0645\u0639\u062f\u0627\u062a \u0627\u0644\u0633\u0631\u064a\u0639\u0629'],['sites','\u0627\u0644\u0645\u0648\u0627\u0642\u0639'],['analytics','\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a']];
             return SECS.map(function(s) {
                 var key = s[0], label = s[1];
                 var cur = (user.sections || {})[key] || 'none';
@@ -1310,7 +1360,7 @@ function openEditUserModal(idx) {
     }
 
     // ==== تبديل نوع الحساب: مدير / مستخدم عادي / مشاهدة فقط ====
-    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','sites','analytics'];
+    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','equipmentChecks','sites','analytics'];
     var roleAdminBtn = document.getElementById('uem-role-admin');
     var roleUserBtn = document.getElementById('uem-role-user');
     var roleViewerBtn = document.getElementById('uem-role-viewer');
@@ -1318,7 +1368,7 @@ function openEditUserModal(idx) {
     var selectedRole = (user.role === 'admin') ? 'admin' : 'custom';
     // نحفظ آخر صلاحيات مخصّصة كي نرجع لها لو رجع لـ"مستخدم عادي"
     var lastCustomSections = (user.role === 'admin')
-        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'view', analytics:'view' }
+        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'view', sites:'view', analytics:'view' }
         : Object.assign({}, user.sections || {});
     // هل المستخدم في وضع "مشاهدة فقط" (كل الأقسام عرض فقط أو مخفية، بدون أي صلاحية إضافة/تعديل)؟
     function sectionsAreViewOnly(sections) {
@@ -1429,7 +1479,7 @@ function openEditUserModal(idx) {
         });
         if (dup) { showToast('\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0645\u0648\u062C\u0648\u062F \u0645\u0633\u0628\u0642\u0627\u064B', true); return; }
 
-        var SECS = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','sites','analytics'];
+        var SECS = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','equipmentChecks','sites','analytics'];
         var sections = {};
         if (selectedRole === 'admin') {
             SECS.forEach(function(k) { sections[k] = 'full'; });
@@ -1565,13 +1615,13 @@ function createUserByAdmin() {
     // تحديد الصلاحيات حسب الدور
     var defaultSections;
     if (role === 'admin') {
-        defaultSections = { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', employees:'full', sites:'full', analytics:'full' };
+        defaultSections = { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', employees:'full', equipmentChecks:'full', sites:'full', analytics:'full' };
     } else if (role === 'manager') {
-        defaultSections = { home:'full', equipment:'edit', fuel:'edit', maintenance:'edit', inventory:'edit', rental:'edit', drivers:'edit', employees:'edit', sites:'view', analytics:'view' };
+        defaultSections = { home:'full', equipment:'edit', fuel:'edit', maintenance:'edit', inventory:'edit', rental:'edit', drivers:'edit', employees:'edit', equipmentChecks:'add', sites:'view', analytics:'view' };
     } else if (role === 'editor') {
-        defaultSections = { home:'view', equipment:'add', fuel:'add', maintenance:'add', inventory:'add', rental:'add', drivers:'add', employees:'add', sites:'none', analytics:'none' };
+        defaultSections = { home:'view', equipment:'add', fuel:'add', maintenance:'add', inventory:'add', rental:'add', drivers:'add', employees:'add', equipmentChecks:'add', sites:'none', analytics:'none' };
     } else {
-        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'none', analytics:'none' };
+        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' };
     }
 
     // إضافة المستخدم في APP_USERS
@@ -1967,7 +2017,7 @@ var APP_USERS = [
         name: 'المدير',
         role: 'admin',
         active: true,
-        sections: { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', employees:'full', sites:'full', analytics:'full' }
+        sections: { home:'full', equipment:'full', fuel:'full', maintenance:'full', inventory:'full', rental:'full', drivers:'full', employees:'full', equipmentChecks:'full', sites:'full', analytics:'full' }
     },
     {
         id: 'user_mohamed',
@@ -2128,7 +2178,7 @@ function isViewOnlyUser() {
     if (!currentUser) return false;
     if (currentUser.role === 'admin') return false;
     if (currentUser.role === 'viewer') return true;
-    var secs = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','sites','analytics'];
+    var secs = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','equipmentChecks','sites','analytics'];
     var sections = currentUser.sections || {};
     return secs.every(function(k) {
         var v = sections[k] || 'none';
@@ -2848,6 +2898,12 @@ function attachFirebaseListeners() {
         if (currentUser && currentUser.role === 'admin') runSmartAlertsRefresh();
     });
 
+    listen('equipmentChecks', function(snapshot) {
+        equipmentChecksData = snapshotToArray(snapshot);
+        if (currentUser && currentUser.role === 'admin') runSmartAlertsRefresh();
+        debouncedRefresh();
+    });
+
     listen('rental', function(snapshot) {
         rentalData = snapshotToArray(snapshot);
         renderRentalEquipment();
@@ -3241,7 +3297,7 @@ function approveAccountRequest(id) {
         name: req.name,
         role: 'custom',
         active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', sites:'none', analytics:'none' },
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' },
         sites: []
     });
     saveAppUsers().then(function() {
@@ -3351,7 +3407,7 @@ function proceedToApp() {
     if (!isAdmin) {
         // CSS ديناميكي بحسب صلاحيات كل قسم
         var css = '';
-        var sections = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees'];
+        var sections = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','equipmentChecks'];
         sections.forEach(function(sec) {
             if (!canAdd(sec)) {
                 css += '[data-section="' + sec + '"] .add-btn,' +
@@ -3770,6 +3826,22 @@ function openEquipmentDetail(id) {
                 return '<div style="padding:6px 0;border-bottom:1px solid #eef2f6"><div><strong>' + escapeHtml(s.type) + '</strong> - ' + escapeHtml(s.date) + '</div><div style="font-size:12px">العداد: ' + (s.targetHours || '—') + ' س</div></div>';
             }).join('') + '</div>';
     }
+    var eqChecks = equipmentChecksData.filter(function(c) { return c.equipmentId === equipment.id; })
+        .sort(function(a, b) { return new Date(b.checkedAt) - new Date(a.checkedAt); });
+    if (eqChecks.length) {
+        var lastCheck = eqChecks[0];
+        var lastIssues = [];
+        if (lastCheck.oilLow) lastIssues.push('🛢️ نقص زيت');
+        if (lastCheck.waterLow) lastIssues.push('💧 نقص مياه');
+        if (lastCheck.airFilterDirty) lastIssues.push('🌬️ فلتر متسخ');
+        var lastStatusHtml = lastCheck.status === 'resolved'
+            ? '<span style="color:var(--success);font-weight:700">✅ تم معالجة آخر ملاحظات</span>'
+            : (lastIssues.length ? '<span style="color:var(--danger);font-weight:700">⚠️ ' + lastIssues.join(' · ') + '</span>' : '<span style="color:var(--success);font-weight:700">✓ سليمة</span>');
+        contentHtml += '<div class="detail-section"><div class="detail-label">🔍 آخر مراجعة موظف</div>' +
+            '<div class="detail-value">' + lastStatusHtml + '</div>' +
+            '<div style="font-size:11px;color:var(--gray);margin-top:4px">📅 ' + escapeHtml((lastCheck.checkedAt || '').slice(0, 10)) + ' — 👤 ' + escapeHtml(lastCheck.checkedByName || '—') + (lastCheck.performedByEmployeeName ? ' · 🧑‍🔧 ' + escapeHtml(lastCheck.performedByEmployeeName) : '') + '</div>' +
+            '</div>';
+    }
     if (fuelRecords.length) {
         contentHtml += '<div class="detail-section"><div class="detail-label">⛽ آخر تزودات</div>' +
             fuelRecords.map(function(f) {
@@ -3791,6 +3863,8 @@ function openEquipmentDetail(id) {
         '<button class="save-btn" style="margin:0;background:#475569" onclick="showTransferHistory(\'' + equipment.id + '\')">🗺️ سجل النقل</button>' +
         '<button class="save-btn" style="margin:0;background:#334155" onclick="showEquipmentChangeLog(\'' + equipment.id + '\')">📜 سجل التعديلات</button>' +
         '<button class="save-btn" style="margin:0;background:linear-gradient(135deg,#dc2626,#991b1b)" onclick="openFaultReportModal(\'' + equipment.id + '\')">🚨 الإبلاغ عن عطل</button>' +
+        ((hasPermission('all') || canAdd('equipmentChecks')) ? '<button class="save-btn" style="margin:0;background:linear-gradient(135deg,#0891b2,#0e7490)" onclick="openQuickCheckModal(\'' + equipment.id + '\')">🔍 مراجعة سريعة</button>' : '') +
+        ((hasPermission('all') || canView('equipmentChecks')) ? '<button class="save-btn" style="margin:0;background:#0f766e" onclick="showEquipmentCheckHistory(\'' + equipment.id + '\')">📋 سجل المراجعات</button>' : '') +
         '</div>';
     
     document.getElementById('detail-title').innerHTML = '🏗️ ' + escapeHtml(equipment.name);
@@ -6190,6 +6264,7 @@ var approvalRequestsData = []; // محمّلة من Firebase عبر listen()
 
 // ==================== بلاغات أعطال الموقع ====================
 var maintenanceReportsData = []; // محمّلة من Firebase عبر listen()
+var equipmentChecksData = []; // مراجعات الموظفين السريعة (زيت/مياه/فلتر هواء) — محمّلة من Firebase عبر listen()
 var currentFaultReportEqId = null;
 var currentFaultReportPhoto = null;
 var currentConvertingFaultReportId = null;
@@ -6256,6 +6331,169 @@ function dismissFaultReport(id) {
         showToast('🚫 تم تجاهل البلاغ');
         runSmartAlertsRefresh();
     });
+}
+
+// ==================== المراجعة السريعة للمعدة (زيت / مياه / فلتر هواء) ====================
+var currentCheckEqId = null;
+var currentCheckState = { oilLow: false, waterLow: false, airFilterDirty: false };
+
+// حالة آخر مراجعة على المعدة لتلوين الكارت: 'good' (أخضر) / 'bad' (أحمر) / null (لسه محدش راجعها)
+function getLatestEquipmentCheckStatus(eqId) {
+    var today = localDateStr(new Date());
+    var checks = equipmentChecksData.filter(function(c) {
+        return c.equipmentId === eqId && c.checkedAt && localDateStr(new Date(c.checkedAt)) === today;
+    }).sort(function(a, b) { return new Date(b.checkedAt) - new Date(a.checkedAt); });
+    if (!checks.length) return null; // مفيش مراجعة اليوم — الكارت بلونه الطبيعي في انتظار المراجعة
+    return checks[0].status === 'pending' ? 'bad' : 'good';
+}
+
+// تسجيل مراجعة سريعة بضغطة واحدة: كل شيء سليم — بدون فتح أي نافذة
+function quickPassEquipment(eqId, ev) {
+    if (ev) ev.stopPropagation();
+    if (!currentUser) { showToast('سجّل الدخول أولاً', true); return; }
+    if (!hasPermission('all') && !canAdd('equipmentChecks')) { showToast('⛔ غير مصرح لك بتسجيل المراجعات', true); return; }
+    var eq = equipmentData.find(function(e) { return e.id === eqId; });
+    if (!eq) return;
+    var check = {
+        equipmentId: eq.id, equipmentCode: eq.code || '', equipmentName: eq.name || '', projectSite: eq.projectSite || '',
+        oilLow: false, waterLow: false, airFilterDirty: false, notes: '',
+        checkedById: null, checkedByName: (currentUser.name || currentUser.username || 'مستخدم'),
+        checkedAt: new Date().toISOString(), status: 'ok'
+    };
+    fbDb.ref('equipmentChecks').push(check).then(function() {
+        showToast('✅ تمام، تم تسجيل المراجعة باسم ' + check.checkedByName);
+        debouncedRefresh();
+    }).catch(function(e) { showToast('خطأ: ' + e.message, true); });
+}
+
+// فتح نافذة تحديد نوع المشكلة (زيت/مياه/فلتر) من الكارت مباشرة
+function quickFailEquipment(eqId, ev) {
+    if (ev) ev.stopPropagation();
+    openQuickCheckModal(eqId);
+}
+
+function openQuickCheckModal(eqId) {
+    if (!currentUser) { showToast('سجّل الدخول أولاً', true); return; }
+    if (!hasPermission('all') && !canAdd('equipmentChecks')) { showToast('⛔ غير مصرح لك بتسجيل المراجعات', true); return; }
+    var eq = equipmentData.find(function(e) { return e.id === eqId; });
+    if (!eq) return;
+    currentCheckEqId = eqId;
+    currentCheckState = { oilLow: false, waterLow: false, airFilterDirty: false };
+    document.getElementById('eq-check-eq-name').textContent = eq.name + ' (' + eq.code + ')';
+    document.getElementById('eq-check-notes').value = '';
+    ['oilLow', 'waterLow', 'airFilterDirty'].forEach(function(k) { updateCheckChipUI(k); });
+
+    var empSel = document.getElementById('eq-check-employee');
+    if (empSel) {
+        var siteEmployees = employeesData.filter(function(e) {
+            return !eq.projectSite || (e.projectSite || '').trim() === (eq.projectSite || '').trim();
+        });
+        var list = siteEmployees.length ? siteEmployees : employeesData;
+        empSel.innerHTML = '<option value="">— اختر الموظف (اختياري) —</option>' +
+            list.map(function(e) { return '<option value="' + e.id + '">' + escapeHtml(e.name) + '</option>'; }).join('');
+    }
+    closeModal('detail-modal');
+    document.getElementById('equipment-check-modal').classList.add('active');
+}
+
+function toggleCheckItem(key) {
+    currentCheckState[key] = !currentCheckState[key];
+    updateCheckChipUI(key);
+}
+
+function updateCheckChipUI(key) {
+    var chip = document.getElementById('chip-' + key);
+    if (!chip) return;
+    var stateSpan = chip.querySelector('.check-chip-state');
+    if (currentCheckState[key]) {
+        chip.classList.add('flagged');
+        stateSpan.innerHTML = '⚠️ محتاج متابعة';
+    } else {
+        chip.classList.remove('flagged');
+        stateSpan.innerHTML = '✓ سليم';
+    }
+}
+
+function submitEquipmentCheck() {
+    if (!currentUser) { showToast('سجّل الدخول أولاً', true); return; }
+    if (!hasPermission('all') && !canAdd('equipmentChecks')) { showToast('⛔ غير مصرح لك بتسجيل المراجعات', true); return; }
+    var eq = equipmentData.find(function(e) { return e.id === currentCheckEqId; });
+    if (!eq) { showToast('خطأ: المعدة غير موجودة', true); return; }
+    var empSel = document.getElementById('eq-check-employee');
+    var emp = employeesData.find(function(e) { return empSel && e.id === empSel.value; });
+    var hasIssue = currentCheckState.oilLow || currentCheckState.waterLow || currentCheckState.airFilterDirty;
+
+    var check = {
+        equipmentId: eq.id, equipmentCode: eq.code || '', equipmentName: eq.name || '', projectSite: eq.projectSite || '',
+        oilLow: currentCheckState.oilLow, waterLow: currentCheckState.waterLow, airFilterDirty: currentCheckState.airFilterDirty,
+        notes: (document.getElementById('eq-check-notes').value || '').trim(),
+        // اسم المستخدم اللي سجّل علامة صح/غلط فعليًا في النظام (لتتبّع المسؤولية)
+        checkedByName: (currentUser.name || currentUser.username || 'مستخدم'),
+        // الموظف الميداني المختار (اختياري) — لو مختلف عن المستخدم المسجّل بالنظام
+        performedByEmployeeId: emp ? emp.id : null,
+        performedByEmployeeName: emp ? emp.name : null,
+        checkedAt: new Date().toISOString(),
+        status: hasIssue ? 'pending' : 'ok'
+    };
+
+    fbDb.ref('equipmentChecks').push(check).then(function() {
+        showToast(hasIssue ? '⚠️ تم تسجيل المراجعة — فيه بنود محتاجة متابعة' : '✅ تم تسجيل المراجعة — كل شيء سليم');
+        closeModal('equipment-check-modal');
+        runSmartAlertsRefresh();
+    }).catch(function(e) {
+        showToast('خطأ: ' + e.message, true);
+    });
+}
+
+function getPendingEquipmentChecks() {
+    return equipmentChecksData.filter(function(c) { return c.status === 'pending'; })
+        .sort(function(a, b) { return new Date(b.checkedAt) - new Date(a.checkedAt); });
+}
+
+function resolveEquipmentCheck(id) {
+    if (!hasPermission('all') && !canEdit('equipmentChecks')) { showToast('⛔ غير مصرح', true); return; }
+    fbDb.ref('equipmentChecks/' + id).update({
+        status: 'resolved', resolvedBy: (currentUser && currentUser.name) || '', resolvedAt: new Date().toISOString()
+    }).then(function() {
+        showToast('✅ تم تحديد المراجعة كمُعالجة');
+        runSmartAlertsRefresh();
+        debouncedRefresh();
+    });
+}
+
+function showEquipmentCheckHistory(eqId) {
+    var eq = equipmentData.find(function(e) { return e.id === eqId; });
+    if (!eq) return;
+    var checks = equipmentChecksData.filter(function(c) { return c.equipmentId === eqId; })
+        .sort(function(a, b) { return new Date(b.checkedAt) - new Date(a.checkedAt); });
+
+    var html;
+    if (!checks.length) {
+        html = '<div style="text-align:center;padding:30px;color:#94a3b8">لا توجد مراجعات مسجّلة بعد</div>';
+    } else {
+        html = checks.map(function(c) {
+            var badges = [];
+            if (c.oilLow) badges.push('<span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">🛢️ نقص زيت</span>');
+            if (c.waterLow) badges.push('<span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">💧 نقص مياه</span>');
+            if (c.airFilterDirty) badges.push('<span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">🌬️ فلتر متسخ</span>');
+            var statusBadge = c.status === 'resolved'
+                ? '<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">✅ تم المعالجة</span>'
+                : (badges.length ? '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">⏳ في الانتظار</span>' : '');
+            return '<div style="padding:10px 0;border-bottom:1px solid #eef2f6">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+                '<span style="font-size:12px;font-weight:700">📅 ' + escapeHtml((c.checkedAt || '').slice(0, 10)) + '</span>' +
+                statusBadge +
+                '</div>' +
+                '<div style="font-size:11px;color:var(--gray);margin-bottom:4px">👤 سجّلها: ' + escapeHtml(c.checkedByName || '—') + (c.performedByEmployeeName ? ' · 🧑‍🔧 نفّذها: ' + escapeHtml(c.performedByEmployeeName) : '') + '</div>' +
+                (badges.length ? '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">' + badges.join('') + '</div>' : '<div style="font-size:11px;color:var(--success);font-weight:700">✓ كل شيء سليم</div>') +
+                (c.notes ? '<div style="font-size:11.5px;color:#475569;margin-top:4px">' + escapeHtml(c.notes) + '</div>' : '') +
+                (c.status === 'pending' && (hasPermission('all') || canEdit('equipmentChecks')) ? '<button class="save-btn" style="margin:6px 0 0;padding:6px;font-size:11px;background:var(--success)" onclick="resolveEquipmentCheck(\'' + c.id + '\')">✅ تحديد كمُعالج</button>' : '') +
+                '</div>';
+        }).join('');
+    }
+    document.getElementById('detail-title').innerHTML = '🔍 سجل المراجعات — ' + escapeHtml(eq.name);
+    document.getElementById('detail-content').innerHTML = html;
+    document.getElementById('detail-modal').classList.add('active');
 }
 
 function convertFaultReportToMaintenance(id) {
@@ -6428,9 +6666,11 @@ function getAllSmartAlerts() {
     totalCount += pendingApprovals.length;
     var pendingFaults = (currentUser && currentUser.role === 'admin') ? getPendingFaultReports() : [];
     totalCount += pendingFaults.length;
+    var pendingChecks = (currentUser && currentUser.role === 'admin') ? getPendingEquipmentChecks() : [];
+    totalCount += pendingChecks.length;
     return {
         maintOverdue:maintOverdue, maintSoon:maintSoon, licExpired:licExpired, licSoon:licSoon, lowStock:lowStock, rentExpired:rentExpired, rentSoon:rentSoon,
-        pendingReports:pendingReports, pendingApprovals:pendingApprovals, pendingFaults:pendingFaults, totalCount:totalCount,
+        pendingReports:pendingReports, pendingApprovals:pendingApprovals, pendingFaults:pendingFaults, pendingChecks:pendingChecks, totalCount:totalCount,
         _raw: { maintOverdue:maintOverdueRaw, maintSoon:maintSoonRaw, licExpired:licExpiredRaw, licSoon:licSoonRaw, lowStock:lowStockRaw, rentExpired:rentExpiredRaw, rentSoon:rentSoonRaw }
     };
 }
@@ -6466,6 +6706,7 @@ function showSmartAlertBar() {
     if (a.pendingReports.length) parts.push('📤 ' + a.pendingReports.length + ' تقرير دوري لسه ما اتبعتش');
     if (a.pendingApprovals.length) parts.push('✅ ' + a.pendingApprovals.length + ' طلب بانتظار موافقتك');
     if (a.pendingFaults.length) parts.push('🚨 ' + a.pendingFaults.length + ' بلاغ عطل جديد');
+    if (a.pendingChecks.length) parts.push('🔍 ' + a.pendingChecks.length + ' مراجعة معدة محتاجة متابعة');
     if (!parts.length) { alertDiv.style.display = 'none'; return; }
     var msg = parts.join(' | ') + ' — <button onclick="openNotifCenter()" style="background:rgba(0,0,0,.15);border:none;color:inherit;border-radius:8px;padding:2px 8px;cursor:pointer;font-size:11px">عرض التفاصيل</button>';
     alertDiv.innerHTML = '<div class="smart-alert-bar"><span>' + msg + '</span><button class="close-alert" onclick="document.getElementById(\'alert-bar\').style.display=\'none\'">✕</button></div>';
@@ -6533,6 +6774,23 @@ function openNotifCenter() {
                     '<button onclick="convertFaultReportToMaintenance(\'' + r.id + '\')" style="flex:1;background:#7c3aed;color:white;border:none;border-radius:8px;padding:6px;font-size:11px;cursor:pointer;font-family:inherit">🔧 تحويل لصيانة</button>' +
                     '<button onclick="dismissFaultReport(\'' + r.id + '\')" style="flex:1;background:#64748b;color:white;border:none;border-radius:8px;padding:6px;font-size:11px;cursor:pointer;font-family:inherit">🚫 تجاهل</button>' +
                     '</div></div>';
+            }).join('') + '</div>';
+    }
+    if (a.pendingChecks.length) {
+        html += '<div style="margin-bottom:14px"><div style="font-weight:700;font-size:13px;color:#0e7490;margin-bottom:6px">🔍 مراجعات موظفين محتاجة متابعة (' + a.pendingChecks.length + ')</div>' +
+            a.pendingChecks.map(function(c) {
+                var when = c.checkedAt ? new Date(c.checkedAt).toLocaleString('ar-EG') : '';
+                var issues = [];
+                if (c.oilLow) issues.push('🛢️ نقص زيت');
+                if (c.waterLow) issues.push('💧 نقص مياه');
+                if (c.airFilterDirty) issues.push('🌬️ فلتر متسخ');
+                return '<div style="background:#ecfeff;border:1px solid #a5f3fc;border-radius:10px;padding:9px 10px;margin-bottom:6px;font-size:12px">' +
+                    '<div style="font-weight:700;margin-bottom:2px">' + escapeHtml(c.equipmentName||'') + ' (' + escapeHtml(c.equipmentCode||'') + ')</div>' +
+                    '<div style="margin-bottom:3px;color:#0e7490;font-weight:700">' + issues.join(' · ') + '</div>' +
+                    (c.notes ? '<div style="margin-bottom:3px">' + escapeHtml(c.notes) + '</div>' : '') +
+                    '<div style="color:var(--gray);font-size:10.5px;margin:6px 0">سجّلها: ' + escapeHtml(c.checkedByName||'') + (c.performedByEmployeeName ? ' · نفّذها: ' + escapeHtml(c.performedByEmployeeName) : '') + ' — ' + when + '</div>' +
+                    '<button onclick="resolveEquipmentCheck(\'' + c.id + '\')" style="width:100%;background:var(--success);color:white;border:none;border-radius:8px;padding:6px;font-size:11px;cursor:pointer;font-family:inherit">✅ تحديد كمُعالج</button>' +
+                    '</div>';
             }).join('') + '</div>';
     }
     if (a.pendingApprovals.length) {
@@ -7504,7 +7762,8 @@ function forceRefreshData() {
         fbDb.ref('filterAlternatives').once('value'),
         fbDb.ref('transferLogs').once('value'),
         fbDb.ref('changeLogs').once('value'),
-        fbDb.ref('employees').once('value')
+        fbDb.ref('employees').once('value'),
+        fbDb.ref('equipmentChecks').once('value')
     ]).then(function(results) {
         equipmentData = toArr(results[0].val());
         inventoryItems = toArr(results[1].val());
@@ -7517,6 +7776,7 @@ function forceRefreshData() {
         transferLogs = toArr(results[8].val());
         changeLogs = toArr(results[9].val());
         employeesData = toArr(results[10].val());
+        equipmentChecksData = toArr(results[11].val());
         debouncedRefresh();
         updateBellCounter();
         showToast('✅ تم التحديث: ' + equipmentData.length + ' معدة، ' + inventoryItems.length + ' صنف');
@@ -8726,31 +8986,41 @@ function refreshUI() {
             var ownershipBadge = isRental
                 ? '<span style="background:#ede9fe;color:#5b21b6;border-radius:8px;padding:2px 6px;font-size:9px;font-weight:700">📋 إيجار</span>'
                 : '<span style="background:#d1fae5;color:#065f46;border-radius:8px;padding:2px 6px;font-size:9px;font-weight:700">🔑 ملك</span>';
+            var hasPendingCheck = equipmentChecksData.some(function(c) { return c.equipmentId === eq.id && c.status === 'pending'; });
+            var pendingCheckDot = hasPendingCheck ? '<span class="eq-check-alert-dot" title="فيه مراجعة محتاجة متابعة"></span>' : '';
+            var checkStatus = getLatestEquipmentCheckStatus(eq.id);
+            var checkStatusClass = checkStatus === 'good' ? ' eq-check-ok' : checkStatus === 'bad' ? ' eq-check-bad' : '';
+            var quickCheckBtns = (hasPermission('all') || canAdd('equipmentChecks'))
+                ? '<button class="eq-quick-btn eq-quick-pass" title="تمام" onclick="quickPassEquipment(\'' + eq.id + '\',event)">✔</button>' +
+                  '<button class="eq-quick-btn eq-quick-fail" title="فيه مشكلة" onclick="quickFailEquipment(\'' + eq.id + '\',event)">✘</button>'
+                : '';
 
             if (isRental) {
                 // للمعدات المستأجرة: عرض مبسط بدون شريط عداد الساعات (غير مهم لمعدات الإيجار)
-                equipmentListHtml += '<div class="equipment-card" data-eqid="' + eq.id + '" style="padding:3px 6px;cursor:pointer;margin-bottom:4px;border-radius:10px">' +
+                equipmentListHtml += '<div class="equipment-card' + checkStatusClass + '" data-eqid="' + eq.id + '" style="padding:3px 6px;cursor:pointer;margin-bottom:4px;border-radius:10px">' +
                     '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">' +
                     '<div style="flex:1;min-width:0">' +
-                    '<span style="font-size:12px;font-weight:800;color:var(--primary)">' + escapeHtml(eq.name) + '</span>' +
+                    '<span style="font-size:12px;font-weight:800;color:var(--primary)">' + escapeHtml(eq.name) + '</span>' + pendingCheckDot +
                     ' <span style="font-size:9px;color:var(--gray);font-weight:500">' + escapeHtml(eq.code) + '</span>' +
                     '</div>' +
                     ownershipBadge +
                     statusBadge +
+                    quickCheckBtns +
                     (hasPermission('all') ? '<button class="edit-equipment-btn" data-id="' + eq.id + '" style="background:var(--accent);border:none;color:white;padding:1px 5px;border-radius:4px;cursor:pointer;font-size:8px;flex-shrink:0">✏️</button>' : '') +
                     '</div>' +
                     '</div>';
             } else {
-                equipmentListHtml += '<div class="equipment-card" data-eqid="' + eq.id + '" style="padding:3px 6px;cursor:pointer;margin-bottom:4px;border-radius:10px">' +
+                equipmentListHtml += '<div class="equipment-card' + checkStatusClass + '" data-eqid="' + eq.id + '" style="padding:3px 6px;cursor:pointer;margin-bottom:4px;border-radius:10px">' +
                 '<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;flex-wrap:wrap">' +
                 '<div style="flex:1;min-width:0">' +
-                '<span style="font-size:12px;font-weight:800;color:var(--primary)">' + escapeHtml(eq.name) + '</span>' +
+                '<span style="font-size:12px;font-weight:800;color:var(--primary)">' + escapeHtml(eq.name) + '</span>' + pendingCheckDot +
                 ' <span style="font-size:9px;color:var(--gray);font-weight:500">' + escapeHtml(eq.code) + '</span>' +
                 '</div>' +
                 ownershipBadge +
                 '<span style="font-size:9px;color:#6b7a8d;white-space:nowrap">⏱️<b>' + formatNumber(eq.hours) + '</b> | 🔧<b>' + formatNumber(eq.nextHours) + '</b></span>' +
                 '<span style="color:' + gaugeColor + ';font-weight:800;font-size:9px;white-space:nowrap">' + remainingLabel + '</span>' +
                 statusBadge +
+                quickCheckBtns +
                 (hasPermission('all') ? '<button class="edit-equipment-btn" data-id="' + eq.id + '" style="background:var(--accent);border:none;color:white;padding:1px 5px;border-radius:4px;cursor:pointer;font-size:8px;flex-shrink:0">✏️</button>' : '') +
                 '</div>' +
                 '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:5px;padding:2px 4px">' +
@@ -10327,14 +10597,14 @@ function renderRentalEquipment() {
         var pct   = Math.min(daysCount/cycleDayCount,1);
         var color = daysCount>=25?'#059669':daysCount>=15?'#0e7490':daysCount>=7?'#d97706':'#7c3aed';
         var angle = (pct*360-90)*Math.PI/180;
-        var x2=44+38*Math.cos(angle), y2=44+38*Math.sin(angle);
-        var arcPath = pct>=1 ? 'M 44 6 A 38 38 0 1 1 43.99 6' : 'M 44 6 A 38 38 0 '+(pct>0.5?1:0)+' 1 '+x2.toFixed(2)+' '+y2.toFixed(2);
         var eqLabel  = eq ? (eq.type+' — '+(eq.name||eq.code)) : (r.equipmentCode||'—');
         var rid = r.id;
         var todayStatusColor = todayRec ? '#065f46' : '#92400e';
         var todayStatus = todayRec ? '✅ مسجّل اليوم' : '⏳ لم يسجّل اليوم';
+        var x2=44+38*Math.cos(angle), y2=44+38*Math.sin(angle);
+        var arcPath = pct>=1 ? 'M 44 6 A 38 38 0 1 1 43.99 6' : 'M 44 6 A 38 38 0 '+(pct>0.5?1:0)+' 1 '+x2.toFixed(2)+' '+y2.toFixed(2);
         html +=
-        '<div class="rental-card" style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
+        '<div class="rental-card" style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
         '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:9px 12px;color:white;display:flex;justify-content:space-between;align-items:center">'+
         '<div><div style="font-weight:700;font-size:14px"><span class="c-ico">🚧</span> '+escapeHtml(eqLabel)+'</div>'+
         '<div style="font-size:11px;opacity:.8">'+(r.company?'🏢 '+escapeHtml(r.company)+(drv?' · ':''):'' )+(drv?'👨‍✈️ '+escapeHtml(drv.name):'')+'</div></div>'+
@@ -10343,20 +10613,20 @@ function renderRentalEquipment() {
         '<button data-action="del-rental"  data-id="'+rid+'" style="background:rgba(255,0,0,.3);color:white;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:12px">🗑️</button></div>':'')+
         '</div>'+
         '<div style="padding:10px 12px;display:flex;gap:10px;align-items:center">'+
-        '<div style="position:relative;flex-shrink:0;width:88px;height:88px">'+
-        '<svg viewBox="0 0 88 88" style="width:88px;height:88px">'+
+        '<div style="position:relative;flex-shrink:0;width:70px;height:70px">'+
+        '<svg viewBox="0 0 88 88" style="width:70px;height:70px">'+
         '<circle cx="44" cy="44" r="38" fill="none" stroke="#f1f5f9" stroke-width="9"/>'+
-        (pct>0?'<path d="'+arcPath+'" fill="none" stroke="'+color+'" stroke-width="9" stroke-linecap="round" transform="scale(-1,1) translate(-88,0)"/>':'')+
+        (pct>0?'<path d="'+arcPath+'" fill="none" stroke="'+color+'" stroke-linecap="round" stroke-width="9" transform="scale(-1,1) translate(-88,0)"/>':'')+
         '</svg>'+
         '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;line-height:1.1">'+
-        '<div style="font-size:20px;font-weight:800;color:'+color+'">'+daysCount+'</div>'+
-        '<div style="font-size:9px;color:var(--gray)">يوم/'+cycleDayCount+'</div></div></div>'+
-        '<div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:5px">'+
-        '<div style="background:var(--light);border-radius:9px;padding:7px;text-align:center"><div style="font-size:17px;font-weight:700;color:#0e7490">'+sumBasic.toFixed(1)+'</div><div style="font-size:9px;color:var(--gray)">أساسية</div></div>'+
-        '<div style="background:'+((sumExtra+sumBreak)>0?'#fef3c7':'var(--light)')+';border-radius:9px;padding:7px;text-align:center"><div style="font-size:17px;font-weight:700;color:'+((sumExtra+sumBreak)>0?'#d97706':'var(--gray)')+'">'+(sumExtra+sumBreak).toFixed(1)+'</div><div style="font-size:9px;color:var(--gray)">إضافية'+(sumBreak>0?' (منها '+sumBreak.toFixed(1)+'راحة)':'')+'</div></div>'+
-        '<div style="grid-column:1/-1;background:'+(todayRec?'#d1fae5':'#fef9c3')+';border-radius:9px;padding:5px 8px;text-align:center;font-size:11px;font-weight:600;color:'+todayStatusColor+'">'+todayStatus+'</div>'+
-        '</div></div>'+
-        '<div style="margin:0 10px 10px;background:'+(todayRec?'#f0fdf4':'#fef3c7')+';border:1px solid '+(todayRec?'#bbf7d0':'#fde68a')+';border-radius:11px;padding:8px">'+
+        '<div style="font-size:18px;font-weight:800;color:'+color+'">'+daysCount+'</div>'+
+        '<div style="font-size:8px;color:var(--gray)">يوم/'+cycleDayCount+'</div></div></div>'+
+        '<div style="flex:1;display:flex;flex-direction:column;gap:5px">'+
+        '<div style="background:'+(todayRec?'#d1fae5':'#fef9c3')+';border-radius:9px;padding:9px;text-align:center;font-size:12px;font-weight:600;color:'+todayStatusColor+'">'+todayStatus+'</div>'+
+        '<input type="text" value="'+(todayRec?escapeHtml(todayRec.notes||'').replace(/"/g,'&quot;'):'')+'" placeholder="'+(todayRec?'📝 ملاحظة اليوم...':'📝 سجّل الحضور والانصراف أولاً')+'"'+(todayRec?'':' disabled')+' onblur="saveRentalInlineNotes(\''+rid+'\',\''+todayStr+'\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()" style="width:100%;box-sizing:border-box;background:'+(todayRec?'var(--light)':'#f1f5f9')+';border-radius:9px;padding:9px;text-align:center;font-size:12px;font-weight:600;color:var(--gray);border:1px solid transparent;font-family:inherit" onfocus="this.style.borderColor=\'#c4b5fd\'">'+
+        '</div>'+
+        '</div>'+
+        '<div style="margin:0 12px 8px;background:'+(todayRec?'#f0fdf4':'#fef3c7')+';border:1px solid '+(todayRec?'#bbf7d0':'#fde68a')+';border-radius:11px;padding:8px">'+
         '<div style="font-size:10px;color:'+todayStatusColor+';margin-bottom:5px;font-weight:600">⚡ '+(todayRec?'تعديل اليوم '+todayStr:'تسجيل اليوم '+todayStr)+'</div>'+
         '<div style="display:flex;gap:5px;align-items:center">'+
         '<input type="time" id="quick-in-'+rid+'" value="'+(todayRec?todayRec.inTime||'':'08:00')+'" style="flex:1;padding:6px;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:12px">'+
@@ -10369,12 +10639,12 @@ function renderRentalEquipment() {
         '<label for="quick-brk-'+rid+'" style="font-size:11px;color:'+todayStatusColor+'">☕ اشتغلت ساعة الراحة (تُحسب إضافي)</label>'+
         '</div></div>'+
         (isAdmin?
-        '<div style="padding:0 10px 10px;display:flex;gap:6px">'+
+        '<div style="padding:0 12px 10px;display:flex;gap:6px">'+
         '<button data-action="add-daily" data-id="'+rid+'" style="flex:1;padding:7px;background:linear-gradient(135deg,#0e7490,#0369a1);color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">➕ يوم آخر</button>'+
         '<button data-action="show-report" data-id="'+rid+'" style="flex:1;padding:7px;background:linear-gradient(135deg,#059669,#0e7490);color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">📋 التقرير</button>'+
         '<button data-action="wa-driver" data-id="'+rid+'" style="padding:7px 12px;background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;border-radius:9px;font-family:inherit;font-size:14px;cursor:pointer">📲</button>'+
         '</div>':
-        '<div style="padding:0 10px 10px;display:flex;gap:6px">'+
+        '<div style="padding:0 12px 10px;display:flex;gap:6px">'+
         '<button data-action="show-report" data-id="'+rid+'" style="flex:1;padding:7px;background:linear-gradient(135deg,#059669,#0e7490);color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">📋 عرض التقرير</button>'+
         '<button data-action="wa-driver" data-id="'+rid+'" style="padding:7px 12px;background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;border-radius:9px;font-family:inherit;font-size:14px;cursor:pointer">📲</button>'+
         '</div>')+
@@ -10406,11 +10676,15 @@ function quickSaveRentalDay(rentalId,date,existingId,inTime,outTime,brk) {
     if (!rental) return;
     var alreadyExists=rentalDailyData.find(function(d){ return d.equipmentId===rentalId&&d.date===date; });
     var targetId=existingId||(alreadyExists?alreadyExists.id:null);
+    var existingRecord = targetId ? rentalDailyData.find(function(d){ return d.id===targetId; }) : null;
     var h=calcRentalHours(inTime,outTime,brk);
     var record={ equipmentId:rentalId, equipmentCode:rental.equipmentCode||'', equipmentType:rental.equipmentType||'',
         driverId:rental.driverId||'', company:rental.company||'', date:date,
         inTime:inTime, outTime:outTime, totalHours:h.total, basicHours:h.basic, breakWorked:!!brk, breakHours:h.break, extraHours:h.extra,
-        notes:'', updatedAt:new Date().toISOString() };
+        notes:(existingRecord?existingRecord.notes||'':''),
+        // اسم المستخدم اللي سجّل الحضور والانصراف فعليًا
+        recordedByName: (currentUser && (currentUser.name || currentUser.username)) || 'مستخدم',
+        updatedAt:new Date().toISOString() };
     var ref=targetId?fbDb.ref('rentalDaily/'+targetId):fbDb.ref('rentalDaily').push();
     ref.set(record).then(function(){ showToast(targetId?'✅ تم تحديث اليوم':'✅ تم حفظ اليوم'); }).catch(function(err){ showToast('خطأ: '+err.message,true); });
 }
@@ -10489,6 +10763,17 @@ function deleteRentalEquipment(id) {
     Promise.all(ps).then(function(){ return fbDb.ref('rental/'+id).remove(); }).then(function(){ showToast('تم الحذف'); }).catch(function(err){ showToast('خطأ: '+err.message,true); });
 }
 
+// حفظ ملاحظة اليوم المسجَّل من الكارت مباشرة (كل يوم له ملاحظاته الخاصة) — متاحة لأي مستخدم يقدر يشوف صفحة الإيجار
+function saveRentalInlineNotes(rentalId, dateStr, value) {
+    var rec = rentalDailyData.find(function(d) { return d.equipmentId === rentalId && d.date === dateStr; });
+    if (!rec) { showToast('سجّل الحضور والانصراف أولاً', true); return; }
+    var trimmed = (value || '').trim();
+    if ((rec.notes || '') === trimmed) return; // مفيش تغيير فعلي
+    fbDb.ref('rentalDaily/' + rec.id).update({ notes: trimmed, updatedAt: new Date().toISOString() }).then(function() {
+        showToast('📝 تم حفظ ملاحظة اليوم');
+    }).catch(function(e) { showToast('خطأ: ' + e.message, true); });
+}
+
 function openAddDailyModal(rentalId) {
     editingRentalDailyId=null;
     if (!rentalData.length) { showToast('أضف عقد إيجار أولاً',true); return; }
@@ -10551,7 +10836,9 @@ function saveRentalDaily() {
     var record={ equipmentId:rId, equipmentCode:rental?rental.equipmentCode:'', equipmentType:rental?rental.equipmentType:'',
         driverId:rental?rental.driverId:'', company:rental?rental.company:'',
         date:date, inTime:inT, outTime:outT, totalHours:h.total, basicHours:h.basic, breakWorked:!!brk, breakHours:h.break, extraHours:h.extra,
-        notes:notes, updatedAt:new Date().toISOString() };
+        notes:notes,
+        recordedByName: (currentUser && (currentUser.name || currentUser.username)) || 'مستخدم',
+        updatedAt:new Date().toISOString() };
     var ref=editingRentalDailyId?fbDb.ref('rentalDaily/'+editingRentalDailyId):fbDb.ref('rentalDaily').push();
     ref.set(record).then(function(){ closeModal('rental-daily-modal'); showToast('تم الحفظ ✅'); }).catch(function(err){ showToast('خطأ: '+err.message,true); });
 }
@@ -10606,18 +10893,18 @@ function renderRentalDailyView() {
             var eq=rental?equipmentData.find(function(e){ return e.id===rental.equipmentId; }):null;
             var drv=rental?driversData.find(function(d){ return d.id===rental.driverId; }):null;
             var label=eq?(eq.type+' — '+eq.code):(r.equipmentCode||'—');
-            html+='<div class="rental-card" style="background:white;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:8px;overflow:hidden"><div style="padding:10px 14px">'+
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
-                '<div><div style="font-weight:700;font-size:14px"><span class="c-ico">🚧</span> '+escapeHtml(label)+'</div>'+(drv?'<div style="font-size:12px;color:var(--gray)">👨‍✈️ '+escapeHtml(drv.name)+'</div>':'')+'</div>'+
-                (isAdmin?'<div style="display:flex;gap:5px">'+
-                '<button data-action="edit-daily" data-id="'+r.id+'" style="background:#e0e7ff;color:#4338ca;border:none;border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer">✏️</button>'+
-                '<button data-action="del-daily" data-id="'+r.id+'" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:4px 9px;font-size:12px;cursor:pointer">🗑️</button></div>':'')+'</div>'+
-                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr'+(r.breakHours>0?' 1fr':'')+';gap:5px;font-size:12px">'+
-                '<div style="background:var(--light);padding:5px 8px;border-radius:8px;text-align:center">🟢 '+(r.inTime||'—')+'<br>🔴 '+(r.outTime||'—')+'</div>'+
-                '<div style="background:var(--light);padding:5px 8px;border-radius:8px;text-align:center">✅ أساسي<br><strong>'+(r.basicHours||0).toFixed(1)+'س</strong></div>'+
-                (r.breakHours>0?'<div style="background:#fef3c7;color:#92400e;padding:5px 8px;border-radius:8px;text-align:center">☕ راحة<br><strong>'+(r.breakHours||0).toFixed(1)+'س</strong></div>':'')+
-                '<div style="background:'+(r.extraHours>0?'#fef3c7':'var(--light)')+';color:'+(r.extraHours>0?'#92400e':'inherit')+';padding:5px 8px;border-radius:8px;text-align:center">⚡ إضافي<br><strong>'+(r.extraHours||0).toFixed(2)+'س</strong></div></div>'+
-                (r.notes?'<div style="margin-top:5px;font-size:12px;color:var(--gray);background:var(--light);padding:5px 10px;border-radius:8px">📝 '+escapeHtml(r.notes)+'</div>':'')+'</div></div>';
+            html+='<div class="rental-card" style="background:white;border-radius:11px;border:1px solid #e2e8f0;margin-bottom:5px;overflow:hidden;max-width:520px"><div style="padding:6px 9px">'+
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'+
+                '<div><div style="font-weight:700;font-size:11.5px"><span class="c-ico">🚧</span> '+escapeHtml(label)+'</div>'+(drv?'<div style="font-size:9.5px;color:var(--gray)">👨‍✈️ '+escapeHtml(drv.name)+'</div>':'')+(r.recordedByName?'<div style="font-size:9px;color:#9ca3af">👤 سجّلها: '+escapeHtml(r.recordedByName)+'</div>':'')+'</div>'+
+                (isAdmin?'<div style="display:flex;gap:3px">'+
+                '<button data-action="edit-daily" data-id="'+r.id+'" style="background:#e0e7ff;color:#4338ca;border:none;border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer">✏️</button>'+
+                '<button data-action="del-daily" data-id="'+r.id+'" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer">🗑️</button></div>':'')+'</div>'+
+                '<div style="display:grid;grid-template-columns:1fr 0.7fr 0.7fr'+(r.breakHours>0?' 0.7fr':'')+';gap:3px;font-size:9px">'+
+                '<div style="background:var(--light);padding:3px 4px;border-radius:6px;text-align:center">🟢 '+(r.inTime||'—')+'<br>🔴 '+(r.outTime||'—')+'</div>'+
+                '<div style="background:var(--light);padding:3px 4px;border-radius:6px;text-align:center">✅ أساسي<br><strong style="font-size:10px">'+(r.basicHours||0).toFixed(1)+'س</strong></div>'+
+                (r.breakHours>0?'<div style="background:#fef3c7;color:#92400e;padding:3px 4px;border-radius:6px;text-align:center">☕ راحة<br><strong style="font-size:10px">'+(r.breakHours||0).toFixed(1)+'س</strong></div>':'')+
+                '<div style="background:'+(r.extraHours>0?'#fef3c7':'var(--light)')+';color:'+(r.extraHours>0?'#92400e':'inherit')+';padding:3px 4px;border-radius:6px;text-align:center">⚡ إضافي<br><strong style="font-size:10px">'+(r.extraHours||0).toFixed(2)+'س</strong></div></div>'+
+                '<div style="margin-top:4px;font-size:10px;color:'+(r.notes?'var(--gray)':'#c3cad4')+';background:var(--light);padding:3px 8px;border-radius:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📝 '+(r.notes?escapeHtml(r.notes):'لا توجد ملاحظات')+'</div></div></div>';
         });
     });
     c.innerHTML=html;
@@ -10902,21 +11189,21 @@ function exportSingleRentalExcel(rentalId) {
     var rows=[['تقرير معدة إيجار'],
         ['المعدة:',(eq?eq.type+' — '+eq.code:'—'),'الشركة:',(rental?rental.company||'—':'—')],
         ['السائق:',(drv?drv.name:'—'),'الفترة:',periodLabel],[],
-        ['التاريخ','حضور','انصراف','أساسي','ساعة راحة','إضافي','المجموع','ملاحظات']];
+        ['التاريخ','حضور','انصراف','أساسي','ساعة راحة','إضافي','المجموع','ملاحظات','سجّلها']];
     var sb=0,sk=0,se=0,absentCount=0;
     days.forEach(function(dayEntry){
         var r = dayEntry.record;
         if (!r) {
-            if (dayEntry.status === 'absent') { absentCount++; rows.push([dayEntry.date,'','','','','','','🚫 غياب']); }
-            else { rows.push([dayEntry.date,'','','','','','','⏳ لم يُسجل بعد']); }
+            if (dayEntry.status === 'absent') { absentCount++; rows.push([dayEntry.date,'','','','','','','🚫 غياب','']); }
+            else { rows.push([dayEntry.date,'','','','','','','⏳ لم يُسجل بعد','']); }
             return;
         }
         sb+=(r.basicHours||0);sk+=(r.breakHours||0);se+=(r.extraHours||0);
         var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
-        rows.push([r.date,r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'']);
+        rows.push([r.date,r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'',r.recordedByName||'']);
     });
-    rows.push([]);rows.push(['الإجمالي','','',sb.toFixed(2),sk.toFixed(2),se.toFixed(2),(sb+sk+se).toFixed(2),'']);
-    rows.push(['أيام الغياب',absentCount,'','','','','','']);
+    rows.push([]);rows.push(['الإجمالي','','',sb.toFixed(2),sk.toFixed(2),se.toFixed(2),(sb+sk+se).toFixed(2),'','']);
+    rows.push(['أيام الغياب',absentCount,'','','','','','','']);
     var ws=XLSX.utils.aoa_to_sheet(rows);var wb2=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb2,ws,'تقرير');
     XLSX.writeFile(wb2,'rental_'+(eq?eq.code:'')+'_'+(range.from||'all')+'.xlsx');
 }
@@ -10943,7 +11230,8 @@ function exportSingleRentalPDF(rentalId) {
             return '<tr style="background:'+bg+'"><td>'+dayEntry.date+'</td><td colspan="6" style="color:'+clr+';font-weight:bold">'+label+'</td><td></td></tr>';
         }
         var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
-        return '<tr style="background:'+(i%2?'#f8fafc':'white')+'"><td>'+r.date+'</td><td>'+(r.inTime||'—')+'</td><td>'+(r.outTime||'—')+'</td><td>'+(r.basicHours||0).toFixed(2)+'</td><td style="color:'+(r.breakHours>0?'#d97706':'#666')+'">'+(r.breakHours||0).toFixed(2)+'</td><td style="color:'+(r.extraHours>0?'#d97706':'#666')+'">'+(r.extraHours||0).toFixed(2)+'</td><td style="font-weight:bold">'+rowTotal.toFixed(2)+'</td><td>'+(r.notes||'')+'</td></tr>';
+        var notesCell = (r.notes?escapeHtml(r.notes):'') + (r.recordedByName ? '<div style="font-size:9px;color:#9ca3af;margin-top:2px">👤 '+escapeHtml(r.recordedByName)+'</div>' : '');
+        return '<tr style="background:'+(i%2?'#f8fafc':'white')+'"><td>'+r.date+'</td><td>'+(r.inTime||'—')+'</td><td>'+(r.outTime||'—')+'</td><td>'+(r.basicHours||0).toFixed(2)+'</td><td style="color:'+(r.breakHours>0?'#d97706':'#666')+'">'+(r.breakHours||0).toFixed(2)+'</td><td style="color:'+(r.extraHours>0?'#d97706':'#666')+'">'+(r.extraHours||0).toFixed(2)+'</td><td style="font-weight:bold">'+rowTotal.toFixed(2)+'</td><td>'+notesCell+'</td></tr>';
     }).join('');
     var w=window.open('','_blank');
     w.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;padding:20px;direction:rtl}h2{color:#7c3aed}.info{background:#f1f5f9;padding:10px;border-radius:8px;margin-bottom:15px;font-size:13px}.summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;margin-bottom:15px}.sum-box{background:#7c3aed;color:white;padding:12px;border-radius:8px;text-align:center}.sum-box .num{font-size:22px;font-weight:bold}.sum-box .lbl{font-size:11px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#7c3aed;color:white;padding:7px;text-align:center}td{padding:6px 7px;border-bottom:1px solid #e2e8f0;text-align:center}tfoot td{background:#f1f5f9;font-weight:bold}</style></head><body>'+
@@ -11101,13 +11389,13 @@ window.sendDriverWhatsApp = sendDriverWhatsApp;
 
 function exportRentalToExcel() {
     if (!rentalDailyData.length) { showToast('لا توجد بيانات',true); return; }
-    var rows=[['التاريخ','المعدة','الكود','النوع','السائق','الشركة','حضور','انصراف','أساسي','ساعة راحة','إضافي','المجموع','ملاحظات']];
+    var rows=[['التاريخ','المعدة','الكود','النوع','السائق','الشركة','حضور','انصراف','أساسي','ساعة راحة','إضافي','المجموع','ملاحظات','سجّلها']];
     rentalDailyData.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }).forEach(function(r){
         var rental=rentalData.find(function(x){ return x.id===r.equipmentId; });
         var eq=rental?equipmentData.find(function(e){ return e.id===rental.equipmentId; }):null;
         var drv=rental?driversData.find(function(d){ return d.id===rental.driverId; }):null;
         var rowTotal=(r.basicHours||0)+(r.breakHours||0)+(r.extraHours||0);
-        rows.push([r.date,eq?eq.name:'',eq?eq.code:'',eq?eq.type:'',drv?drv.name:'',rental?rental.company||'':'',r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'']);
+        rows.push([r.date,eq?eq.name:'',eq?eq.code:'',eq?eq.type:'',drv?drv.name:'',rental?rental.company||'':'',r.inTime||'',r.outTime||'',(r.basicHours||0).toFixed(2),(r.breakHours||0).toFixed(2),(r.extraHours||0).toFixed(2),rowTotal.toFixed(2),r.notes||'',r.recordedByName||'']);
     });
     var ws=XLSX.utils.aoa_to_sheet(rows);var wb2=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb2,ws,'السجل');
     XLSX.writeFile(wb2,'rental_full_'+localDateStr(new Date())+'.xlsx');
