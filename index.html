@@ -534,8 +534,8 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
       <button class="tab-btn sidebar-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button>
       <button class="tab-btn sidebar-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button>
       <button class="tab-btn sidebar-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button>
-      <button class="tab-btn sidebar-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button>
       <button class="tab-btn sidebar-btn" data-view="map"><span class="tab-icon"><svg class="icon"><use href="#ic-map"/></svg></span><span>خريطة المعدات</span></button>
+      <button class="tab-btn sidebar-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button>
       <button class="tab-btn sidebar-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button>
       <button class="tab-btn sidebar-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button>
       <button class="tab-btn sidebar-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button>
@@ -717,7 +717,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   </div>
   
   </div><!-- /.app-main -->
-  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="map"><span class="tab-icon"><svg class="icon"><use href="#ic-map"/></svg></span><span>الخريطة</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
+  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="map"><span class="tab-icon"><svg class="icon"><use href="#ic-map"/></svg></span><span>الخريطة</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
   <button class="fab" id="fab-btn">+</button>
 </div>
 
@@ -1284,7 +1284,7 @@ function openAddUserModal() {
 function openEditUserModal(idx) {
     var isNew = idx === null;
     var user = isNew ? { id: 'u_' + Date.now(), username: '', password: '', name: '', role: 'custom', active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' }, sites: [] } : APP_USERS[idx];
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', map:'none', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' }, sites: [] } : APP_USERS[idx];
 
     var old = document.getElementById('user-edit-modal');
     if (old) old.remove();
@@ -1316,7 +1316,7 @@ function openEditUserModal(idx) {
         '<div id="uem-permissions-section" style="border-top:1px solid #f1f5f9;padding-top:10px">' +
         '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">\u{1F511} \u0635\u0644\u0627\u062D\u064A\u0627\u062A \u0627\u0644\u0623\u0642\u0633\u0627\u0645</div>' +
         (function() {
-            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646'],['employees','\u0627\u0644\u0645\u0648\u0638\u0641\u064a\u0646'],['equipmentChecks','\u0645\u0631\u0627\u062c\u0639\u0629 \u0627\u0644\u0645\u0639\u062f\u0627\u062a \u0627\u0644\u0633\u0631\u064a\u0639\u0629'],['sites','\u0627\u0644\u0645\u0648\u0627\u0642\u0639'],['analytics','\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a']];
+            var SECS = [['home','\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629'],['equipment','\u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['fuel','\u0627\u0644\u0648\u0642\u0648\u062f'],['maintenance','\u0627\u0644\u0635\u064a\u0627\u0646\u0629'],['inventory','\u0627\u0644\u0645\u062e\u0632\u0646'],['rental','\u0627\u0644\u0625\u064a\u062c\u0627\u0631'],['map','\u062e\u0631\u064a\u0637\u0629 \u0627\u0644\u0645\u0639\u062f\u0627\u062a'],['drivers','\u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646'],['employees','\u0627\u0644\u0645\u0648\u0638\u0641\u064a\u0646'],['equipmentChecks','\u0645\u0631\u0627\u062c\u0639\u0629 \u0627\u0644\u0645\u0639\u062f\u0627\u062a \u0627\u0644\u0633\u0631\u064a\u0639\u0629'],['sites','\u0627\u0644\u0645\u0648\u0627\u0642\u0639'],['analytics','\u0627\u0644\u062a\u062d\u0644\u064a\u0644\u0627\u062a']];
             return SECS.map(function(s) {
                 var key = s[0], label = s[1];
                 var cur = (user.sections || {})[key] || 'none';
@@ -1375,7 +1375,7 @@ function openEditUserModal(idx) {
     }
 
     // ==== تبديل نوع الحساب: مدير / مستخدم عادي / مشاهدة فقط ====
-    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','equipmentChecks','sites','analytics'];
+    var SECS_ALL = ['home','equipment','fuel','maintenance','inventory','rental','map','drivers','employees','equipmentChecks','sites','analytics'];
     var roleAdminBtn = document.getElementById('uem-role-admin');
     var roleUserBtn = document.getElementById('uem-role-user');
     var roleViewerBtn = document.getElementById('uem-role-viewer');
@@ -1383,7 +1383,7 @@ function openEditUserModal(idx) {
     var selectedRole = (user.role === 'admin') ? 'admin' : 'custom';
     // نحفظ آخر صلاحيات مخصّصة كي نرجع لها لو رجع لـ"مستخدم عادي"
     var lastCustomSections = (user.role === 'admin')
-        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'view', sites:'view', analytics:'view' }
+        ? { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', map:'view', drivers:'view', employees:'view', equipmentChecks:'view', sites:'view', analytics:'view' }
         : Object.assign({}, user.sections || {});
     // هل المستخدم في وضع "مشاهدة فقط" (كل الأقسام عرض فقط أو مخفية، بدون أي صلاحية إضافة/تعديل)؟
     function sectionsAreViewOnly(sections) {
@@ -1636,7 +1636,7 @@ function createUserByAdmin() {
     } else if (role === 'editor') {
         defaultSections = { home:'view', equipment:'add', fuel:'add', maintenance:'add', inventory:'add', rental:'add', drivers:'add', employees:'add', equipmentChecks:'add', sites:'none', analytics:'none' };
     } else {
-        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' };
+        defaultSections = { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', map:'none', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' };
     }
 
     // إضافة المستخدم في APP_USERS
@@ -2193,7 +2193,7 @@ function isViewOnlyUser() {
     if (!currentUser) return false;
     if (currentUser.role === 'admin') return false;
     if (currentUser.role === 'viewer') return true;
-    var secs = ['home','equipment','fuel','maintenance','inventory','rental','drivers','employees','equipmentChecks','sites','analytics'];
+    var secs = ['home','equipment','fuel','maintenance','inventory','rental','map','drivers','employees','equipmentChecks','sites','analytics'];
     var sections = currentUser.sections || {};
     return secs.every(function(k) {
         var v = sections[k] || 'none';
@@ -3317,7 +3317,7 @@ function approveAccountRequest(id) {
         name: req.name,
         role: 'custom',
         active: true,
-        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' },
+        sections: { home:'view', equipment:'view', fuel:'view', maintenance:'view', inventory:'view', rental:'view', map:'none', drivers:'view', employees:'view', equipmentChecks:'add', sites:'none', analytics:'none' },
         sites: []
     });
     saveAppUsers().then(function() {
@@ -3397,7 +3397,7 @@ function proceedToApp() {
     var sectionToView = {
         home: 'home', equipment: 'equipment', fuel: 'fuel',
         maintenance: 'maintenance', inventory: 'inventory',
-        rental: 'rental', sites: 'sites', analytics: 'analytics'
+        rental: 'rental', map: 'map', sites: 'sites', analytics: 'analytics'
     };
 
     var firstAllowedView = null;
@@ -6148,11 +6148,47 @@ function openNotifSettings() {
 }
 
 // ==================== خريطة تتبع المعدات (GPS عبر السائقين) — Leaflet + OpenStreetMap (مجاني، بدون مفتاح API) ====================
+var equipmentMapColorTimer = null;
+
 function refreshMapView() {
     var contentCard = document.getElementById('map-content-card');
     if (!contentCard) return;
     contentCard.style.display = 'block';
     renderEquipmentMap();
+    startMapColorTimer();
+}
+
+function stopMapColorTimer() {
+    if (equipmentMapColorTimer) {
+        clearInterval(equipmentMapColorTimer);
+        equipmentMapColorTimer = null;
+    }
+}
+
+function startMapColorTimer() {
+    stopMapColorTimer();
+    // يحدّث لون كل نقطة كل 15 ثانية اعتمادًا على وقت آخر تحديث GPS،
+    // حتى لو مفيش بيانات جديدة واصلة من السائق (يعني لو الـ GPS اتقفل هيتحول للون رمادي تلقائيًا)
+    equipmentMapColorTimer = setInterval(function() {
+        if (activeView !== 'map' || !equipmentMapInstance) { stopMapColorTimer(); return; }
+        updateMapMarkerColors();
+    }, 15000);
+}
+
+function gpsStatusColor(updatedAt) {
+    var minsAgo = (new Date() - new Date(updatedAt)) / 60000;
+    if (minsAgo <= 3) return '#10b981';   // متصل الآن (أخضر)
+    if (minsAgo <= 15) return '#f59e0b';  // تأخر بسيط (أصفر)
+    return '#9ca3af';                     // منقطع/متوقف (رمادي)
+}
+
+function updateMapMarkerColors() {
+    if (!equipmentMapInstance || !equipmentMapInstance._markers) return;
+    equipmentMapInstance._markers.forEach(function(m) {
+        if (!m._locUpdatedAt) return;
+        var color = gpsStatusColor(m._locUpdatedAt);
+        m.setStyle({ fillColor: color });
+    });
 }
 
 function renderEquipmentMap() {
@@ -6206,7 +6242,7 @@ function renderEquipmentMap() {
     var bounds = [];
     points.forEach(function(p) {
         var minsAgo = (new Date() - new Date(p.loc.updatedAt)) / 60000;
-        var color = minsAgo <= 15 ? '#10b981' : minsAgo <= 120 ? '#f59e0b' : '#9ca3af';
+        var color = gpsStatusColor(p.loc.updatedAt);
         var marker = L.circleMarker([p.loc.lat, p.loc.lng], {
             radius: 9,
             fillColor: color,
@@ -6214,11 +6250,13 @@ function renderEquipmentMap() {
             weight: 2,
             fillOpacity: 1
         }).addTo(equipmentMapInstance);
+        marker._locUpdatedAt = p.loc.updatedAt;
         var timeAgoText = minsAgo < 1 ? 'الآن' : minsAgo < 60 ? Math.round(minsAgo) + ' دقيقة' : Math.round(minsAgo / 60) + ' ساعة';
         marker.bindPopup(
             '<div style="font-family:Cairo,sans-serif;text-align:right;min-width:160px">' +
                 '<div style="font-weight:800;font-size:13px;margin-bottom:3px">🏗️ ' + (p.eq.name || '') + '</div>' +
                 '<div style="font-size:11.5px;color:#555">👨‍✈️ ' + (p.drv ? p.drv.name : '—') + '</div>' +
+                (p.loc.meter !== undefined && p.loc.meter !== null ? '<div style="font-size:11.5px;color:#555">⏱️ العداد: ' + p.loc.meter + ' س</div>' : '') +
                 '<div style="font-size:11px;color:#888;margin-top:3px">🕐 آخر تحديث: منذ ' + timeAgoText + '</div>' +
                 '</div>'
         );
@@ -6246,11 +6284,11 @@ function copyDriverShareLink(driverId, driverName) {
 
 function shareDriverLinkWhatsApp(driverId, driverName) {
     var link = generateDriverShareLink(driverId);
-    var text = 'مرحباً ' + (driverName || '') + '،\nمن فضلك افتح الرابط ده وفعّل مشاركة موقعك عشان نقدر نتابع المعدة:\n' + link;
+    var text = 'مرحباً ' + (driverName || '') + '،\nمن فضلك افتح الرابط ده واضغط "بدء العمل" عشان نقدر نتابع المعدة:\n' + link;
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
-// ==================== صفحة مشاركة الموقع للسائق (بدون تسجيل دخول) ====================
+// ==================== صفحة مشاركة الموقع للسائق (بدون تسجيل دخول) — تعمل حتى مع انقطاع الإنترنت ====================
 var shareWatchId = null;
 
 function initShareLocationPage(driverId) {
@@ -6261,9 +6299,14 @@ function initShareLocationPage(driverId) {
         '<div style="font-size:44px;margin-bottom:8px">📍</div>' +
         '<div id="share-driver-name" style="font-size:17px;font-weight:800;color:#0d1b2a;margin-bottom:4px">جاري التحميل...</div>' +
         '<div style="font-size:12.5px;color:#6b7a8d;margin-bottom:18px">مشاركة موقعك بتساعد فريق العمل يتابع المعدة أول بأول</div>' +
-        '<div id="share-status" style="font-size:13px;font-weight:700;color:#f59e0b;background:#fef3c7;border-radius:10px;padding:9px;margin-bottom:16px">⏳ لسه مفيش مشاركة</div>' +
-        '<button id="share-toggle-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">▶️ بدء مشاركة الموقع</button>' +
-        '<div style="font-size:10.5px;color:#9ca3af;margin-top:14px">هيطلب المتصفح إذن الوصول للموقع — اضغط "سماح"</div>' +
+        '<div id="share-status" style="font-size:13px;font-weight:700;color:#f59e0b;background:#fef3c7;border-radius:10px;padding:9px;margin-bottom:8px">⏳ لسه ما بدأتش الشغل</div>' +
+        '<div id="share-queue-info" style="font-size:11px;color:#9ca3af;margin-bottom:12px;display:none"></div>' +
+        '<div style="text-align:right;margin-bottom:12px">' +
+            '<label style="font-size:12px;font-weight:700;color:#0d1b2a;display:block;margin-bottom:5px">⏱️ قراءة العداد الحالية (ساعات)</label>' +
+            '<input type="number" id="share-meter-input" placeholder="مثال: 1250" style="width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;box-sizing:border-box">' +
+        '</div>' +
+        '<button id="share-toggle-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">▶️ بدء العمل</button>' +
+        '<div style="font-size:10.5px;color:#9ca3af;margin-top:14px">هيطلب المتصفح إذن الوصول للموقع — اضغط "سماح"<br>الصفحة بتشتغل حتى لو النت اتقطع، وهتزامن أول ما يرجع</div>' +
         '</div></div>';
 
     try {
@@ -6276,46 +6319,132 @@ function initShareLocationPage(driverId) {
     }
 
     var driverName = '';
+    var QUEUE_KEY = 'offlineLocQueue_' + driverId;
+
     fbDb.ref('drivers/' + driverId).once('value').then(function(snap) {
         var d = snap.val();
         driverName = d ? d.name : '';
         document.getElementById('share-driver-name').textContent = d ? '👨‍✈️ ' + d.name : 'رابط غير صحيح';
         if (!d) document.getElementById('share-toggle-btn').style.display = 'none';
+        // لو فيه نقاط اتخزنت أوفلاين من جلسة سابقة، نحاول نرفعها فورًا
+        tryFlushQueue();
     });
 
     var btn = document.getElementById('share-toggle-btn');
     var statusEl = document.getElementById('share-status');
+    var queueInfoEl = document.getElementById('share-queue-info');
+    var meterInput = document.getElementById('share-meter-input');
     var sharing = false;
+    var startMeter = null;
 
-    function pushLocation(pos) {
+    function getQueue() {
+        try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); }
+        catch (e) { return []; }
+    }
+    function setQueue(arr) {
+        try { localStorage.setItem(QUEUE_KEY, JSON.stringify(arr)); } catch (e) {}
+    }
+    function updateQueueBadge() {
+        var q = getQueue();
+        if (q.length > 0) {
+            queueInfoEl.style.display = 'block';
+            queueInfoEl.innerHTML = '📴 ' + q.length + ' نقطة متخزنة محليًا، هترفع تلقائي أول ما النت يرجع';
+        } else {
+            queueInfoEl.style.display = 'none';
+        }
+    }
+
+    function tryFlushQueue() {
+        var q = getQueue();
+        if (!q.length || !navigator.onLine) return;
+        var last = q[q.length - 1];
         fbDb.ref('driverLocations/' + driverId).set({
             driverId: driverId, driverName: driverName,
-            lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy,
-            updatedAt: new Date().toISOString()
+            lat: last.lat, lng: last.lng, accuracy: last.accuracy,
+            updatedAt: last.updatedAt, meter: last.meter
+        }).then(function() {
+            // نرفع باقي النقاط كسجل مسار (اختياري لعرض المسار لاحقًا) من غير ما نستنى كل واحدة
+            var updates = {};
+            q.forEach(function(pt) {
+                var key = fbDb.ref('driverLocationHistory/' + driverId).push().key;
+                updates[key] = pt;
+            });
+            fbDb.ref('driverLocationHistory/' + driverId).update(updates).catch(function() {});
+            setQueue([]);
+            updateQueueBadge();
+            if (sharing) {
+                statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+                statusEl.innerHTML = '🟢 شغّال دلوقتي — تم رفع كل النقاط المؤجلة';
+            }
+        }).catch(function() {
+            // النت لسه مش مستقر، هنحاول تاني في المرة الجاية
         });
-        statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
-        statusEl.innerHTML = '🟢 جاري المشاركة — آخر تحديث الآن';
     }
+
+    function pushLocation(pos) {
+        var point = {
+            lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy,
+            updatedAt: new Date().toISOString(), meter: startMeter
+        };
+
+        if (!navigator.onLine) {
+            var q = getQueue(); q.push(point); setQueue(q); updateQueueBadge();
+            statusEl.style.color = '#92400e'; statusEl.style.background = '#fef3c7';
+            statusEl.innerHTML = '📴 من غير نت — بيتم تسجيل موقعك محليًا';
+            return;
+        }
+
+        fbDb.ref('driverLocations/' + driverId).set({
+            driverId: driverId, driverName: driverName,
+            lat: point.lat, lng: point.lng, accuracy: point.accuracy, updatedAt: point.updatedAt, meter: point.meter
+        }).then(function() {
+            statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+            statusEl.innerHTML = '🟢 شغّال دلوقتي — آخر تحديث الآن';
+            tryFlushQueue(); // لو فيه نقاط قديمة متأجلة، نرفعها كمان
+        }).catch(function() {
+            // فشل الإرسال رغم إن navigator.onLine=true (شبكة ضعيفة) — نخزن محليًا بدل ما نضيّع النقطة
+            var q = getQueue(); q.push(point); setQueue(q); updateQueueBadge();
+            statusEl.style.color = '#92400e'; statusEl.style.background = '#fef3c7';
+            statusEl.innerHTML = '📴 الشبكة ضعيفة — بيتم تسجيل موقعك محليًا';
+        });
+    }
+
+    window.addEventListener('online', tryFlushQueue);
+    updateQueueBadge();
 
     btn.onclick = function() {
         if (!navigator.geolocation) { statusEl.innerHTML = '❌ الجهاز مش بيدعم تحديد الموقع'; return; }
+        if (!sharing) {
+            var meterVal = parseFloat(meterInput.value);
+            if (isNaN(meterVal)) { showToastLike('من فضلك اكتب قراءة العداد الحالية'); meterInput.focus(); return; }
+            startMeter = meterVal;
+        }
         sharing = !sharing;
         if (sharing) {
+            meterInput.disabled = true;
             shareWatchId = navigator.geolocation.watchPosition(pushLocation, function(err) {
                 statusEl.style.color = '#dc2626'; statusEl.style.background = '#fee2e2';
                 statusEl.innerHTML = '❌ ' + (err.code === 1 ? 'رفضت إذن الموقع' : 'تعذّر تحديد الموقع');
             }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
-            btn.textContent = '⏹️ إيقاف المشاركة';
+            btn.textContent = '⏹️ انتهاء العمل';
             btn.style.background = 'linear-gradient(135deg,#dc2626,#991b1b)';
         } else {
             if (shareWatchId !== null) navigator.geolocation.clearWatch(shareWatchId);
+            tryFlushQueue();
+            meterInput.disabled = false;
             statusEl.style.color = '#f59e0b'; statusEl.style.background = '#fef3c7';
-            statusEl.innerHTML = '⏸️ المشاركة متوقفة';
-            btn.textContent = '▶️ بدء مشاركة الموقع';
+            statusEl.innerHTML = '⏸️ تم إنهاء العمل';
+            btn.textContent = '▶️ بدء العمل';
             btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
         }
     };
+
+    function showToastLike(text) {
+        statusEl.style.color = '#dc2626'; statusEl.style.background = '#fee2e2';
+        statusEl.innerHTML = '⚠️ ' + text;
+    }
 }
+
 
 function enableBrowserNotifications() {
     if (!('Notification' in window)) {
@@ -9705,10 +9834,13 @@ function renderHomeAppGrid(stats) {
         { view: 'maintenance',icon: '🔧', label: 'الصيانة',  color: 'linear-gradient(135deg,#ef4444,#b91c1c)', section: 'maintenance', badge: stats.scheduled > 0 ? stats.scheduled : null },
         { view: 'inventory',  icon: '📦', label: 'المخزن',   color: 'linear-gradient(135deg,#0d1b2a,#6d28d9)', section: 'inventory', badge: stats.shortagesCount > 0 ? stats.shortagesCount : null },
         { view: 'rental',     icon: '🚧', label: 'الإيجار',  color: 'linear-gradient(135deg,#7c3aed,#4f46e5)', section: 'rental' },
+        { view: 'map',        icon: '🗺️', label: 'خريطة المعدات', color: 'linear-gradient(135deg,#0891b2,#155e75)', section: 'map' },
         { view: 'sites',      icon: '🏢', label: 'لوحة المواقع', color: 'linear-gradient(135deg,#0d1b2a,#334155)', section: 'sites' },
-        { view: 'analytics',  icon: '📈', label: 'التحليلات', color: 'linear-gradient(135deg,#06b6d4,#0e7490)', section: 'analytics' }
+        { view: 'analytics',  icon: '📈', label: 'التحليلات', color: 'linear-gradient(135deg,#06b6d4,#0e7490)', section: 'analytics' },
+        { view: 'import',     icon: '📥', label: 'استيراد',  color: 'linear-gradient(135deg,#334155,#0f172a)', adminOnly: true }
     ];
     var html = apps.filter(function(app) {
+        if (app.adminOnly) return isAdmin;
         if (isAdmin) return true;
         if (app.sectionOr) return app.sectionOr.some(function(s) { return canView(s); });
         return canView(app.section);
@@ -9836,10 +9968,8 @@ function switchView(view) {
     if (currentUser && currentUser.role !== 'admin') {
         if (view === 'employees') {
             if (!canView('employees') && !canView('drivers')) return;
-        } else if (view === 'map') {
-            return; // خريطة المعدات (تتبع GPS) متاحة للأدمن فقط حاليًا
         } else {
-            var sectionMap = { home:'home', sites:'sites', analytics:'analytics', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental' };
+            var sectionMap = { home:'home', sites:'sites', analytics:'analytics', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental', map:'map' };
             if (sectionMap[view] && !canView(sectionMap[view])) return;
         }
     }
@@ -9859,6 +9989,7 @@ function switchView(view) {
         else btn.classList.remove('active');
     });
     if (view === 'map') refreshMapView();
+    else stopMapColorTimer();
     var titles = {
         home: '📊 لوحة القيادة',
         sites: '🏢 لوحة المواقع',
