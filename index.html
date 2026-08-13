@@ -21,6 +21,7 @@
 <script>if (window.pdfjsLib) { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
 :root{color-scheme:light only;--primary:#0d1b2a;--secondary:#1b2838;--accent:#e8a020;--accent-dark:#c88a18;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--info:#0e7490;--purple:#8b5cf6;--pink:#ec4899;--light:#f0f4f8;--white:#ffffff;--gray:#6b7a8d;--shadow:0 4px 12px rgba(0,0,0,0.08);--shadow-sm:0 1px 3px rgba(0,0,0,0.05);--mono:'IBM Plex Mono',ui-monospace,monospace;--sidebar-w:268px}
@@ -575,7 +576,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     <div id="analytics-body"></div>
   </div></div>
   
-  <div id="view-equipment" style="display:none"><div style="padding:14px"><button id="meter-update-btn" class="big-btn" style="margin:0 0 10px 0">⏱️ تحديث العدادات اليومي</button><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><button id="export-owned-daily-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#7c3aed,#4f46e5)">📆 تصدير ساعات معدات الملك (شيت لكل معدة)</button><div id="equipment-list"></div></div></div>
+  <div id="view-equipment" style="display:none"><div style="padding:14px"><button id="meter-update-btn" class="big-btn" style="margin:0 0 10px 0">⏱️ تحديث العدادات اليومي</button><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><button id="export-owned-daily-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#7c3aed,#4f46e5)">📆 تصدير ساعات معدات الملك (شيت لكل معدة)</button><button id="print-qr-labels-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#0891b2,#155e75)" onclick="openQRLabelsModal()">🏷️ طباعة ملصقات QR للمعدات</button><div id="equipment-list"></div></div></div>
   
   <div id="view-employees" style="display:none"><div style="padding:14px">
     <div id="employees-subtabs" style="display:flex;gap:8px;margin-bottom:12px;background:#eef1f5;padding:4px;border-radius:14px">
@@ -3885,6 +3886,7 @@ function openEquipmentDetail(id) {
         '<button class="save-btn" style="margin:0;background:linear-gradient(135deg,#dc2626,#991b1b)" onclick="openFaultReportModal(\'' + equipment.id + '\')">🚨 الإبلاغ عن عطل</button>' +
         ((hasPermission('all') || canAdd('equipmentChecks')) ? '<button class="save-btn" style="margin:0;background:linear-gradient(135deg,#0891b2,#0e7490)" onclick="openQuickCheckModal(\'' + equipment.id + '\')">🔍 مراجعة سريعة</button>' : '') +
         ((hasPermission('all') || canView('equipmentChecks')) ? '<button class="save-btn" style="margin:0;background:#0f766e" onclick="showEquipmentCheckHistory(\'' + equipment.id + '\')">📋 سجل المراجعات</button>' : '') +
+        '<button class="save-btn" style="margin:0;background:linear-gradient(135deg,#0891b2,#155e75)" onclick="printSingleQRLabel(\'' + equipment.id + '\')">🏷️ طباعة ملصق QR</button>' +
         '</div>';
     
     document.getElementById('detail-title').innerHTML = '🏗️ ' + escapeHtml(equipment.name);
@@ -4249,6 +4251,211 @@ function generateEquipmentMaintenanceOrder(eqId) {
     } else {
         showToast('⚠️ يرجى السماح بالنوافذ المنبثقة', true);
     }
+}
+
+// ==================== صفحة تفاصيل المعدة العامة (بدون تسجيل دخول) — للوصول عبر مسح QR ====================
+function initEquipmentPublicViewPage(eqId) {
+    document.title = 'تفاصيل المعدة';
+    document.body.innerHTML =
+        '<div style="min-height:100vh;background:#f1f5f9;padding:16px;font-family:Cairo,Tahoma,sans-serif;direction:rtl">' +
+        '<div id="eqpv-content" style="max-width:480px;margin:0 auto">' +
+        '<div style="background:white;border-radius:18px;padding:40px 20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)"><div style="font-size:36px;margin-bottom:10px">⏳</div><div style="color:#64748b;font-size:14px">جاري تحميل بيانات المعدة...</div></div>' +
+        '</div></div>';
+
+    try {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        fbDb = firebase.database();
+        fbDb.goOnline();
+    } catch (e) {
+        document.getElementById('eqpv-content').innerHTML = eqpvErrorCard('❌ خطأ في الاتصال بقاعدة البيانات');
+        return;
+    }
+
+    Promise.all([
+        fbDb.ref('equipment/' + eqId).once('value'),
+        fbDb.ref('maintenanceSchedules').once('value'),
+        fbDb.ref('drivers').once('value')
+    ]).then(function(results) {
+        var eq = results[0].val();
+        if (!eq) {
+            document.getElementById('eqpv-content').innerHTML = eqpvErrorCard('⚠️ لم يتم العثور على هذه المعدة');
+            return;
+        }
+        eq.id = eqId;
+
+        var maintList = [];
+        var maintVal = results[1].val();
+        if (maintVal) {
+            Object.keys(maintVal).forEach(function(k) {
+                var m = maintVal[k];
+                if (m && m.equipmentId === eqId) maintList.push(m);
+            });
+        }
+        maintList.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        var last4 = maintList.slice(0, 4);
+
+        var driversVal = results[2].val() || {};
+        var driverName = '';
+        Object.keys(driversVal).forEach(function(k) {
+            if (k === eq.assignedDriver && driversVal[k]) driverName = driversVal[k].name || '';
+        });
+
+        renderEquipmentPublicView(eq, last4, driverName);
+    }).catch(function(err) {
+        document.getElementById('eqpv-content').innerHTML = eqpvErrorCard('❌ تعذّر تحميل البيانات — تأكد من اتصال الإنترنت');
+    });
+}
+
+function eqpvErrorCard(msg) {
+    return '<div style="background:white;border-radius:18px;padding:40px 20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)"><div style="font-size:36px;margin-bottom:10px">📭</div><div style="color:#64748b;font-size:14px">' + msg + '</div></div>';
+}
+
+function eqpvStatusBadge(status) {
+    var map = {
+        'يعمل': ['#d1fae5', '#065f46', '✅'],
+        'صيانة': ['#fef3c7', '#78350f', '🔧'],
+        'متوقف': ['#fee2e2', '#7f1d1d', '⛔']
+    };
+    var c = map[status] || ['#e2e8f0', '#334155', '•'];
+    return '<span style="background:' + c[0] + ';color:' + c[1] + ';padding:5px 14px;border-radius:20px;font-size:12.5px;font-weight:700">' + c[2] + ' ' + escapeHtml(status || '—') + '</span>';
+}
+
+function eqpvRow(label, value) {
+    if (value === undefined || value === null || value === '') return '';
+    return '<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13.5px">' +
+        '<span style="color:#64748b">' + label + '</span><span style="font-weight:700;color:#0d1b2a">' + value + '</span></div>';
+}
+
+function renderEquipmentPublicView(eq, last4Maint, driverName) {
+    var remaining = hoursRemaining(eq);
+    var percent = getRemainingPercent(eq);
+    var barColor = getBarColor(remaining);
+
+    var maintHtml = '';
+    if (last4Maint.length) {
+        maintHtml = last4Maint.map(function(m) {
+            var statusColor = m.status === 'مكتمل' ? '#10b981' : (m.status === 'مجدول' ? '#f59e0b' : '#94a3b8');
+            return '<div style="background:#f8fafc;border-radius:12px;padding:10px 12px;margin-bottom:8px;border-right:3px solid ' + statusColor + '">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">' +
+                '<span style="font-weight:700;font-size:13px;color:#0d1b2a">' + escapeHtml(m.type || 'صيانة') + '</span>' +
+                '<span style="font-size:11px;color:' + statusColor + ';font-weight:700">' + escapeHtml(m.status || '') + '</span>' +
+                '</div>' +
+                '<div style="font-size:11.5px;color:#64748b">📅 ' + escapeHtml(m.date || '—') + (m.targetHours ? ' | ⏱️ ' + m.targetHours + ' س' : '') + '</div>' +
+                (m.notes ? '<div style="font-size:11.5px;color:#64748b;margin-top:3px">' + escapeHtml(m.notes) + '</div>' : '') +
+                '</div>';
+        }).join('');
+    } else {
+        maintHtml = '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:12.5px">لا يوجد سجل صيانات لهذه المعدة</div>';
+    }
+
+    var html =
+        '<div style="background:linear-gradient(135deg,#0d1b2a,#1b2838);border-radius:18px;padding:22px 18px;text-align:center;color:white;margin-bottom:14px">' +
+        '<div style="font-size:34px;margin-bottom:6px">🏗️</div>' +
+        '<div style="font-size:18px;font-weight:800;margin-bottom:3px">' + escapeHtml(eq.name || '') + '</div>' +
+        '<div style="font-size:12.5px;opacity:.75;direction:ltr;margin-bottom:10px">' + escapeHtml(eq.code || '') + '</div>' +
+        eqpvStatusBadge(eq.status) +
+        '</div>' +
+
+        '<div style="background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+        '<span style="font-size:13px;font-weight:700;color:#0d1b2a">⏱️ العداد الحالي</span>' +
+        '<span style="font-size:15px;font-weight:800;color:#0d1b2a">' + formatNumber(eq.hours) + ' س</span>' +
+        '</div>' +
+        '<div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:' + percent + '%;background:' + barColor + '"></div></div>' +
+        '<div style="font-size:11.5px;color:#64748b">' + getRemainingStatus(eq) + ' — الصيانة القادمة عند ' + formatNumber(eq.nextHours) + ' س</div>' +
+        '</div>' +
+
+        '<div style="background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)">' +
+        '<div style="font-size:13px;font-weight:700;color:#0d1b2a;margin-bottom:4px">📋 بيانات المعدة</div>' +
+        eqpvRow('النوع', escapeHtml(eq.type || '—')) +
+        eqpvRow('رقم الشاسيه', escapeHtml(eq.chassis || '—')) +
+        eqpvRow('الموقع', escapeHtml(eq.location || '—')) +
+        eqpvRow('المشروع', escapeHtml(eq.projectSite || '—')) +
+        eqpvRow('السائق المسند', escapeHtml(driverName || '—')) +
+        eqpvRow('نوع الملكية', escapeHtml(eq.ownership || '—')) +
+        eqpvRow('موديل المحرك', escapeHtml(eq.engineModel || '—')) +
+        eqpvRow('رقم المحرك', escapeHtml(eq.engineSN || '—')) +
+        eqpvRow('دورة الصيانة', eq.interval ? ('كل ' + eq.interval + ' ساعة') : '') +
+        '</div>' +
+
+        '<div style="background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)">' +
+        '<div style="font-size:13px;font-weight:700;color:#0d1b2a;margin-bottom:8px">🔧 آخر 4 صيانات</div>' +
+        maintHtml +
+        '</div>' +
+
+        (eq.notes ? '<div style="background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)"><div style="font-size:13px;font-weight:700;color:#0d1b2a;margin-bottom:4px">📝 ملاحظات</div><div style="font-size:13px;color:#334155">' + escapeHtml(eq.notes) + '</div></div>' : '') +
+
+        '<div style="text-align:center;font-size:10.5px;color:#94a3b8;margin-top:10px">📄 عرض للقراءة فقط عبر رمز QR</div>';
+
+    document.getElementById('eqpv-content').innerHTML = html;
+}
+
+
+function generateEquipmentQRUrl(eq) {
+    return location.origin + location.pathname + '?eq=' + encodeURIComponent(eq.id);
+}
+
+function buildQRLabelsPage(eqList) {
+    var labelsData = eqList.map(function(eq) {
+        return { id: 'qrlbl_' + eq.id, url: generateEquipmentQRUrl(eq), name: eq.name || '', code: eq.code || '' };
+    });
+
+    var labelsHtml = labelsData.map(function(l) {
+        return '<div class="qr-label">' +
+            '<div class="qr-box" id="' + l.id + '"></div>' +
+            '<div class="qr-name">' + escapeHtml(l.name) + '</div>' +
+            '<div class="qr-code">' + escapeHtml(l.code) + '</div>' +
+            '</div>';
+    }).join('');
+
+    var html = '<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>ملصقات QR للمعدات</title>' +
+        '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>' +
+        '<style>' +
+        'body{font-family:Arial,Tahoma,sans-serif;margin:0;padding:16px;background:#f1f5f9}' +
+        '.print-bar{text-align:center;margin-bottom:16px}' +
+        '.print-bar button{padding:10px 22px;border:none;border-radius:10px;background:#0891b2;color:white;font-size:14px;font-weight:700;cursor:pointer}' +
+        '.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}' +
+        '.qr-label{background:white;border:1px solid #cbd5e1;border-radius:10px;padding:10px;text-align:center;page-break-inside:avoid}' +
+        '.qr-box{display:flex;align-items:center;justify-content:center;margin-bottom:6px}' +
+        '.qr-name{font-size:12px;font-weight:800;color:#0d1b2a;margin-top:4px}' +
+        '.qr-code{font-size:11px;color:#64748b;direction:ltr}' +
+        '@media print{.print-bar{display:none}body{background:white;padding:0}.grid{gap:8px}}' +
+        '</style></head><body>' +
+        '<div class="print-bar"><button onclick="window.print()">🖨️ طباعة الملصقات</button></div>' +
+        '<div class="grid">' + labelsHtml + '</div>' +
+        '<script>' +
+        'var LABELS = ' + JSON.stringify(labelsData) + ';' +
+        'window.addEventListener("load", function() {' +
+        '  LABELS.forEach(function(l) {' +
+        '    new QRCode(document.getElementById(l.id), { text: l.url, width: 110, height: 110, correctLevel: QRCode.CorrectLevel.M });' +
+        '  });' +
+        '});' +
+        '<\/script>' +
+        '</body></html>';
+
+    return html;
+}
+
+function openQRLabelsWindow(html) {
+    var blob = new Blob([html], { type: 'text/html' });
+    var url = URL.createObjectURL(blob);
+    var win = window.open(url, '_blank');
+    if (win) {
+        setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+    } else {
+        showToast('⚠️ يرجى السماح بالنوافذ المنبثقة', true);
+    }
+}
+
+function printSingleQRLabel(eqId) {
+    var equipment = equipmentData.find(function(e) { return e.id === eqId; });
+    if (!equipment) { showToast('لم يتم العثور على المعدة', true); return; }
+    openQRLabelsWindow(buildQRLabelsPage([equipment]));
+}
+
+function openQRLabelsModal() {
+    if (!equipmentData.length) { showToast('لا توجد معدات لعرضها', true); return; }
+    openQRLabelsWindow(buildQRLabelsPage(equipmentData));
 }
 
 function showHoursHistory(eqId) {
@@ -10245,6 +10452,10 @@ document.addEventListener('DOMContentLoaded', function() {
     var shareParams = new URLSearchParams(location.search);
     var shareDriverId = shareParams.get('share');
     if (shareDriverId) { initShareLocationPage(shareDriverId); return; }
+
+    // رابط ملصق QR لمعدة معيّنة — صفحة عامة للقراءة فقط بدون تسجيل دخول
+    var eqDeepLinkId = shareParams.get('eq');
+    if (eqDeepLinkId) { initEquipmentPublicViewPage(eqDeepLinkId); return; }
 
     console.log('تم تحميل الصفحة - جاري تهيئة التطبيق');
     preloadLoginData();
