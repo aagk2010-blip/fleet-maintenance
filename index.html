@@ -19,6 +19,8 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if (window.pdfjsLib) { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
 :root{color-scheme:light only;--primary:#0d1b2a;--secondary:#1b2838;--accent:#e8a020;--accent-dark:#c88a18;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--info:#0e7490;--purple:#8b5cf6;--pink:#ec4899;--light:#f0f4f8;--white:#ffffff;--gray:#6b7a8d;--shadow:0 4px 12px rgba(0,0,0,0.08);--shadow-sm:0 1px 3px rgba(0,0,0,0.05);--mono:'IBM Plex Mono',ui-monospace,monospace;--sidebar-w:268px}
@@ -670,18 +672,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     </div>
   </div>
   <div id="view-map" style="display:none">
-    <div id="map-setup-card" style="padding:14px;display:none">
-      <div style="background:white;border-radius:16px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-        <div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:6px">🗺️ إعداد خريطة تتبّع المعدات</div>
-        <div style="font-size:12.5px;color:var(--gray);margin-bottom:14px;line-height:1.7">
-          محتاج مفتاح Google Maps API عشان الخريطة تشتغل. المفتاح ده بيتحفظ مرة واحدة ويشتغل لكل المستخدمين تلقائيًا.
-        </div>
-        <label class="form-label">مفتاح Google Maps API</label>
-        <input class="form-input" id="gmaps-key-input" dir="ltr" placeholder="AIzaSy..." style="margin-bottom:10px;font-family:monospace">
-        <button class="save-btn" style="margin:0" onclick="saveGmapsApiKey()">✅ حفظ وتفعيل الخريطة</button>
-      </div>
-    </div>
-    <div id="map-content-card" style="display:none">
+    <div id="map-content-card" style="display:block">
       <div style="padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <div style="font-size:11.5px;background:white;border-radius:20px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">🟢 نشط الآن (أقل من 15 د)</div>
         <div style="font-size:11.5px;background:white;border-radius:20px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">🟡 آخر تحديث قديم</div>
@@ -2931,11 +2922,6 @@ function attachFirebaseListeners() {
     listen('driverLocations', function(snapshot) {
         driverLocations = snapshotToArray(snapshot);
         if (activeView === 'map') renderEquipmentMap();
-    });
-
-    fbDb.ref('appSettings/gmapsApiKey').on('value', function(snapshot) {
-        gmapsApiKey = snapshot.val() || '';
-        if (activeView === 'map') refreshMapView();
     });
 
     listen('rental', function(snapshot) {
@@ -6161,52 +6147,17 @@ function openNotifSettings() {
     document.getElementById('notif-settings-modal').classList.add('active');
 }
 
-// ==================== خريطة تتبع المعدات (GPS عبر السائقين) ====================
-function saveGmapsApiKey() {
-    var key = (document.getElementById('gmaps-key-input').value || '').trim();
-    if (!key) { showToast('أدخل المفتاح أولاً', true); return; }
-    fbDb.ref('appSettings/gmapsApiKey').set(key).then(function() {
-        showToast('✅ تم حفظ المفتاح، جاري تحميل الخريطة...');
-        gmapsApiKey = key;
-        refreshMapView();
-    }).catch(function(e) { showToast('خطأ: ' + e.message, true); });
-}
-
+// ==================== خريطة تتبع المعدات (GPS عبر السائقين) — Leaflet + OpenStreetMap (مجاني، بدون مفتاح API) ====================
 function refreshMapView() {
-    var setupCard = document.getElementById('map-setup-card');
     var contentCard = document.getElementById('map-content-card');
-    if (!setupCard || !contentCard) return;
-    if (!gmapsApiKey) {
-        setupCard.style.display = 'block';
-        contentCard.style.display = 'none';
-        return;
-    }
-    setupCard.style.display = 'none';
+    if (!contentCard) return;
     contentCard.style.display = 'block';
-    loadGoogleMapsScript(function() { renderEquipmentMap(); });
-}
-
-function loadGoogleMapsScript(callback) {
-    if (window.google && window.google.maps) { callback(); return; }
-    if (gmapsScriptLoaded) {
-        // السكريبت بيتحمّل بالفعل — استنى شوية وحاول تاني
-        setTimeout(function() { loadGoogleMapsScript(callback); }, 400);
-        return;
-    }
-    gmapsScriptLoaded = true;
-    var script = document.createElement('script');
-    script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(gmapsApiKey);
-    script.onload = callback;
-    script.onerror = function() {
-        gmapsScriptLoaded = false;
-        showToast('⚠️ فشل تحميل خرائط جوجل — تأكد إن المفتاح صحيح ومفعّل عليه Maps JavaScript API', true);
-    };
-    document.head.appendChild(script);
+    renderEquipmentMap();
 }
 
 function renderEquipmentMap() {
     var mapEl = document.getElementById('equipment-map');
-    if (!mapEl || !window.google || !window.google.maps) return;
+    if (!mapEl || !window.L) return;
 
     // بناء نقاط: كل معدة عليها سائق له آخر موقع معروف
     var points = [];
@@ -6218,49 +6169,64 @@ function renderEquipmentMap() {
         points.push({ eq: eq, drv: drv, loc: loc });
     });
 
-    var center = points.length ? { lat: points[0].loc.lat, lng: points[0].loc.lng } : { lat: 30.0444, lng: 31.2357 }; // القاهرة كنقطة افتراضية
+    var center = points.length ? [points[0].loc.lat, points[0].loc.lng] : [30.0444, 31.2357]; // القاهرة كنقطة افتراضية
 
     if (!equipmentMapInstance) {
-        equipmentMapInstance = new google.maps.Map(mapEl, { center: center, zoom: points.length ? 11 : 6, mapTypeControl: false, streetViewControl: false });
+        equipmentMapInstance = L.map(mapEl, { zoomControl: true }).setView(center, points.length ? 11 : 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(equipmentMapInstance);
+        equipmentMapInstance._markers = [];
+    } else {
+        // إعادة ضبط حجم الخريطة في حال كانت مخفية وقت الإنشاء
+        setTimeout(function() { equipmentMapInstance.invalidateSize(); }, 100);
     }
 
     // مسح العلامات القديمة
-    if (equipmentMapInstance._markers) equipmentMapInstance._markers.forEach(function(m) { m.setMap(null); });
+    equipmentMapInstance._markers.forEach(function(m) { equipmentMapInstance.removeLayer(m); });
     equipmentMapInstance._markers = [];
 
     if (!points.length) {
-        var info = document.createElement('div');
-        info.style.cssText = 'padding:14px;background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12.5px;color:var(--gray);text-align:center;max-width:260px;margin:20px auto';
-        info.innerHTML = '📭 لا توجد مواقع مسجّلة بعد.<br>ابعت رابط المشاركة للسائقين من صفحة السائقين.';
-        mapEl.innerHTML = '';
-        mapEl.appendChild(info);
+        var existingInfo = mapEl.querySelector('.leaflet-empty-state');
+        if (!existingInfo) {
+            var info = document.createElement('div');
+            info.className = 'leaflet-empty-state';
+            info.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:14px;background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12.5px;color:var(--gray);text-align:center;max-width:260px';
+            info.innerHTML = '📭 لا توجد مواقع مسجّلة بعد.<br>ابعت رابط المشاركة للسائقين من صفحة السائقين.';
+            mapEl.style.position = 'relative';
+            mapEl.appendChild(info);
+        }
         return;
+    } else {
+        var oldInfo = mapEl.querySelector('.leaflet-empty-state');
+        if (oldInfo) oldInfo.remove();
     }
 
-    var bounds = new google.maps.LatLngBounds();
+    var bounds = [];
     points.forEach(function(p) {
         var minsAgo = (new Date() - new Date(p.loc.updatedAt)) / 60000;
         var color = minsAgo <= 15 ? '#10b981' : minsAgo <= 120 ? '#f59e0b' : '#9ca3af';
-        var marker = new google.maps.Marker({
-            position: { lat: p.loc.lat, lng: p.loc.lng },
-            map: equipmentMapInstance,
-            title: p.eq.name,
-            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
-        });
+        var marker = L.circleMarker([p.loc.lat, p.loc.lng], {
+            radius: 9,
+            fillColor: color,
+            color: '#fff',
+            weight: 2,
+            fillOpacity: 1
+        }).addTo(equipmentMapInstance);
         var timeAgoText = minsAgo < 1 ? 'الآن' : minsAgo < 60 ? Math.round(minsAgo) + ' دقيقة' : Math.round(minsAgo / 60) + ' ساعة';
-        var infoWindow = new google.maps.InfoWindow({
-            content: '<div style="font-family:Cairo,sans-serif;text-align:right;min-width:160px">' +
+        marker.bindPopup(
+            '<div style="font-family:Cairo,sans-serif;text-align:right;min-width:160px">' +
                 '<div style="font-weight:800;font-size:13px;margin-bottom:3px">🏗️ ' + (p.eq.name || '') + '</div>' +
                 '<div style="font-size:11.5px;color:#555">👨‍✈️ ' + (p.drv ? p.drv.name : '—') + '</div>' +
                 '<div style="font-size:11px;color:#888;margin-top:3px">🕐 آخر تحديث: منذ ' + timeAgoText + '</div>' +
                 '</div>'
-        });
-        marker.addListener('click', function() { infoWindow.open(equipmentMapInstance, marker); });
+        );
         equipmentMapInstance._markers.push(marker);
-        bounds.extend(marker.getPosition());
+        bounds.push([p.loc.lat, p.loc.lng]);
     });
-    if (points.length > 1) equipmentMapInstance.fitBounds(bounds);
-    else equipmentMapInstance.setCenter(points[0].loc.lat ? { lat: points[0].loc.lat, lng: points[0].loc.lng } : center);
+    if (points.length > 1) equipmentMapInstance.fitBounds(bounds, { padding: [30, 30] });
+    else equipmentMapInstance.setView(bounds[0], 14);
 }
 
 // توليد رابط مشاركة الموقع لسائق معيّن (بدون تسجيل دخول)
@@ -6507,8 +6473,6 @@ var approvalRequestsData = []; // محمّلة من Firebase عبر listen()
 var maintenanceReportsData = []; // محمّلة من Firebase عبر listen()
 var equipmentChecksData = []; // مراجعات الموظفين السريعة (زيت/مياه/فلتر هواء) — محمّلة من Firebase عبر listen()
 var driverLocations = []; // آخر مواقع GPS معروفة للسائقين — محمّلة من Firebase عبر listen()
-var gmapsApiKey = ''; // مفتاح Google Maps API — محفوظ في Firebase appSettings/gmapsApiKey
-var gmapsScriptLoaded = false;
 var equipmentMapInstance = null;
 var currentFaultReportEqId = null;
 var currentFaultReportPhoto = null;
