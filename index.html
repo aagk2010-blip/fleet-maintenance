@@ -397,6 +397,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 <svg style="display:none">
 <symbol id="ic-dashboard" viewBox="0 0 24 24"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M12 13l4-4"/><circle cx="12" cy="13" r="1"/><path d="M4 20h16"/></symbol>
 <symbol id="ic-building" viewBox="0 0 24 24"><rect x="5" y="3" width="10" height="18" rx="1"/><path d="M9 7h2M9 11h2M9 15h2"/><path d="M15 10h4v11h-4"/></symbol>
+<symbol id="ic-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></symbol>
 <symbol id="ic-equipment" viewBox="0 0 24 24"><path d="M3 20h9"/><path d="M6 20v-6l6-4 3 3-5 4"/><circle cx="18" cy="17" r="3"/><path d="M15 8l3-4 3 4"/></symbol>
 <symbol id="ic-rental" viewBox="0 0 24 24"><rect x="2" y="8" width="12" height="8" rx="1"/><path d="M14 11h4l3 3v2h-3"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></symbol>
 <symbol id="ic-drivers" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 4v6M6.5 15.5l4-2M17.5 15.5l-4-2"/></symbol>
@@ -532,6 +533,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
       <button class="tab-btn sidebar-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button>
       <button class="tab-btn sidebar-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button>
       <button class="tab-btn sidebar-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button>
+      <button class="tab-btn sidebar-btn" data-view="map"><span class="tab-icon"><svg class="icon"><use href="#ic-map"/></svg></span><span>خريطة المعدات</span></button>
       <button class="tab-btn sidebar-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button>
       <button class="tab-btn sidebar-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button>
       <button class="tab-btn sidebar-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button>
@@ -667,6 +669,28 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
       </div>
     </div>
   </div>
+  <div id="view-map" style="display:none">
+    <div id="map-setup-card" style="padding:14px;display:none">
+      <div style="background:white;border-radius:16px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+        <div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:6px">🗺️ إعداد خريطة تتبّع المعدات</div>
+        <div style="font-size:12.5px;color:var(--gray);margin-bottom:14px;line-height:1.7">
+          محتاج مفتاح Google Maps API عشان الخريطة تشتغل. المفتاح ده بيتحفظ مرة واحدة ويشتغل لكل المستخدمين تلقائيًا.
+        </div>
+        <label class="form-label">مفتاح Google Maps API</label>
+        <input class="form-input" id="gmaps-key-input" dir="ltr" placeholder="AIzaSy..." style="margin-bottom:10px;font-family:monospace">
+        <button class="save-btn" style="margin:0" onclick="saveGmapsApiKey()">✅ حفظ وتفعيل الخريطة</button>
+      </div>
+    </div>
+    <div id="map-content-card" style="display:none">
+      <div style="padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <div style="font-size:11.5px;background:white;border-radius:20px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">🟢 نشط الآن (أقل من 15 د)</div>
+        <div style="font-size:11.5px;background:white;border-radius:20px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">🟡 آخر تحديث قديم</div>
+        <div style="font-size:11.5px;background:white;border-radius:20px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">⚪ لا يشارك موقعه</div>
+      </div>
+      <div id="equipment-map" style="height:calc(100vh - 220px);min-height:380px;margin:0 14px 14px;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)"></div>
+    </div>
+  </div>
+
   <div id="view-import" style="display:none">
     <div style="padding:14px">
       <div style="background:white; border-radius:18px; padding:20px; margin-bottom:16px; text-align:center">
@@ -702,7 +726,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   </div>
   
   </div><!-- /.app-main -->
-  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
+  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="map"><span class="tab-icon"><svg class="icon"><use href="#ic-map"/></svg></span><span>الخريطة</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
   <button class="fab" id="fab-btn">+</button>
 </div>
 
@@ -2904,6 +2928,16 @@ function attachFirebaseListeners() {
         debouncedRefresh();
     });
 
+    listen('driverLocations', function(snapshot) {
+        driverLocations = snapshotToArray(snapshot);
+        if (activeView === 'map') renderEquipmentMap();
+    });
+
+    fbDb.ref('appSettings/gmapsApiKey').on('value', function(snapshot) {
+        gmapsApiKey = snapshot.val() || '';
+        if (activeView === 'map') refreshMapView();
+    });
+
     listen('rental', function(snapshot) {
         rentalData = snapshotToArray(snapshot);
         renderRentalEquipment();
@@ -4475,6 +4509,23 @@ function openDriverDetail(id) {
     }
     if (driver.notes) {
         contentHtml += '<div class="detail-section"><div class="detail-label">ملاحظات</div><div class="detail-value">' + escapeHtml(driver.notes) + '</div></div>';
+    }
+    if (hasPermission('all')) {
+        var loc = driverLocations.find(function(l) { return l.driverId === driver.id; });
+        var locStatusHtml;
+        if (loc && loc.updatedAt) {
+            var minsAgo = (new Date() - new Date(loc.updatedAt)) / 60000;
+            var locColor = minsAgo <= 15 ? 'var(--success)' : minsAgo <= 120 ? 'var(--warning)' : 'var(--gray)';
+            var timeAgoText = minsAgo < 1 ? 'الآن' : minsAgo < 60 ? Math.round(minsAgo) + ' دقيقة' : Math.round(minsAgo / 60) + ' ساعة';
+            locStatusHtml = '<span style="color:' + locColor + ';font-weight:700">📍 آخر تحديث: منذ ' + timeAgoText + '</span>';
+        } else {
+            locStatusHtml = '<span style="color:var(--gray)">⚪ لسه ماشاركش موقعه</span>';
+        }
+        contentHtml += '<div class="detail-section"><div class="detail-label">📍 تتبّع الموقع (GPS)</div><div class="detail-value">' + locStatusHtml + '</div>' +
+            '<div class="grid-2" style="margin-top:8px">' +
+            '<button class="save-btn" style="margin:0;background:var(--info)" onclick="copyDriverShareLink(\'' + driver.id + '\')">📋 نسخ رابط المشاركة</button>' +
+            '<button class="save-btn" style="margin:0;background:linear-gradient(135deg,#25d366,#128c7e)" onclick="shareDriverLinkWhatsApp(\'' + driver.id + '\',\'' + escapeHtml(driver.name).replace(/'/g,"\\'") + '\')">📲 إرسال واتساب</button>' +
+            '</div></div>';
     }
     contentHtml += '<div class="grid-2" style="margin:12px 14px">';
     if (hasPermission('all')) {
@@ -6110,6 +6161,196 @@ function openNotifSettings() {
     document.getElementById('notif-settings-modal').classList.add('active');
 }
 
+// ==================== خريطة تتبع المعدات (GPS عبر السائقين) ====================
+function saveGmapsApiKey() {
+    var key = (document.getElementById('gmaps-key-input').value || '').trim();
+    if (!key) { showToast('أدخل المفتاح أولاً', true); return; }
+    fbDb.ref('appSettings/gmapsApiKey').set(key).then(function() {
+        showToast('✅ تم حفظ المفتاح، جاري تحميل الخريطة...');
+        gmapsApiKey = key;
+        refreshMapView();
+    }).catch(function(e) { showToast('خطأ: ' + e.message, true); });
+}
+
+function refreshMapView() {
+    var setupCard = document.getElementById('map-setup-card');
+    var contentCard = document.getElementById('map-content-card');
+    if (!setupCard || !contentCard) return;
+    if (!gmapsApiKey) {
+        setupCard.style.display = 'block';
+        contentCard.style.display = 'none';
+        return;
+    }
+    setupCard.style.display = 'none';
+    contentCard.style.display = 'block';
+    loadGoogleMapsScript(function() { renderEquipmentMap(); });
+}
+
+function loadGoogleMapsScript(callback) {
+    if (window.google && window.google.maps) { callback(); return; }
+    if (gmapsScriptLoaded) {
+        // السكريبت بيتحمّل بالفعل — استنى شوية وحاول تاني
+        setTimeout(function() { loadGoogleMapsScript(callback); }, 400);
+        return;
+    }
+    gmapsScriptLoaded = true;
+    var script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(gmapsApiKey);
+    script.onload = callback;
+    script.onerror = function() {
+        gmapsScriptLoaded = false;
+        showToast('⚠️ فشل تحميل خرائط جوجل — تأكد إن المفتاح صحيح ومفعّل عليه Maps JavaScript API', true);
+    };
+    document.head.appendChild(script);
+}
+
+function renderEquipmentMap() {
+    var mapEl = document.getElementById('equipment-map');
+    if (!mapEl || !window.google || !window.google.maps) return;
+
+    // بناء نقاط: كل معدة عليها سائق له آخر موقع معروف
+    var points = [];
+    equipmentData.forEach(function(eq) {
+        if (!eq.assignedDriver) return;
+        var loc = driverLocations.find(function(l) { return l.driverId === eq.assignedDriver; });
+        if (!loc || !loc.lat || !loc.lng) return;
+        var drv = driversData.find(function(d) { return d.id === eq.assignedDriver; });
+        points.push({ eq: eq, drv: drv, loc: loc });
+    });
+
+    var center = points.length ? { lat: points[0].loc.lat, lng: points[0].loc.lng } : { lat: 30.0444, lng: 31.2357 }; // القاهرة كنقطة افتراضية
+
+    if (!equipmentMapInstance) {
+        equipmentMapInstance = new google.maps.Map(mapEl, { center: center, zoom: points.length ? 11 : 6, mapTypeControl: false, streetViewControl: false });
+    }
+
+    // مسح العلامات القديمة
+    if (equipmentMapInstance._markers) equipmentMapInstance._markers.forEach(function(m) { m.setMap(null); });
+    equipmentMapInstance._markers = [];
+
+    if (!points.length) {
+        var info = document.createElement('div');
+        info.style.cssText = 'padding:14px;background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12.5px;color:var(--gray);text-align:center;max-width:260px;margin:20px auto';
+        info.innerHTML = '📭 لا توجد مواقع مسجّلة بعد.<br>ابعت رابط المشاركة للسائقين من صفحة السائقين.';
+        mapEl.innerHTML = '';
+        mapEl.appendChild(info);
+        return;
+    }
+
+    var bounds = new google.maps.LatLngBounds();
+    points.forEach(function(p) {
+        var minsAgo = (new Date() - new Date(p.loc.updatedAt)) / 60000;
+        var color = minsAgo <= 15 ? '#10b981' : minsAgo <= 120 ? '#f59e0b' : '#9ca3af';
+        var marker = new google.maps.Marker({
+            position: { lat: p.loc.lat, lng: p.loc.lng },
+            map: equipmentMapInstance,
+            title: p.eq.name,
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+        });
+        var timeAgoText = minsAgo < 1 ? 'الآن' : minsAgo < 60 ? Math.round(minsAgo) + ' دقيقة' : Math.round(minsAgo / 60) + ' ساعة';
+        var infoWindow = new google.maps.InfoWindow({
+            content: '<div style="font-family:Cairo,sans-serif;text-align:right;min-width:160px">' +
+                '<div style="font-weight:800;font-size:13px;margin-bottom:3px">🏗️ ' + (p.eq.name || '') + '</div>' +
+                '<div style="font-size:11.5px;color:#555">👨‍✈️ ' + (p.drv ? p.drv.name : '—') + '</div>' +
+                '<div style="font-size:11px;color:#888;margin-top:3px">🕐 آخر تحديث: منذ ' + timeAgoText + '</div>' +
+                '</div>'
+        });
+        marker.addListener('click', function() { infoWindow.open(equipmentMapInstance, marker); });
+        equipmentMapInstance._markers.push(marker);
+        bounds.extend(marker.getPosition());
+    });
+    if (points.length > 1) equipmentMapInstance.fitBounds(bounds);
+    else equipmentMapInstance.setCenter(points[0].loc.lat ? { lat: points[0].loc.lat, lng: points[0].loc.lng } : center);
+}
+
+// توليد رابط مشاركة الموقع لسائق معيّن (بدون تسجيل دخول)
+function generateDriverShareLink(driverId) {
+    var base = location.origin + location.pathname;
+    return base + '?share=' + driverId;
+}
+
+function copyDriverShareLink(driverId, driverName) {
+    var link = generateDriverShareLink(driverId);
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(link).then(function() { showToast('✅ تم نسخ رابط المشاركة'); });
+    } else {
+        showToast(link);
+    }
+}
+
+function shareDriverLinkWhatsApp(driverId, driverName) {
+    var link = generateDriverShareLink(driverId);
+    var text = 'مرحباً ' + (driverName || '') + '،\nمن فضلك افتح الرابط ده وفعّل مشاركة موقعك عشان نقدر نتابع المعدة:\n' + link;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+// ==================== صفحة مشاركة الموقع للسائق (بدون تسجيل دخول) ====================
+var shareWatchId = null;
+
+function initShareLocationPage(driverId) {
+    document.title = 'مشاركة الموقع';
+    document.body.innerHTML =
+        '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:20px;font-family:Cairo,Tahoma,sans-serif;direction:rtl">' +
+        '<div style="background:white;border-radius:20px;padding:26px 22px;max-width:380px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)">' +
+        '<div style="font-size:44px;margin-bottom:8px">📍</div>' +
+        '<div id="share-driver-name" style="font-size:17px;font-weight:800;color:#0d1b2a;margin-bottom:4px">جاري التحميل...</div>' +
+        '<div style="font-size:12.5px;color:#6b7a8d;margin-bottom:18px">مشاركة موقعك بتساعد فريق العمل يتابع المعدة أول بأول</div>' +
+        '<div id="share-status" style="font-size:13px;font-weight:700;color:#f59e0b;background:#fef3c7;border-radius:10px;padding:9px;margin-bottom:16px">⏳ لسه مفيش مشاركة</div>' +
+        '<button id="share-toggle-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">▶️ بدء مشاركة الموقع</button>' +
+        '<div style="font-size:10.5px;color:#9ca3af;margin-top:14px">هيطلب المتصفح إذن الوصول للموقع — اضغط "سماح"</div>' +
+        '</div></div>';
+
+    try {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        fbDb = firebase.database();
+        fbDb.goOnline();
+    } catch (e) {
+        document.getElementById('share-status').innerHTML = '❌ خطأ في الاتصال';
+        return;
+    }
+
+    var driverName = '';
+    fbDb.ref('drivers/' + driverId).once('value').then(function(snap) {
+        var d = snap.val();
+        driverName = d ? d.name : '';
+        document.getElementById('share-driver-name').textContent = d ? '👨‍✈️ ' + d.name : 'رابط غير صحيح';
+        if (!d) document.getElementById('share-toggle-btn').style.display = 'none';
+    });
+
+    var btn = document.getElementById('share-toggle-btn');
+    var statusEl = document.getElementById('share-status');
+    var sharing = false;
+
+    function pushLocation(pos) {
+        fbDb.ref('driverLocations/' + driverId).set({
+            driverId: driverId, driverName: driverName,
+            lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy,
+            updatedAt: new Date().toISOString()
+        });
+        statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+        statusEl.innerHTML = '🟢 جاري المشاركة — آخر تحديث الآن';
+    }
+
+    btn.onclick = function() {
+        if (!navigator.geolocation) { statusEl.innerHTML = '❌ الجهاز مش بيدعم تحديد الموقع'; return; }
+        sharing = !sharing;
+        if (sharing) {
+            shareWatchId = navigator.geolocation.watchPosition(pushLocation, function(err) {
+                statusEl.style.color = '#dc2626'; statusEl.style.background = '#fee2e2';
+                statusEl.innerHTML = '❌ ' + (err.code === 1 ? 'رفضت إذن الموقع' : 'تعذّر تحديد الموقع');
+            }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
+            btn.textContent = '⏹️ إيقاف المشاركة';
+            btn.style.background = 'linear-gradient(135deg,#dc2626,#991b1b)';
+        } else {
+            if (shareWatchId !== null) navigator.geolocation.clearWatch(shareWatchId);
+            statusEl.style.color = '#f59e0b'; statusEl.style.background = '#fef3c7';
+            statusEl.innerHTML = '⏸️ المشاركة متوقفة';
+            btn.textContent = '▶️ بدء مشاركة الموقع';
+            btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+        }
+    };
+}
+
 function enableBrowserNotifications() {
     if (!('Notification' in window)) {
         showToast('المتصفح لا يدعم الإشعارات', true);
@@ -6265,6 +6506,10 @@ var approvalRequestsData = []; // محمّلة من Firebase عبر listen()
 // ==================== بلاغات أعطال الموقع ====================
 var maintenanceReportsData = []; // محمّلة من Firebase عبر listen()
 var equipmentChecksData = []; // مراجعات الموظفين السريعة (زيت/مياه/فلتر هواء) — محمّلة من Firebase عبر listen()
+var driverLocations = []; // آخر مواقع GPS معروفة للسائقين — محمّلة من Firebase عبر listen()
+var gmapsApiKey = ''; // مفتاح Google Maps API — محفوظ في Firebase appSettings/gmapsApiKey
+var gmapsScriptLoaded = false;
+var equipmentMapInstance = null;
 var currentFaultReportEqId = null;
 var currentFaultReportPhoto = null;
 var currentConvertingFaultReportId = null;
@@ -9627,6 +9872,8 @@ function switchView(view) {
     if (currentUser && currentUser.role !== 'admin') {
         if (view === 'employees') {
             if (!canView('employees') && !canView('drivers')) return;
+        } else if (view === 'map') {
+            return; // خريطة المعدات (تتبع GPS) متاحة للأدمن فقط حاليًا
         } else {
             var sectionMap = { home:'home', sites:'sites', analytics:'analytics', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental' };
             if (sectionMap[view] && !canView(sectionMap[view])) return;
@@ -9641,11 +9888,13 @@ function switchView(view) {
     document.getElementById('view-maintenance').style.display = view === 'maintenance' ? 'block' : 'none';
     document.getElementById('view-inventory').style.display = view === 'inventory' ? 'block' : 'none';
     document.getElementById('view-rental').style.display   = view === 'rental'    ? 'block' : 'none';
+    document.getElementById('view-map').style.display      = view === 'map'      ? 'block' : 'none';
     document.getElementById('view-import').style.display   = view === 'import'    ? 'block' : 'none';
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
         if (btn.dataset.view === view) btn.classList.add('active');
         else btn.classList.remove('active');
     });
+    if (view === 'map') refreshMapView();
     var titles = {
         home: '📊 لوحة القيادة',
         sites: '🏢 لوحة المواقع',
@@ -9655,6 +9904,7 @@ function switchView(view) {
         fuel: '⛽ الوقود',
         maintenance: '🔧 الصيانة',
         inventory: '📦 المخزن',
+        map: '🗺️ خريطة المعدات',
         import: '📂 استيراد البيانات'
     };
     document.getElementById('header-title').innerHTML = titles[view];
@@ -9896,6 +10146,11 @@ function initOfflineDetector() {
 
 // ==================== ربط الأحداث النهائي ====================
 document.addEventListener('DOMContentLoaded', function() {
+    // رابط مشاركة موقع سائق (بدون تسجيل دخول) — يوقف التحميل العادي للتطبيق
+    var shareParams = new URLSearchParams(location.search);
+    var shareDriverId = shareParams.get('share');
+    if (shareDriverId) { initShareLocationPage(shareDriverId); return; }
+
     console.log('تم تحميل الصفحة - جاري تهيئة التطبيق');
     preloadLoginData();
     setupBrandedAppIcon();
