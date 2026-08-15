@@ -647,7 +647,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   
   <div id="view-maintenance" style="display:none"><div style="padding:14px"><button id="add-maintenance-btn" class="big-btn" style="margin-bottom:10px">🔧 جدولة صيانة جديدة</button><button onclick="openWorkOrdersView()" class="big-btn" style="margin-bottom:10px;background:linear-gradient(135deg,#1e3a5f,#0d1b2a)">📋 أوامر العمل</button><button id="whatsapp-maint-btn" class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg,#25d366,#128c7e)">📱 إرسال تقرير الصيانة واتساب</button><button id="delete-all-maintenance-btn" class="big-btn" style="margin-bottom:16px; background:#dc2626">🗑️ حذف جميع الصيانات المجدولة</button><div id="maintenance-list"></div></div></div>
   
-  <div id="view-inventory" style="display:none"><div style="padding:14px"><div class="search-box" style="margin-bottom:8px"><span>🔍</span><input type="text" id="search-inventory" placeholder="بحث باسم أو رقم قطعة..."></div><div class="search-box"><span>🏷️</span><select id="category-filter"><option value="all">جميع الأصناف</option><option value="filter">فلاتر</option><option value="oil">زيوت</option><option value="tire">إطارات</option><option value="spare">قطع غيار</option><option value="other">أخرى</option></select></div><button id="add-inventory-btn" class="big-btn" style="margin-bottom:10px; background:linear-gradient(135deg,var(--purple),var(--pink))">📦 إضافة صنف جديد</button><button id="export-inventory-excel-btn" class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير المخزون Excel</button><button id="order-report-btn" class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg,var(--danger),var(--warning))">📋 إنشاء طلبية للنواقص (1000 ساعة)</button><button id="delete-all-inventory-btn" class="big-btn" style="margin-bottom:16px; background:#dc2626">🗑️ حذف جميع أصناف المخزون</button><div id="inv-list"></div></div></div>
+  <div id="view-inventory" style="display:none"><div style="padding:14px"><div class="search-box" style="margin-bottom:8px"><span>🔍</span><input type="text" id="search-inventory" placeholder="بحث باسم أو رقم قطعة..."></div><div class="search-box"><span>🏷️</span><select id="category-filter"><option value="all">جميع الأصناف</option><option value="filter">فلاتر</option><option value="oil">زيوت</option><option value="tire">إطارات</option><option value="spare">قطع غيار</option><option value="other">أخرى</option></select></div><button id="add-inventory-btn" class="big-btn" style="margin-bottom:10px; background:linear-gradient(135deg,var(--purple),var(--pink))">📦 إضافة صنف جديد</button><button id="export-inventory-excel-btn" class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير المخزون Excel</button><button id="order-report-btn" class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg,var(--danger),var(--warning))">📋 إنشاء طلبية للنواقص (1000 ساعة)</button><button id="delete-all-inventory-btn" class="big-btn" style="margin-bottom:16px; background:#dc2626">🗑️ حذف جميع أصناف المخزون</button><button id="fix-filter-category-btn" class="big-btn" style="margin-bottom:16px; background:linear-gradient(135deg,#0891b2,#155e75)" onclick="fixMiscategorizedFilters()">🔍 فحص وتصحيح تصنيف الفلاتر المسجّلة كزيوت</button><div id="inv-list"></div></div></div></div>
   
   <div id="view-rental" style="display:none">
     <div style="padding:14px">
@@ -4273,8 +4273,8 @@ function showPMHistory(equipmentId) {
                 '📊 إجمالي الصيانات: <strong>' + sessions.length + '</strong> صيانة</div>';
 
         sessions.slice().reverse().forEach(function(s, idx) {
-            var oils = s.items.filter(function(i) { return i.name.toLowerCase().indexOf('oil') !== -1; });
-            var filters = s.items.filter(function(i) { return i.name.toLowerCase().indexOf('filter') !== -1; });
+            var filters = s.items.filter(function(i) { return i.name.toLowerCase().indexOf('filt') !== -1; });
+            var oils = s.items.filter(function(i) { return filters.indexOf(i) < 0 && i.name.toLowerCase().indexOf('oil') !== -1; });
             var others = s.items.filter(function(i) { return oils.indexOf(i) < 0 && filters.indexOf(i) < 0; });
 
             html += '<div style="background:white;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:10px;overflow:hidden">' +
@@ -4632,8 +4632,8 @@ function renderEquipmentPublicView(eq, last4Maint, driverName, maintDenied, last
     } else if (last4Maint.length) {
         maintHtml = last4Maint.map(function(s) {
             var items = s.items || [];
-            var oils = items.filter(function(i) { return (i.name || '').toLowerCase().indexOf('oil') !== -1; });
-            var filters = items.filter(function(i) { return (i.name || '').toLowerCase().indexOf('filter') !== -1; });
+            var filters = items.filter(function(i) { return (i.name || '').toLowerCase().indexOf('filt') !== -1; });
+            var oils = items.filter(function(i) { return filters.indexOf(i) < 0 && (i.name || '').toLowerCase().indexOf('oil') !== -1; });
             var others = items.filter(function(i) { return oils.indexOf(i) < 0 && filters.indexOf(i) < 0; });
 
             function itemsLine(list) {
@@ -6166,6 +6166,39 @@ function saveFilterLink() {
     });
     closeModal('link-filter-modal');
     showToast('تم تحديث الربط');
+}
+
+// ==================== أداة تصحيح: فلاتر مسجّلة خطأ كزيوت (بسبب أخطاء إملائية زي Fiilter بدل Filter) ====================
+function fixMiscategorizedFilters() {
+    if (!hasPermission('all')) { showToast('غير مصرح', true); return; }
+    if (!confirm('هيتم فحص كل أصناف المخزون، وأي صنف اسمه فيه "فلتر/filt" لكنه مسجّل بالغلط كـ"زيت" هيتم تصحيحه تلقائيًا، وهنقل أي ربط بمعدات من قائمة الزيوت لقائمة الفلاتر. متابعة؟')) return;
+
+    var wrongItems = inventoryItems.filter(function(item) {
+        if (item.category !== 'oil') return false;
+        var nm = (item.name || '').toLowerCase();
+        var fd = (item.fullDescription || '').toLowerCase();
+        return nm.indexOf('filt') !== -1 || nm.indexOf('فلتر') !== -1 || fd.indexOf('filt') !== -1 || fd.indexOf('فلتر') !== -1;
+    });
+
+    if (!wrongItems.length) { showToast('✅ مفيش أصناف محتاجة تصحيح'); return; }
+
+    var linksFixed = 0;
+    wrongItems.forEach(function(item) {
+        saveToFirebase('inventoryItems', Object.assign({}, item, { category: 'filter', displayUnit: 'قطعة' }));
+
+        var relatedLinks = equipmentOilLinks.filter(function(l) { return l.oilPartNo === item.partNo; });
+        relatedLinks.forEach(function(link) {
+            saveToFirebase('equipmentFilterLinks', {
+                equipmentId: link.equipmentId,
+                filterPartNo: link.oilPartNo,
+                quantityPerChange: link.quantityPerChange || 1
+            });
+            deleteFromFirebase('equipmentOilLinks', link.id);
+            linksFixed++;
+        });
+    });
+
+    showToast('✅ تم تصحيح ' + wrongItems.length + ' صنف و' + linksFixed + ' ربط بمعدات');
 }
 
 function openLinkOilModal(itemId) {
@@ -8405,13 +8438,14 @@ function handleInventoryFileUpload(inputElement) {
                 
                 var category = 'spare';
                 var categoryLower = categoryRaw.toLowerCase();
-                if (categoryLower.includes('فلتر') || categoryLower.includes('filter')) category = 'filter';
+                if (categoryLower.includes('فلتر') || categoryLower.includes('filt')) category = 'filter';
                 else if (categoryLower.includes('زيت') || categoryLower.includes('oil')) category = 'oil';
                 else if (categoryLower.includes('اطار') || categoryLower.includes('تاير') || categoryLower.includes('tire')) category = 'tire';
                 else if (categoryLower.includes('قطعة') || categoryLower.includes('spare')) category = 'spare';
                 else {
                     var descLower = description.toLowerCase();
-                    if (descLower.includes('فلتر') || descLower.includes('filter')) category = 'filter';
+                    // "filt" بدل "filter" الكاملة عشان نلتقط الأخطاء الإملائية الشائعة زي "Fiilter"/"Filer" دون ما نفوّت أي فلتر
+                    if (descLower.includes('فلتر') || descLower.includes('filt')) category = 'filter';
                     else if (descLower.includes('زيت') || descLower.includes('oil')) category = 'oil';
                     else if (descLower.includes('اطار') || descLower.includes('تاير')) category = 'tire';
                 }
@@ -9805,7 +9839,8 @@ function exportUnifiedMonthlyReport() {
                 maintEquipmentSet[eq.id] = true;
                 var oilsInSession = 0, partsInSession = 0;
                 (s.items||[]).forEach(function(it){
-                    if ((it.name||'').toLowerCase().indexOf('oil') !== -1) { maintOilCount++; oilsInSession++; }
+                    var nm = (it.name||'').toLowerCase();
+                    if (nm.indexOf('filt') === -1 && nm.indexOf('oil') !== -1) { maintOilCount++; oilsInSession++; }
                     else { maintPartsCount++; partsInSession++; }
                 });
                 maintDetailRows.push({
