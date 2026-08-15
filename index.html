@@ -548,7 +548,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     <div class="sidebar-foot">EMS Dashboard</div>
   </nav>
   <div class="app-main">
-  <div class="status-bar"><span>🏗️ Hassan Allam Holding</span><div><span id="user-name-display"></span><button id="logout-btn" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:4px 12px; border-radius:20px; font-size:11px; cursor:pointer; margin-right:8px">خروج</button><button id="admin-panel-btn" style="display:none;background:rgba(232,160,32,0.3);border:none;color:white;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;margin-right:5px">👑 إدارة المستخدمين</button></div></div>
+  <div class="status-bar"><span>🏗️ Hassan Allam Holding</span><div><span id="user-name-display"></span><button id="logout-btn" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:4px 12px; border-radius:20px; font-size:11px; cursor:pointer; margin-right:8px">خروج</button><button id="admin-panel-btn" style="display:none;background:rgba(232,160,32,0.3);border:none;color:white;border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;margin-right:5px">⚙️ الضبط</button></div></div>
   <div class="header"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:20px;font-weight:900;color:white;letter-spacing:2px;flex-shrink:0;font-family:serif">HAC</span><div class="header-title" id="header-title" style="margin-bottom:0">📊 لوحة القيادة</div></div><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><div class="header-sub" id="sync-status-placeholder" style="display:none"></div><div style="display:flex;gap:6px;align-items:center"><span id="conn-indicator" title="حالة الاتصال" style="font-size:18px;line-height:1;cursor:default">🔴</span><button id="global-search-toggle" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 10px;font-size:14px;cursor:pointer" title="بحث عالمي">🔍</button><button id="export-pdf-btn" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 10px;font-size:12px;cursor:pointer">📄 PDF</button><button id="notif-settings-btn" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px">🔔 الإشعارات</button></div></div><div class="header-sub" id="sync-status">جاري الاتصال...</div></div>
   <div id="alert-bar" style="display:none"></div>
   
@@ -927,16 +927,17 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 <!-- لوحة تحكم المدير -->
 <div class="admin-panel-overlay" id="admin-panel-overlay">
   <div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);position:sticky;top:0;z-index:10">
-    <div class="modal-title">👑 لوحة تحكم المدير</div>
+    <div class="modal-title">⚙️ الضبط</div>
     <button class="modal-close" onclick="document.getElementById('admin-panel-overlay').classList.remove('active')">✕</button>
   </div>
   <!-- تبويبات لوحة المدير -->
-  <div style="display:flex;gap:6px;padding:12px 14px 0;background:white;border-bottom:1px solid #e2e8f0;position:sticky;top:56px;z-index:9">
-    <button id="atab-users-btn" onclick="switchAdminTab('users')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">👥 المستخدمون</button>
-    <button id="atab-backup-btn" onclick="switchAdminTab('backup')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">💾 نسخ احتياطي</button>
-    <button id="atab-loginlog-btn" onclick="switchAdminTab('loginlog')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">📝 سجل الدخول</button>
-    <button id="atab-firebase-btn" onclick="switchAdminTab('firebase')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">🔥 إعدادات Firebase</button>
-    <button id="atab-danger-btn" onclick="switchAdminTab('danger')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit">⚠️ منطقة الخطر</button>
+  <div style="display:flex;gap:6px;padding:12px 14px 0;background:white;border-bottom:1px solid #e2e8f0;position:sticky;top:56px;z-index:9;overflow-x:auto">
+    <button id="atab-users-btn" onclick="switchAdminTab('users')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;flex-shrink:0">👥 المستخدمون</button>
+    <button id="atab-fuel-btn" onclick="switchAdminTab('fuel')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;flex-shrink:0">⛽ أسعار الوقود</button>
+    <button id="atab-backup-btn" onclick="switchAdminTab('backup')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;flex-shrink:0">💾 نسخ احتياطي</button>
+    <button id="atab-loginlog-btn" onclick="switchAdminTab('loginlog')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;flex-shrink:0">📝 سجل الدخول</button>
+    <button id="atab-firebase-btn" onclick="switchAdminTab('firebase')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;flex-shrink:0">🔥 إعدادات Firebase</button>
+    <button id="atab-danger-btn" onclick="switchAdminTab('danger')" style="padding:8px 16px;border-radius:20px 20px 0 0;border:none;background:#f1f5f9;color:#64748b;font-weight:700;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;flex-shrink:0">⚠️ منطقة الخطر</button>
   </div>
 
   <!-- تبويب المستخدمين -->
@@ -1013,6 +1014,28 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 
     <!-- قائمة المستخدمين -->
     <div id="admin-users-list"><div class="empty-state">⏳ جاري التحميل...</div></div>
+  </div>
+
+  <!-- تبويب أسعار الوقود -->
+  <div id="atab-fuel" style="padding:14px;display:none">
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:14px;padding:12px;margin-bottom:14px;font-size:12px;color:#065f46">
+      ⛽ حدّد السعر الحالي لكل لتر من السولار والبنزين. يتم حفظ السعر ومزامنته تلقائياً على كل الأجهزة ليظهر لكل المستخدمين.
+    </div>
+    <div style="background:white;border-radius:14px;padding:16px;box-shadow:var(--shadow-sm)">
+      <div style="display:grid;gap:14px;margin-bottom:14px">
+        <div>
+          <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:4px">⛽ سعر لتر السولار (جنيه)</label>
+          <input id="fp-diesel" type="number" step="0.01" min="0" placeholder="مثال: 15.25" dir="ltr" style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:700;font-family:inherit;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+        <div>
+          <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:4px">⛽ سعر لتر البنزين (جنيه)</label>
+          <input id="fp-gasoline" type="number" step="0.01" min="0" placeholder="مثال: 17.50" dir="ltr" style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:700;font-family:inherit;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+      </div>
+      <div id="fp-error" style="display:none;background:#fee2e2;color:#dc2626;border-radius:10px;padding:10px;font-size:12px;margin-bottom:10px;text-align:center"></div>
+      <button onclick="saveFuelPrices()" style="width:100%;background:linear-gradient(135deg,#059669,#047857);color:white;border:none;border-radius:12px;padding:12px;font-weight:800;cursor:pointer;font-size:14px;font-family:inherit">✅ حفظ الأسعار</button>
+      <div id="fp-last-update" style="margin-top:10px;font-size:11px;color:#94a3b8;text-align:center">جاري التحميل...</div>
+    </div>
   </div>
 
   <!-- تبويب إعدادات Firebase -->
@@ -1196,6 +1219,53 @@ function openAdminPanel() {
     if (currentUserRole !== 'admin') { showToast('غير مصرح', true); return; }
     document.getElementById('admin-panel-overlay').classList.add('active');
     loadAdminUsers();
+    loadFuelPrices();
+}
+
+// ==================== أسعار الوقود ====================
+function loadFuelPrices() {
+    var dieselEl = document.getElementById('fp-diesel');
+    var gasolineEl = document.getElementById('fp-gasoline');
+    var infoEl = document.getElementById('fp-last-update');
+    if (!dieselEl || !gasolineEl) return;
+    if (!fbDb) { if (infoEl) infoEl.textContent = 'لا يوجد اتصال بالسيرفر'; return; }
+    fbDb.ref('appSettings/fuelPrices').once('value').then(function(snap) {
+        var d = snap.val() || {};
+        if (d.diesel != null) dieselEl.value = d.diesel;
+        if (d.gasoline != null) gasolineEl.value = d.gasoline;
+        if (infoEl) {
+            infoEl.textContent = d.updatedAt
+                ? ('آخر تحديث: ' + new Date(d.updatedAt).toLocaleString('ar-EG') + (d.updatedBy ? ' — بواسطة ' + d.updatedBy : ''))
+                : 'لم يتم تحديد سعر بعد';
+        }
+    }).catch(function(e) {
+        if (infoEl) infoEl.textContent = 'تعذّر تحميل الأسعار';
+        console.warn(e);
+    });
+}
+
+function saveFuelPrices() {
+    var errEl = document.getElementById('fp-error');
+    var diesel = parseFloat(document.getElementById('fp-diesel').value);
+    var gasoline = parseFloat(document.getElementById('fp-gasoline').value);
+    if (isNaN(diesel) || isNaN(gasoline) || diesel <= 0 || gasoline <= 0) {
+        if (errEl) { errEl.textContent = '⚠️ من فضلك أدخل سعرين صحيحين أكبر من صفر'; errEl.style.display = 'block'; }
+        return;
+    }
+    if (errEl) errEl.style.display = 'none';
+    if (!fbDb) { showToast('❌ لا يوجد اتصال بالسيرفر', true); return; }
+    var data = {
+        diesel: diesel,
+        gasoline: gasoline,
+        updatedAt: new Date().toISOString(),
+        updatedBy: (currentUser && (currentUser.name || currentUser.username)) || 'غير معروف'
+    };
+    fbDb.ref('appSettings/fuelPrices').set(data).then(function() {
+        showToast('✅ تم حفظ أسعار الوقود بنجاح');
+        loadFuelPrices();
+    }).catch(function(e) {
+        showToast('❌ فشل حفظ الأسعار: ' + e.message, true);
+    });
 }
 
 function loadAdminUsers() {
@@ -1725,7 +1795,7 @@ function deleteAdminUser(uid, email) {
 
 // ==================== إعدادات Firebase ====================
 function switchAdminTab(tab) {
-    var tabs = ['users', 'backup', 'loginlog', 'firebase', 'danger'];
+    var tabs = ['users', 'fuel', 'backup', 'loginlog', 'firebase', 'danger'];
     tabs.forEach(function(t) {
         var panel = document.getElementById('atab-' + t);
         var btn = document.getElementById('atab-' + t + '-btn');
@@ -1740,6 +1810,9 @@ function switchAdminTab(tab) {
             btn.style.color = '#64748b';
         }
     });
+    if (tab === 'fuel') {
+        loadFuelPrices();
+    }
     if (tab === 'backup') {
         loadLastBackupInfo();
     }
@@ -11313,6 +11386,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.registerNewUser = registerNewUser;
     window.showForgotPassword = showForgotPassword;
     window.switchAdminTab = switchAdminTab;
+    window.loadFuelPrices = loadFuelPrices;
+    window.saveFuelPrices = saveFuelPrices;
     window.toggleAddUserForm = toggleAddUserForm;
     window.toggleAuPassword = toggleAuPassword;
     window.updateAuPermissionsPreview = updateAuPermissionsPreview;
