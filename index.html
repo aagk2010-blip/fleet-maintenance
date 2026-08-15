@@ -6929,7 +6929,7 @@ function copyDriverShareLink(driverId, driverName) {
 
 function shareDriverLinkWhatsApp(driverId, driverName) {
     var link = generateDriverShareLink(driverId);
-    var text = 'مرحباً ' + (driverName || '') + '،\nمن فضلك افتح الرابط ده واضغط "بدء العمل" عشان نقدر نتابع المعدة:\n' + link;
+    var text = 'شركة حسن علام القابضة\nمرحبا ' + (driverName || '') + '\nمن فضلك اضغط علي الرابط وسجل عداد ساعات المعدة واضغط بدء العمل\nلكي يستمر الدعم المباشر وشكراً\n' + link;
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
