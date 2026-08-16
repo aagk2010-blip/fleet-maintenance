@@ -166,8 +166,10 @@ button:not(.tab-btn):not(.sidebar-btn):active{transform:scale(0.9)}
   #sites-dashboard-list{
     display:flex;flex-direction:column;gap:12px;max-width:720px}
   .equipment-card,.driver-card,.fuel-card,.maintenance-card,.inventory-item-card{margin-bottom:0}
-#rental-daily-list{display:flex;flex-direction:column;gap:5px;max-width:520px}
-#rental-equipment-list{display:flex;flex-direction:column;gap:6px;max-width:720px}
+#rental-daily-list{display:flex;flex-direction:column;gap:5px;width:80%;margin:0!important;margin-right:20%!important}
+#rental-equipment-list{display:flex;flex-direction:column;gap:6px;width:80%;margin:0!important;margin-right:20%!important}
+  #view-rental,#view-rental>div,#rental-section-equipment,#rental-section-daily{margin-right:0!important;margin-left:0!important;width:100%}
+  #view-map,#map-content-card{margin-right:0!important;margin-left:0!important}
 
   .search-box{max-width:420px}
   #view-equipment>div>div[style*="margin-bottom:10px;display:flex;gap:8px"]{max-width:900px}
@@ -654,6 +656,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
       <div style="display:flex;gap:6px;margin-bottom:12px;background:#f1f5f9;border-radius:12px;padding:4px">
         <button id="rental-tab-equipment" onclick="switchRentalTab('equipment')" style="flex:1;padding:8px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white">🚧 المعدات</button>
         <button id="rental-tab-daily" onclick="switchRentalTab('daily')" style="flex:1;padding:8px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--gray)">📋 السجل اليومي</button>
+        <button id="rental-tab-review" onclick="switchRentalTab('review')" style="flex:1;padding:8px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--gray);position:relative">📥 مراجعة السائقين<span id="rental-review-badge" style="display:none;position:absolute;top:-4px;left:-4px;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;align-items:center;justify-content:center">0</span></button>
       </div>
       <div id="rental-section-equipment">
         <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -671,6 +674,10 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
         </div>
         <div id="rental-daily-list"></div>
       </div>
+      <div id="rental-section-review" style="display:none">
+        <div style="font-size:11.5px;color:var(--gray);background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:9px 12px;margin-bottom:10px">📥 دي تسجيلات أرسلها السائقين بنفسهم من رابط QR (وقت + موقع GPS وقت الضغط). راجعها واعتمدها عشان تتحول لسجل رسمي في "السجل اليومي".</div>
+        <div id="rental-review-list"></div>
+      </div>
     </div>
   </div>
   <div id="view-map" style="display:none">
@@ -680,7 +687,14 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
         <div style="font-size:11.5px;background:white;border-radius:20px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">🟡 آخر تحديث قديم</div>
         <div style="font-size:11.5px;background:white;border-radius:20px;padding:6px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)">⚪ لا يشارك موقعه</div>
       </div>
-      <div id="equipment-map" style="height:calc(100vh - 220px);min-height:380px;margin:0 14px 14px;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)"></div>
+      <div style="padding:0 14px 10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="route-driver-select" style="flex:1;min-width:140px;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:12.5px;font-family:inherit;background:white"><option value="">🛣️ اختر سائق لعرض مساره</option></select>
+        <input type="date" id="route-date-input" style="border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:12.5px;font-family:inherit;background:white">
+        <button onclick="showDriverRoute()" style="background:linear-gradient(135deg,#0891b2,#155e75);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">🛣️ عرض المسار</button>
+        <button onclick="clearDriverRoute()" style="background:#f1f5f9;color:#64748b;border:none;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">✖️ مسح</button>
+      </div>
+      <div id="route-info" style="display:none;margin:0 14px 8px;font-size:11.5px;color:#64748b"></div>
+      <div id="equipment-map" style="height:calc(100vh - 220px);min-height:380px;width:100%;box-sizing:border-box;margin:0 14px 14px;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);position:relative;z-index:1"></div>
     </div>
   </div>
 
@@ -2118,6 +2132,7 @@ let filterAlternatives = [];
 let pmHistory = {};
 let rentalData = [];
 let rentalDailyData = [];
+let driverSelfCheckinsData = [];
 let transferLogs = []; // سجل نقل المعدات بين المواقع
 let changeLogs = []; // سجل حركة/تعديل المعدات (من عدّل وامتى)
 // ==================== نظام المستخدمين - Firebase ====================
@@ -3031,6 +3046,14 @@ function attachFirebaseListeners() {
         rentalDailyData = snapshotToArray(snapshot);
         renderRentalEquipment();
         renderRentalDailyView();
+    });
+
+    listen('driverSelfCheckins', function(snapshot) {
+        driverSelfCheckinsData = snapshotToArray(snapshot);
+        updateRentalReviewBadge();
+        if (document.getElementById('rental-section-review') && document.getElementById('rental-section-review').style.display !== 'none') {
+            renderRentalReviewList();
+        }
     });
 
     listen('transferLogs', function(snapshot) {
@@ -4795,6 +4818,12 @@ function renderEquipmentPublicView(eq, last4Maint, driverName, maintDenied, last
 
 
 function generateEquipmentQRUrl(eq) {
+    if (eq.ownership === 'إيجار') {
+        var contract = rentalData.find(function(r) { return r.equipmentId === eq.id; });
+        if (contract && contract.driverId) {
+            return location.origin + location.pathname + '?share=' + encodeURIComponent(contract.driverId) + '&mode=rental&rc=' + encodeURIComponent(contract.id);
+        }
+    }
     return location.origin + location.pathname + '?eq=' + encodeURIComponent(eq.id);
 }
 
@@ -6800,6 +6829,7 @@ function refreshMapView() {
     if (!contentCard) return;
     contentCard.style.display = 'block';
     renderEquipmentMap();
+    populateRouteDriverSelect();
     startMapColorTimer();
 }
 
@@ -6859,6 +6889,9 @@ function renderEquipmentMap() {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(equipmentMapInstance);
         equipmentMapInstance._markers = [];
+        // الخريطة أحياناً بتتنشئ قبل ما تكتمل حسابات مقاس الشريط الجانبي على الشاشات الكبيرة،
+        // فبنجبرها تعيد حساب حجمها فور إنشائها عشان متعديش على مساحة القائمة الجانبية
+        setTimeout(function() { equipmentMapInstance.invalidateSize(); }, 150);
     } else {
         // إعادة ضبط حجم الخريطة في حال كانت مخفية وقت الإنشاء
         setTimeout(function() { equipmentMapInstance.invalidateSize(); }, 100);
@@ -6912,6 +6945,69 @@ function renderEquipmentMap() {
     else equipmentMapInstance.setView(bounds[0], 14);
 }
 
+// ==================== عرض مسار سائق ليوم معيّن (من driverLocationHistory) ====================
+var driverRouteLayer = null;
+
+function populateRouteDriverSelect() {
+    var sel = document.getElementById('route-driver-select');
+    if (!sel) return;
+    var current = sel.value;
+    sel.innerHTML = '<option value="">🛣️ اختر سائق لعرض مساره</option>' +
+        driversData.map(function(d) { return '<option value="' + d.id + '">' + escapeHtml(d.name) + '</option>'; }).join('');
+    sel.value = current;
+    var dateInput = document.getElementById('route-date-input');
+    if (dateInput && !dateInput.value) {
+        var now = new Date();
+        dateInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    }
+}
+
+function clearDriverRoute() {
+    if (driverRouteLayer && equipmentMapInstance) {
+        equipmentMapInstance.removeLayer(driverRouteLayer);
+        driverRouteLayer = null;
+    }
+    var info = document.getElementById('route-info');
+    if (info) info.style.display = 'none';
+}
+
+function showDriverRoute() {
+    var driverId = document.getElementById('route-driver-select').value;
+    var dateKey = document.getElementById('route-date-input').value;
+    var infoEl = document.getElementById('route-info');
+    if (!driverId) { showToast('اختر سائق أولاً', true); return; }
+    if (!dateKey) { showToast('اختر تاريخ أولاً', true); return; }
+    if (!fbDb || !equipmentMapInstance) return;
+    clearDriverRoute();
+    if (infoEl) { infoEl.style.display = 'block'; infoEl.textContent = '⏳ جاري تحميل المسار...'; }
+    fbDb.ref('driverLocationHistory/' + driverId + '/' + dateKey).once('value').then(function(snap) {
+        var val = snap.val() || {};
+        var pts = Object.keys(val).map(function(k) { return val[k]; }).filter(function(p) { return p.lat && p.lng; });
+        pts.sort(function(a, b) { return new Date(a.updatedAt) - new Date(b.updatedAt); });
+        if (!pts.length) {
+            if (infoEl) infoEl.textContent = '📭 لا يوجد مسار مسجّل لهذا السائق في هذا اليوم';
+            return;
+        }
+        var latlngs = pts.map(function(p) { return [p.lat, p.lng]; });
+        driverRouteLayer = L.layerGroup().addTo(equipmentMapInstance);
+        L.polyline(latlngs, { color: '#7c3aed', weight: 4, opacity: 0.85 }).addTo(driverRouteLayer);
+        L.circleMarker(latlngs[0], { radius: 8, fillColor: '#10b981', color: '#fff', weight: 2, fillOpacity: 1 })
+            .addTo(driverRouteLayer)
+            .bindPopup('🟢 بداية المسار — ' + new Date(pts[0].updatedAt).toLocaleTimeString('ar-EG'));
+        L.circleMarker(latlngs[latlngs.length - 1], { radius: 8, fillColor: '#dc2626', color: '#fff', weight: 2, fillOpacity: 1 })
+            .addTo(driverRouteLayer)
+            .bindPopup('🔴 آخر نقطة — ' + new Date(pts[pts.length - 1].updatedAt).toLocaleTimeString('ar-EG'));
+        equipmentMapInstance.fitBounds(latlngs, { padding: [30, 30] });
+        if (infoEl) {
+            infoEl.textContent = '🛣️ عدد النقاط: ' + pts.length + ' — من ' + new Date(pts[0].updatedAt).toLocaleTimeString('ar-EG') +
+                ' إلى ' + new Date(pts[pts.length - 1].updatedAt).toLocaleTimeString('ar-EG');
+        }
+    }).catch(function(e) {
+        if (infoEl) infoEl.textContent = '❌ تعذّر تحميل المسار';
+        console.warn(e);
+    });
+}
+
 // توليد رابط مشاركة الموقع لسائق معيّن (بدون تسجيل دخول)
 function generateDriverShareLink(driverId) {
     var base = location.origin + location.pathname;
@@ -6936,7 +7032,11 @@ function shareDriverLinkWhatsApp(driverId, driverName) {
 // ==================== صفحة مشاركة الموقع للسائق (بدون تسجيل دخول) — تعمل حتى مع انقطاع الإنترنت ====================
 var shareWatchId = null;
 
-function initShareLocationPage(driverId) {
+function initShareLocationPage(driverId, mode, rentalContractId) {
+    if (mode === 'rental' && rentalContractId) {
+        initRentalCheckinPage(driverId, rentalContractId);
+        return;
+    }
     document.title = 'مشاركة الموقع';
     document.body.innerHTML =
         '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:20px;font-family:Cairo,Tahoma,sans-serif;direction:rtl">' +
@@ -6951,7 +7051,7 @@ function initShareLocationPage(driverId) {
             '<input type="number" id="share-meter-input" placeholder="مثال: 1250" style="width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;box-sizing:border-box">' +
         '</div>' +
         '<button id="share-toggle-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">▶️ بدء العمل</button>' +
-        '<div style="font-size:10.5px;color:#9ca3af;margin-top:14px">هيطلب المتصفح إذن الوصول للموقع — اضغط "سماح"<br>الصفحة بتشتغل حتى لو النت اتقطع، وهتزامن أول ما يرجع</div>' +
+        '<div style="font-size:10.5px;color:#9ca3af;margin-top:14px">هيطلب المتصفح إذن الوصول للموقع — اضغط "سماح"<br>الصفحة بتسجّل مسارك حتى لو النت اتقطع، وترفعه تلقائي مجمّع حسب اليوم أول ما النت يرجع</div>' +
         '</div></div>';
 
     try {
@@ -6965,6 +7065,12 @@ function initShareLocationPage(driverId) {
 
     var driverName = '';
     var QUEUE_KEY = 'offlineLocQueue_' + driverId;
+
+    function getLocalDateKey(d) {
+        d = d || new Date();
+        var y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + day;
+    }
 
     fbDb.ref('drivers/' + driverId).once('value').then(function(snap) {
         var d = snap.val();
@@ -6993,56 +7099,66 @@ function initShareLocationPage(driverId) {
         var q = getQueue();
         if (q.length > 0) {
             queueInfoEl.style.display = 'block';
-            queueInfoEl.innerHTML = '📴 ' + q.length + ' نقطة متخزنة محليًا، هترفع تلقائي أول ما النت يرجع';
+            queueInfoEl.innerHTML = '📴 ' + q.length + ' نقطة متخزنة محليًا على جهازك — هترفع تلقائي مجمّعة حسب يومها أول ما النت يرجع';
         } else {
             queueInfoEl.style.display = 'none';
         }
     }
 
+    // يرفع كل النقاط المتراكمة محليًا، كل نقطة في مكانها تحت يومها (driverLocationHistory/driverId/dateKey)
+    var flushInProgress = false;
     function tryFlushQueue() {
         var q = getQueue();
-        if (!q.length || !navigator.onLine) return;
+        if (!q.length || !navigator.onLine || flushInProgress) return;
+        flushInProgress = true;
+        var updates = {};
+        q.forEach(function(pt) {
+            var dateKey = pt.dateKey || getLocalDateKey(new Date(pt.updatedAt));
+            var key = fbDb.ref('driverLocationHistory/' + driverId + '/' + dateKey).push().key;
+            updates['driverLocationHistory/' + driverId + '/' + dateKey + '/' + key] = pt;
+        });
         var last = q[q.length - 1];
-        fbDb.ref('driverLocations/' + driverId).set({
+        updates['driverLocations/' + driverId] = {
             driverId: driverId, driverName: driverName,
             lat: last.lat, lng: last.lng, accuracy: last.accuracy,
             updatedAt: last.updatedAt, meter: last.meter
-        }).then(function() {
-            // نرفع باقي النقاط كسجل مسار (اختياري لعرض المسار لاحقًا) من غير ما نستنى كل واحدة
-            var updates = {};
-            q.forEach(function(pt) {
-                var key = fbDb.ref('driverLocationHistory/' + driverId).push().key;
-                updates[key] = pt;
-            });
-            fbDb.ref('driverLocationHistory/' + driverId).update(updates).catch(function() {});
+        };
+        fbDb.ref().update(updates).then(function() {
             setQueue([]);
             updateQueueBadge();
+            flushInProgress = false;
             if (sharing) {
                 statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
-                statusEl.innerHTML = '🟢 شغّال دلوقتي — تم رفع كل النقاط المؤجلة';
+                statusEl.innerHTML = '🟢 شغّال دلوقتي — تم رفع مسار اليوم كامل';
             }
         }).catch(function() {
             // النت لسه مش مستقر، هنحاول تاني في المرة الجاية
+            flushInProgress = false;
         });
     }
 
     function pushLocation(pos) {
+        var now = new Date();
         var point = {
             lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy,
-            updatedAt: new Date().toISOString(), meter: startMeter
+            updatedAt: now.toISOString(), dateKey: getLocalDateKey(now), meter: startMeter
         };
 
         if (!navigator.onLine) {
             var q = getQueue(); q.push(point); setQueue(q); updateQueueBadge();
             statusEl.style.color = '#92400e'; statusEl.style.background = '#fef3c7';
-            statusEl.innerHTML = '📴 من غير نت — بيتم تسجيل موقعك محليًا';
+            statusEl.innerHTML = '📴 من غير نت — بيتم تسجيل موقعك ومسارك محليًا على الجهاز';
             return;
         }
 
-        fbDb.ref('driverLocations/' + driverId).set({
+        var updates = {};
+        var histKey = fbDb.ref('driverLocationHistory/' + driverId + '/' + point.dateKey).push().key;
+        updates['driverLocationHistory/' + driverId + '/' + point.dateKey + '/' + histKey] = point;
+        updates['driverLocations/' + driverId] = {
             driverId: driverId, driverName: driverName,
             lat: point.lat, lng: point.lng, accuracy: point.accuracy, updatedAt: point.updatedAt, meter: point.meter
-        }).then(function() {
+        };
+        fbDb.ref().update(updates).then(function() {
             statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
             statusEl.innerHTML = '🟢 شغّال دلوقتي — آخر تحديث الآن';
             tryFlushQueue(); // لو فيه نقاط قديمة متأجلة، نرفعها كمان
@@ -7050,11 +7166,13 @@ function initShareLocationPage(driverId) {
             // فشل الإرسال رغم إن navigator.onLine=true (شبكة ضعيفة) — نخزن محليًا بدل ما نضيّع النقطة
             var q = getQueue(); q.push(point); setQueue(q); updateQueueBadge();
             statusEl.style.color = '#92400e'; statusEl.style.background = '#fef3c7';
-            statusEl.innerHTML = '📴 الشبكة ضعيفة — بيتم تسجيل موقعك محليًا';
+            statusEl.innerHTML = '📴 الشبكة ضعيفة — بيتم تسجيل موقعك ومسارك محليًا';
         });
     }
 
     window.addEventListener('online', tryFlushQueue);
+    // محاولة رفع دورية كل 20 ثانية — لأن حدث 'online' مش دايمًا بيشتغل بشكل موثوق على الموبايل
+    setInterval(tryFlushQueue, 20000);
     updateQueueBadge();
 
     btn.onclick = function() {
@@ -7088,6 +7206,199 @@ function initShareLocationPage(driverId) {
         statusEl.style.color = '#dc2626'; statusEl.style.background = '#fee2e2';
         statusEl.innerHTML = '⚠️ ' + text;
     }
+}
+
+// ==================== صفحة بدء/انتهاء العمل لمعدات الإيجار — تسجيل ذاتي من السائق (بانتظار اعتماد المشرف) + عرض التايم شيت الرسمي ====================
+function initRentalCheckinPage(driverId, rentalContractId) {
+    document.title = 'بدء العمل';
+    document.body.innerHTML =
+        '<div style="min-height:100vh;background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:20px 14px;font-family:Cairo,Tahoma,sans-serif;direction:rtl">' +
+        '<div style="max-width:460px;margin:0 auto">' +
+
+        '<div style="background:white;border-radius:20px;padding:22px 20px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25);margin-bottom:14px">' +
+        '<div style="font-size:40px;margin-bottom:6px">📋</div>' +
+        '<div id="rc-title" style="font-size:17px;font-weight:800;color:#0d1b2a;margin-bottom:2px">جاري التحميل...</div>' +
+        '<div id="rc-sub" style="font-size:12px;color:#6b7a8d;margin-bottom:16px"></div>' +
+        '<div id="rc-status" style="font-size:13px;font-weight:700;color:#f59e0b;background:#fef3c7;border-radius:10px;padding:9px;margin-bottom:12px">⏳ جاري التحقق من حالة اليوم...</div>' +
+        '<div id="rc-break-wrap" style="display:none;text-align:right;margin-bottom:12px;background:#f8fafc;border-radius:10px;padding:10px 12px">' +
+            '<label style="font-size:12.5px;font-weight:700;color:#0d1b2a;display:flex;align-items:center;gap:8px;justify-content:flex-end"><input type="checkbox" id="rc-break-check" style="width:16px;height:16px"> أخدت ساعة راحة النهاردة؟</label>' +
+        '</div>' +
+        '<button id="rc-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:none">▶️ بدء العمل</button>' +
+        '<div style="font-size:10.5px;color:#9ca3af;margin-top:12px">بتسجّل وقت حضورك وموقعك، والمشرف هو اللي بيعتمدها كسجل رسمي</div>' +
+        '</div>' +
+
+        '<div style="background:white;border-radius:20px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.25)">' +
+        '<div style="font-weight:800;font-size:14px;color:#0d1b2a;margin-bottom:2px">📄 التايم شيت الرسمي (سجّله المشرف)</div>' +
+        '<div id="rc-period-label" style="font-size:11px;color:#9ca3af;margin-bottom:10px"></div>' +
+        '<div id="rc-timesheet">جاري التحميل...</div>' +
+        '</div>' +
+
+        '</div></div>';
+
+    try {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        fbDb = firebase.database();
+        fbDb.goOnline();
+    } catch (e) {
+        document.getElementById('rc-status').innerHTML = '❌ خطأ في الاتصال';
+        return;
+    }
+
+    var titleEl = document.getElementById('rc-title');
+    var subEl = document.getElementById('rc-sub');
+    var statusEl = document.getElementById('rc-status');
+    var btn = document.getElementById('rc-btn');
+    var breakWrap = document.getElementById('rc-break-wrap');
+    var breakCheck = document.getElementById('rc-break-check');
+    var timesheetEl = document.getElementById('rc-timesheet');
+    var periodLabelEl = document.getElementById('rc-period-label');
+
+    function todayKey() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function nowHHMM() {
+        var d = new Date();
+        return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    function getGPS() {
+        return new Promise(function(resolve) {
+            if (!navigator.geolocation) { resolve(null); return; }
+            navigator.geolocation.getCurrentPosition(
+                function(pos) { resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }); },
+                function() { resolve(null); },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+            );
+        });
+    }
+
+    var driverName = '', contract = null, myCheckinId = null, myCheckin = null;
+
+    function loadOfficialTimesheet() {
+        fbDb.ref('rentalDaily').once('value').then(function(snap) {
+            var val = snap.val() || {};
+            var dailyList = [];
+            Object.keys(val).forEach(function(k) {
+                var d = val[k];
+                if (d && d.equipmentId === rentalContractId) dailyList.push(d);
+            });
+            var activeCycle = getPeriodRange(getCurrentCycleMonthStr());
+            periodLabelEl.textContent = '📅 ' + activeCycle.from + ' → ' + activeCycle.to;
+            var dayData = buildRentalDayEntriesLocal(dailyList, contract, activeCycle.from, activeCycle.to);
+            var recorded = dayData.days.filter(function(d) { return d.record; });
+            if (!recorded.length) {
+                timesheetEl.innerHTML = '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:12px">لا يوجد سجل رسمي معتمد بعد في هذه الفترة</div>';
+                return;
+            }
+            timesheetEl.innerHTML = recorded.map(function(d) {
+                var r = d.record;
+                var total = (r.basicHours || 0) + (r.breakHours || 0) + (r.extraHours || 0);
+                return '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center">' +
+                    '<span style="color:#64748b">' + escapeHtml(r.date) + '</span>' +
+                    '<span>' + escapeHtml(r.inTime || '—') + ' → ' + escapeHtml(r.outTime || '—') + '</span>' +
+                    '<span style="font-weight:800;color:#0d1b2a">' + total.toFixed(1) + ' س</span>' +
+                    '</div>';
+            }).join('');
+        }).catch(function() {
+            timesheetEl.innerHTML = '<div style="text-align:center;padding:16px;color:#b45309;background:#fef3c7;border-radius:10px;font-size:11.5px">⚠️ تعذّر تحميل التايم شيت (صلاحيات القراءة)</div>';
+        });
+    }
+
+    Promise.all([
+        fbDb.ref('drivers/' + driverId).once('value'),
+        fbDb.ref('rental/' + rentalContractId).once('value'),
+        fbDb.ref('driverSelfCheckins').orderByChild('date').equalTo(todayKey()).once('value')
+    ]).then(function(results) {
+        var d = results[0].val();
+        contract = results[1].val();
+        driverName = d ? d.name : '';
+        if (!contract) {
+            titleEl.textContent = 'رابط غير صحيح';
+            statusEl.innerHTML = '❌ عقد الإيجار غير موجود';
+            return;
+        }
+        titleEl.textContent = '🏗️ ' + (contract.equipmentType ? contract.equipmentType + ' — ' : '') + (contract.equipmentCode || '');
+        subEl.textContent = '👨‍✈️ ' + (driverName || '—') + (contract.company ? ' | ' + contract.company : '');
+
+        var val = results[2].val() || {};
+        Object.keys(val).forEach(function(k) {
+            if (val[k].rentalContractId === rentalContractId && val[k].driverId === driverId) { myCheckinId = k; myCheckin = val[k]; }
+        });
+
+        btn.style.display = 'block';
+        if (myCheckin && myCheckin.inTime && myCheckin.outTime) {
+            var statusLabel = myCheckin.status === 'approved' ? '✅ معتمد من المشرف' : myCheckin.status === 'rejected' ? '❌ اتراجع ومترفضش من المشرف' : '⏳ في انتظار اعتماد المشرف';
+            statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+            statusEl.innerHTML = '📋 اتسجّل حضورك وانصرافك (' + myCheckin.inTime + ' → ' + myCheckin.outTime + ')<br><span style="font-size:11px">' + statusLabel + '</span>';
+            btn.style.display = 'none';
+        } else if (myCheckin && myCheckin.inTime) {
+            statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+            statusEl.innerHTML = '🟢 اتسجّل حضورك النهاردة الساعة ' + myCheckin.inTime + ' — لسه ما سجّلتش الانصراف';
+            btn.textContent = '⏹️ انتهاء العمل';
+            btn.style.background = 'linear-gradient(135deg,#dc2626,#991b1b)';
+            breakWrap.style.display = 'block';
+        } else {
+            statusEl.style.color = '#f59e0b'; statusEl.style.background = '#fef3c7';
+            statusEl.innerHTML = '⏳ لسه ما سجّلتش حضور النهاردة';
+            btn.textContent = '▶️ بدء العمل';
+        }
+
+        loadOfficialTimesheet();
+    }).catch(function() {
+        statusEl.innerHTML = '❌ تعذّر تحميل البيانات — تأكد من اتصال الإنترنت';
+    });
+
+    btn.onclick = function() {
+        btn.disabled = true;
+        var originalText = btn.textContent;
+        btn.textContent = '⏳ جاري التسجيل...';
+
+        if (!myCheckin || !myCheckin.inTime) {
+            var inT = nowHHMM();
+            getGPS().then(function(loc) {
+                var record = {
+                    rentalContractId: rentalContractId,
+                    equipmentCode: contract.equipmentCode || '', equipmentType: contract.equipmentType || '',
+                    driverId: driverId, driverName: driverName || '',
+                    date: todayKey(), inTime: inT,
+                    inLat: loc ? loc.lat : null, inLng: loc ? loc.lng : null,
+                    status: 'pending', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+                };
+                var ref = myCheckinId ? fbDb.ref('driverSelfCheckins/' + myCheckinId) : fbDb.ref('driverSelfCheckins').push();
+                return ref.set(record).then(function() { myCheckinId = ref.key; myCheckin = record; });
+            }).then(function() {
+                statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+                statusEl.innerHTML = '🟢 تم تسجيل الحضور الساعة ' + inT;
+                btn.textContent = '⏹️ انتهاء العمل';
+                btn.style.background = 'linear-gradient(135deg,#dc2626,#991b1b)';
+                breakWrap.style.display = 'block';
+                btn.disabled = false;
+            }).catch(function(err) {
+                statusEl.innerHTML = '❌ خطأ: ' + err.message;
+                btn.textContent = originalText;
+                btn.disabled = false;
+            });
+        } else {
+            var outT = nowHHMM();
+            var brk = !!breakCheck.checked;
+            getGPS().then(function(loc) {
+                return fbDb.ref('driverSelfCheckins/' + myCheckinId).update({
+                    outTime: outT, breakWorked: brk,
+                    outLat: loc ? loc.lat : null, outLng: loc ? loc.lng : null,
+                    updatedAt: new Date().toISOString()
+                });
+            }).then(function() {
+                statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+                statusEl.innerHTML = '📋 تم تسجيل الانصراف الساعة ' + outT + '<br><span style="font-size:11px">⏳ في انتظار اعتماد المشرف</span>';
+                btn.style.display = 'none';
+                breakWrap.style.display = 'none';
+            }).catch(function(err) {
+                statusEl.innerHTML = '❌ خطأ: ' + err.message;
+                btn.textContent = originalText;
+                btn.disabled = false;
+            });
+        }
+    };
 }
 
 
@@ -10837,10 +11148,11 @@ function switchView(view) {
         fuel: '⛽ الوقود',
         maintenance: '🔧 الصيانة',
         inventory: '📦 المخزن',
+        rental: '🚧 الإيجار',
         map: '🗺️ خريطة المعدات',
         import: '📂 استيراد البيانات'
     };
-    document.getElementById('header-title').innerHTML = titles[view];
+    document.getElementById('header-title').innerHTML = titles[view] || '';
 
     // صفحة "الموظفين والسائقين" المدمجة لها منطق صلاحيات وتبويبات داخلية خاص بها
     if (view === 'employees') {
@@ -11082,7 +11394,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // رابط مشاركة موقع سائق (بدون تسجيل دخول) — يوقف التحميل العادي للتطبيق
     var shareParams = new URLSearchParams(location.search);
     var shareDriverId = shareParams.get('share');
-    if (shareDriverId) { initShareLocationPage(shareDriverId); return; }
+    if (shareDriverId) { initShareLocationPage(shareDriverId, shareParams.get('mode'), shareParams.get('rc')); return; }
 
     // رابط ملصق QR لمعدة معيّنة — صفحة عامة للقراءة فقط بدون تسجيل دخول
     var eqDeepLinkId = shareParams.get('eq');
@@ -11290,6 +11602,10 @@ document.addEventListener('DOMContentLoaded', function() {
               .catch(function(err){ showToast('خطأ: '+err.message, true); });
         };
     }
+    var rentalReviewTabBtn = document.getElementById('rental-tab-review');
+    if (rentalReviewTabBtn) {
+        rentalReviewTabBtn.style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
+    }
     var addRentalDailyBtn = document.getElementById('add-rental-daily-btn');
     if (addRentalDailyBtn) addRentalDailyBtn.onclick = function() { openAddDailyModal(''); };
     var rentalDailyDateEl = document.getElementById('rental-daily-date');
@@ -11388,6 +11704,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.switchAdminTab = switchAdminTab;
     window.loadFuelPrices = loadFuelPrices;
     window.saveFuelPrices = saveFuelPrices;
+    window.showDriverRoute = showDriverRoute;
+    window.clearDriverRoute = clearDriverRoute;
     window.toggleAddUserForm = toggleAddUserForm;
     window.toggleAuPassword = toggleAuPassword;
     window.updateAuPermissionsPreview = updateAuPermissionsPreview;
@@ -11755,13 +12073,102 @@ function calcRentalHours(inTime, outTime, breakWorked) {
 }
 
 function switchRentalTab(tab) {
-    var isEq = tab === 'equipment';
-    document.getElementById('rental-section-equipment').style.display = isEq ? 'block' : 'none';
-    document.getElementById('rental-section-daily').style.display     = isEq ? 'none'  : 'block';
-    var s = 'flex:1;padding:8px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;';
-    document.getElementById('rental-tab-equipment').style.cssText = s + (isEq ? 'background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white' : 'background:transparent;color:var(--gray)');
-    document.getElementById('rental-tab-daily').style.cssText     = s + (isEq ? 'background:transparent;color:var(--gray)' : 'background:linear-gradient(135deg,#0e7490,#0369a1);color:white');
-    if (!isEq) renderRentalDailyView();
+    document.getElementById('rental-section-equipment').style.display = tab === 'equipment' ? 'block' : 'none';
+    document.getElementById('rental-section-daily').style.display     = tab === 'daily'     ? 'block' : 'none';
+    document.getElementById('rental-section-review').style.display    = tab === 'review'    ? 'block' : 'none';
+    var s = 'flex:1;padding:8px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;position:relative;';
+    document.getElementById('rental-tab-equipment').style.cssText = s + (tab === 'equipment' ? 'background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white' : 'background:transparent;color:var(--gray)');
+    document.getElementById('rental-tab-daily').style.cssText     = s + (tab === 'daily'     ? 'background:linear-gradient(135deg,#0e7490,#0369a1);color:white' : 'background:transparent;color:var(--gray)');
+    document.getElementById('rental-tab-review').style.cssText    = s + (tab === 'review'    ? 'background:linear-gradient(135deg,#dc2626,#991b1b);color:white' : 'background:transparent;color:var(--gray)');
+    if (tab === 'daily') renderRentalDailyView();
+    if (tab === 'review') renderRentalReviewList();
+}
+
+// ==================== مراجعة تسجيلات السائقين الذاتية (من رابط QR) ====================
+function updateRentalReviewBadge() {
+    var badge = document.getElementById('rental-review-badge');
+    if (!badge) return;
+    var pending = driverSelfCheckinsData.filter(function(c) { return c.status === 'pending'; }).length;
+    if (pending > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = pending > 99 ? '99+' : pending;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function gpsLinkHtml(lat, lng, label) {
+    if (!lat || !lng) return '<span style="color:var(--gray)">— بدون موقع</span>';
+    return '<a href="https://maps.google.com/?q=' + lat + ',' + lng + '" target="_blank" style="color:#0891b2;text-decoration:none">📍 ' + label + '</a>';
+}
+
+function renderRentalReviewList() {
+    var container = document.getElementById('rental-review-list');
+    if (!container) return;
+    var pending = driverSelfCheckinsData.filter(function(c) { return c.status === 'pending'; })
+        .sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+
+    if (!pending.length) {
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gray);font-size:13px">📭 مفيش تسجيلات معلّقة للمراجعة دلوقتي</div>';
+        return;
+    }
+
+    container.innerHTML = pending.map(function(c) {
+        var contract = rentalData.find(function(r) { return r.id === c.rentalContractId; });
+        var alreadyRecorded = rentalDailyData.find(function(d) { return d.equipmentId === c.rentalContractId && d.date === c.date; });
+        return '<div style="background:white;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);border-right:3px solid #f59e0b">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+            '<span style="font-weight:800;font-size:13.5px;color:#0d1b2a">' + escapeHtml((contract ? contract.equipmentCode : c.equipmentCode) || '—') + '</span>' +
+            '<span style="font-size:11px;color:var(--gray)">📅 ' + escapeHtml(c.date || '—') + '</span>' +
+            '</div>' +
+            '<div style="font-size:12px;color:#475569;margin-bottom:4px">👨‍✈️ ' + escapeHtml(c.driverName || '—') + '</div>' +
+            '<div style="display:flex;gap:14px;font-size:12.5px;margin-bottom:6px">' +
+            '<span>🟢 حضور: <b>' + escapeHtml(c.inTime || '—') + '</b> ' + gpsLinkHtml(c.inLat, c.inLng, 'الموقع') + '</span>' +
+            '</div>' +
+            (c.outTime ? '<div style="display:flex;gap:14px;font-size:12.5px;margin-bottom:8px"><span>🔴 انصراف: <b>' + escapeHtml(c.outTime) + '</b> ' + gpsLinkHtml(c.outLat, c.outLng, 'الموقع') + '</span></div>' : '<div style="font-size:11.5px;color:#d97706;margin-bottom:8px">⏳ لسه ما سجّلش الانصراف</div>') +
+            (alreadyRecorded ? '<div style="font-size:11px;color:#dc2626;background:#fee2e2;border-radius:8px;padding:6px 9px;margin-bottom:8px">⚠️ فيه سجل رسمي بالفعل لنفس اليوم — الاعتماد هيستبدله</div>' : '') +
+            '<div style="display:flex;gap:8px">' +
+            (c.outTime ?
+                '<button class="save-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#059669);padding:8px" onclick="approveDriverCheckin(\'' + c.id + '\')">✅ اعتماد كسجل رسمي</button>'
+                : '<button class="save-btn" style="margin:0;flex:1;background:#e2e8f0;color:var(--gray);padding:8px" disabled title="لسه محتاج وقت الانصراف">⏳ في انتظار الانصراف</button>') +
+            '<button class="save-btn" style="margin:0;background:linear-gradient(135deg,#dc2626,#991b1b);padding:8px 14px" onclick="rejectDriverCheckin(\'' + c.id + '\')">🗑️</button>' +
+            '</div></div>';
+    }).join('');
+}
+
+function approveDriverCheckin(id) {
+    var c = driverSelfCheckinsData.find(function(x) { return x.id === id; });
+    if (!c) return;
+    if (!c.outTime) { showToast('لسه ما سجّلش وقت الانصراف', true); return; }
+    if (!confirm('اعتماد التسجيل ده كسجل رسمي في السجل اليومي؟')) return;
+
+    var contract = rentalData.find(function(r) { return r.id === c.rentalContractId; });
+    var brk = !!c.breakWorked;
+    var h = calcRentalHours(c.inTime, c.outTime, brk);
+    var existing = rentalDailyData.find(function(d) { return d.equipmentId === c.rentalContractId && d.date === c.date; });
+    var record = {
+        equipmentId: c.rentalContractId,
+        equipmentCode: contract ? contract.equipmentCode : c.equipmentCode || '',
+        equipmentType: contract ? contract.equipmentType : c.equipmentType || '',
+        driverId: c.driverId, company: contract ? contract.company : '',
+        date: c.date, inTime: c.inTime, outTime: c.outTime,
+        totalHours: h.total, basicHours: h.basic, breakWorked: brk, breakHours: h.break, extraHours: h.extra,
+        notes: 'معتمد من تسجيل ذاتي عبر QR — راجعه: ' + ((currentUser && (currentUser.name || currentUser.username)) || 'مشرف'),
+        recordedByName: (currentUser && (currentUser.name || currentUser.username)) || 'مشرف',
+        updatedAt: new Date().toISOString()
+    };
+    var ref = existing ? fbDb.ref('rentalDaily/' + existing.id) : fbDb.ref('rentalDaily').push();
+    ref.set(record).then(function() {
+        return fbDb.ref('driverSelfCheckins/' + id).update({ status: 'approved', reviewedBy: (currentUser && (currentUser.name || currentUser.username)) || '', reviewedAt: new Date().toISOString() });
+    }).then(function() {
+        showToast('✅ تم الاعتماد وإضافته للسجل الرسمي');
+    }).catch(function(err) { showToast('خطأ: ' + err.message, true); });
+}
+
+function rejectDriverCheckin(id) {
+    if (!confirm('تجاهل هذا التسجيل؟ لن يتحول لسجل رسمي.')) return;
+    fbDb.ref('driverSelfCheckins/' + id).update({ status: 'rejected', reviewedBy: (currentUser && (currentUser.name || currentUser.username)) || '', reviewedAt: new Date().toISOString() })
+        .then(function() { showToast('تم التجاهل'); }).catch(function(err) { showToast('خطأ: ' + err.message, true); });
 }
 
 function renderRentalEquipment() {
@@ -11799,10 +12206,11 @@ function renderRentalEquipment() {
         var arcPath = pct>=1 ? 'M 44 6 A 38 38 0 1 1 43.99 6' : 'M 44 6 A 38 38 0 '+(pct>0.5?1:0)+' 1 '+x2.toFixed(2)+' '+y2.toFixed(2);
         html +=
         '<div class="rental-card" style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
-        '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:9px 12px;color:white;display:flex;justify-content:space-between;align-items:center">'+
-        '<div><div style="font-weight:700;font-size:14px"><span class="c-ico">🚧</span> '+escapeHtml(eqLabel)+'</div>'+
-        '<div style="font-size:11px;opacity:.8">'+(r.company?'🏢 '+escapeHtml(r.company)+(drv?' · ':''):'' )+(drv?'👨‍✈️ '+escapeHtml(drv.name):'')+'</div></div>'+
-        (isAdmin?'<div style="display:flex;gap:4px">'+
+        '<div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:9px 12px;color:white;display:flex;justify-content:space-between;align-items:center;gap:8px">'+
+        '<div style="min-width:0;flex:1;overflow:hidden">'+
+        '<div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+escapeHtml(eqLabel)+'"><span class="c-ico">🚧</span> '+escapeHtml(eqLabel)+'</div>'+
+        '<div style="font-size:11px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(r.company?'🏢 '+escapeHtml(r.company)+(drv?' · ':''):'' )+(drv?'👨‍✈️ '+escapeHtml(drv.name):'')+'</div></div>'+
+        (isAdmin?'<div style="display:flex;gap:4px;flex-shrink:0">'+
         '<button data-action="edit-rental" data-id="'+rid+'" style="background:rgba(255,255,255,.2);color:white;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:12px">✏️</button>'+
         '<button data-action="del-rental"  data-id="'+rid+'" style="background:rgba(255,0,0,.3);color:white;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:12px">🗑️</button></div>':'')+
         '</div>'+
@@ -12088,9 +12496,9 @@ function renderRentalDailyView() {
             var drv=rental?driversData.find(function(d){ return d.id===rental.driverId; }):null;
             var label=eq?(eq.type+' — '+eq.code):(r.equipmentCode||'—');
             html+='<div class="rental-card" style="background:white;border-radius:11px;border:1px solid #e2e8f0;margin-bottom:5px;overflow:hidden;max-width:520px"><div style="padding:6px 9px">'+
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'+
-                '<div><div style="font-weight:700;font-size:11.5px"><span class="c-ico">🚧</span> '+escapeHtml(label)+'</div>'+(drv?'<div style="font-size:9.5px;color:var(--gray)">👨‍✈️ '+escapeHtml(drv.name)+'</div>':'')+(r.recordedByName?'<div style="font-size:9px;color:#9ca3af">👤 سجّلها: '+escapeHtml(r.recordedByName)+'</div>':'')+'</div>'+
-                (isAdmin?'<div style="display:flex;gap:3px">'+
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:6px">'+
+                '<div style="min-width:0;flex:1;overflow:hidden"><div style="font-weight:700;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+escapeHtml(label)+'"><span class="c-ico">🚧</span> '+escapeHtml(label)+'</div>'+(drv?'<div style="font-size:9.5px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">👨‍✈️ '+escapeHtml(drv.name)+'</div>':'')+(r.recordedByName?'<div style="font-size:9px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">👤 سجّلها: '+escapeHtml(r.recordedByName)+'</div>':'')+'</div>'+
+                (isAdmin?'<div style="display:flex;gap:3px;flex-shrink:0">'+
                 '<button data-action="edit-daily" data-id="'+r.id+'" style="background:#e0e7ff;color:#4338ca;border:none;border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer">✏️</button>'+
                 '<button data-action="del-daily" data-id="'+r.id+'" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer">🗑️</button></div>':'')+'</div>'+
                 '<div style="display:grid;grid-template-columns:1fr 0.7fr 0.7fr'+(r.breakHours>0?' 0.7fr':'')+';gap:3px;font-size:9px">'+
