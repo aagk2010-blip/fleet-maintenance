@@ -7380,18 +7380,25 @@ function renderEquipmentMap() {
     if (!equipmentMapInstance) {
         equipmentMapInstance = L.map(mapEl, { zoomControl: true }).setView(center, points.length ? 11 : 6);
 
-        // ==================== طبقات الخريطة: قمر صناعي (تضاريس وألوان حقيقية) + طبوغرافي ملوّن + شوارع كلاسيكي ====================
-        // قمر صناعي عالي الدقة (Esri World Imagery) — بيوضّح التضاريس الفعلية (رمل/زرع/مباني) بألوانها الحقيقية، مجاني وبدون مفتاح API
+        // ==================== طبقات الخريطة: قمر صناعي واقعي (صور حقيقية محدّثة) + هجين بالطرق والأسماء + طبوغرافي + شوارع ====================
+        // قمر صناعي عالي الدقة (Esri World Imagery) — صور فعلية للأرض (مبانٍ، طرق، زرع) محدّثة دوريًا من Esri/Maxar/Airbus،
+        // ومسموح بالتقريب لمستوى أعلى من دقة المصدر الأصلي (upscaling) عشان تفاصيل أوضح عند التكبير الشديد
         var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
+            maxZoom: 21,
+            maxNativeZoom: 19,
             attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
         });
-        // طبقة أسماء وحدود فوق القمر الصناعي عشان تفاصيل أكتر (أسماء مناطق/طرق) من غير ما تخفي الألوان
+        // طبقة الطرق والمواصلات فوق القمر الصناعي — بتدي شكل "هجين" واقعي زي خرائط جوجل (خطوط الطرق والتقاطعات ظاهرة فوق الصورة الفعلية)
+        var roadsOverlayLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Roads &copy; Esri'
+        });
+        // طبقة أسماء المدن والمناطق والحدود فوق الطرق — لمزيد من التفاصيل الجغرافية
         var referenceLabelsLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 19,
             attribution: 'Labels &copy; Esri'
         });
-        var satelliteGroup = L.layerGroup([satelliteLayer, referenceLabelsLayer]);
+        var satelliteGroup = L.layerGroup([satelliteLayer, roadsOverlayLayer, referenceLabelsLayer]);
 
         // خريطة طبوغرافية ملوّنة توضّح خطوط الكنتور والارتفاعات (تضاريس واضحة برسم توضيحي بدل الصور الفعلية)
         var terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
@@ -7405,13 +7412,16 @@ function renderEquipmentMap() {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         });
 
-        satelliteGroup.addTo(equipmentMapInstance); // الافتراضي: قمر صناعي (أوضح تضاريس وألوان وتفاصيل)
+        satelliteGroup.addTo(equipmentMapInstance); // الافتراضي: قمر صناعي هجين (صور واقعية + طرق + أسماء)
 
         L.control.layers({
-            '🛰️ قمر صناعي (تضاريس)': satelliteGroup,
+            '🛰️ قمر صناعي واقعي (هجين)': satelliteGroup,
             '⛰️ طبوغرافي ملوّن': terrainLayer,
             '🗺️ خريطة الشوارع': streetsLayer
         }, null, { position: 'topleft', collapsed: true }).addTo(equipmentMapInstance);
+
+        // مقياس الرسم أسفل الخريطة — يساعد في تقدير المسافات الفعلية على الأرض
+        L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(equipmentMapInstance);
 
         equipmentMapInstance._markers = [];
         // الخريطة أحياناً بتتنشئ قبل ما تكتمل حسابات مقاس الشريط الجانبي على الشاشات الكبيرة،
