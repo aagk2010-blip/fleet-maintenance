@@ -52,7 +52,7 @@ body{font-family:'Cairo','Segoe UI',sans-serif;background:var(--light);direction
 #fuel-list{display:flex;flex-direction:column;gap:6px;max-width:720px}
 @media (min-width:1024px){ #fuel-list{gap:7px} }
 .status-bar{background:var(--primary);color:white;padding:8px 16px;display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-top:24px}
-.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-around;padding:8px 0 20px;z-index:100;overflow-x:auto}.tab-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;font-family:inherit;cursor:pointer;font-size:10px;color:var(--gray);min-width:60px}.tab-btn.active{color:var(--accent);font-weight:600}.tab-icon{font-size:20px}
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:rgba(255,255,255,0.96);border-top:1px solid rgba(0,0,0,0.05);z-index:100;overflow:hidden}.tab-bar-scroll{display:flex;justify-content:flex-start;padding:8px 0 20px;overflow-x:auto;-webkit-overflow-scrolling:touch}.tab-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;font-family:inherit;cursor:pointer;font-size:10px;color:var(--gray);min-width:60px;flex-shrink:0}.tab-btn.active{color:var(--accent);font-weight:600}.tab-icon{font-size:20px}
 .fab{position:fixed;bottom:85px;right:20px;width:56px;height:56px;border-radius:28px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:none;color:var(--primary);font-size:26px;cursor:pointer;box-shadow:0 4px 15px rgba(232,160,32,0.4);z-index:150;display:flex;align-items:center;justify-content:center}
 .modal-overlay{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;height:100%;background:var(--light);z-index:200;overflow-y:auto;display:none}.modal-overlay.active{display:block}.modal-header{background:linear-gradient(135deg,var(--primary),var(--secondary));padding:50px 20px 24px;color:white;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}.modal-title{font-size:20px;font-weight:800}.modal-close{background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:18px;font-size:20px;cursor:pointer}
 .form-group{background:var(--white);margin:12px 14px;border-radius:16px;overflow:hidden}.form-field{padding:12px 16px;border-bottom:1px solid #eef2f6}.form-field:last-child{border-bottom:none}.form-label{font-size:11px;color:var(--gray);font-weight:600;display:block;margin-bottom:5px}.form-input,.form-select,.form-textarea{width:100%;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:var(--primary)}.form-textarea{resize:vertical;min-height:60px}
@@ -63,6 +63,12 @@ body{font-family:'Cairo','Segoe UI',sans-serif;background:var(--light);direction
 .big-btn{background:linear-gradient(135deg,var(--info),var(--primary));border:none;color:white;padding:14px;border-radius:16px;font-weight:700;width:calc(100% - 28px);margin:0 14px 16px;cursor:pointer;text-align:center}
 .qty-btn{width:30px;height:30px;border-radius:15px;border:none;font-size:18px;cursor:pointer}
 .search-box{background:white;border-radius:30px;padding:10px 16px;margin-bottom:12px;display:flex;gap:8px;box-shadow:var(--shadow-sm)}.search-box input,.search-box select{flex:1;border:none;outline:none;font-family:inherit;background:transparent;font-size:14px}
+/* --- صف فلاتر صفحة المعدات (الموقع/المشروع/الملكية): تتقلص وتتماشى مع عرض الشاشة --- */
+.eq-filter-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.eq-filter-select{flex:1 1 30%;min-width:0;border:none;outline:none;font-family:inherit;background:white;color:var(--primary);border-radius:14px;padding:8px 6px;font-size:11.5px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer;text-overflow:ellipsis}
+@media (max-width:380px){
+  .eq-filter-select{font-size:10.5px;padding:8px 4px}
+}
 .category-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;margin-right:6px}
 .import-preview{max-height:300px;overflow:auto;font-size:12px}.import-preview table{width:100%;border-collapse:collapse}.import-preview th,.import-preview td{padding:6px;border:1px solid #e2e8f0;text-align:center}.import-preview th{background:var(--primary);color:white}
 .status-badge{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600}.status-success{background:#d1fae5;color:#065f46}.status-warning{background:#fef3c7;color:#b45309}.status-danger{background:#fee2e2;color:#dc2626}
@@ -428,8 +434,8 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   --glass-border-soft:rgba(255,255,255,0.28);
   --glass-shadow:0 8px 32px rgba(13,27,42,0.14),0 1px 2px rgba(13,27,42,0.06);
   --glass-shadow-lg:0 20px 60px rgba(13,27,42,0.20),0 2px 8px rgba(13,27,42,0.08);
-  --glass-blur:blur(24px) saturate(180%);
-  --glass-blur-strong:blur(34px) saturate(200%);
+  --glass-blur:blur(10px) saturate(140%);
+  --glass-blur-strong:blur(14px) saturate(150%);
   --glass-highlight:inset 0 1px 0 rgba(255,255,255,0.65),inset 0 0 0 1px rgba(255,255,255,0.18);
   --radius-glass:22px;
   --radius-glass-lg:28px;
@@ -463,39 +469,69 @@ body{background:
 /* --- شريط الحالة السفلي: زجاج داكن رفيع --- */
 .status-bar{background:rgba(13,27,42,.72)!important;backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-top:1px solid rgba(255,255,255,.08)}
 
-/* --- بطاقات الإحصائيات: زجاج شفاف --- */
+/* --- بطاقات الإحصائيات: خلفية شبه شفافة بدون ضبابية (أداء أفضل عند التكرار) --- */
 .stat-card{
-  background:var(--glass-bg)!important;
-  backdrop-filter:var(--glass-blur)!important;-webkit-backdrop-filter:var(--glass-blur)!important;
+  background:rgba(255,255,255,0.82)!important;
   border:1px solid var(--glass-border-soft)!important;
   border-radius:20px!important;
   box-shadow:var(--glass-shadow),var(--glass-highlight)!important;
 }
 
-/* --- كل الكروت (معدات/سائقين/موظفين/وقود/صيانة/مخزون/إيجار/مستخدمين/تفاصيل): زجاج موحّد --- */
+/* --- كل الكروت (معدات/سائقين/موظفين/وقود/صيانة/مخزون/إيجار/مستخدمين/تفاصيل): خلفية شبه معتمة بدون ضبابية
+   (تم إزالة backdrop-filter من هنا لأن هذه العناصر تتكرر عشرات المرات في القوائم، والضبابية المتكررة
+   كانت السبب الرئيسي في تقطّع/اهتزاز الحركة أثناء التمرير على الموبايل) --- */
 .equipment-card,.driver-card,.employee-card,.fuel-card,.fuel-card-compact,.maintenance-card,
 .inventory-item-card,.rental-card,.user-row,.detail-section,.eq-usage-card,.site-dashboard-card{
-  background:var(--glass-bg)!important;
-  backdrop-filter:var(--glass-blur)!important;-webkit-backdrop-filter:var(--glass-blur)!important;
+  background:rgba(255,255,255,0.86)!important;
   border:1px solid var(--glass-border-soft)!important;
   border-radius:var(--radius-glass)!important;
   box-shadow:var(--glass-shadow),var(--glass-highlight)!important;
 }
 .equipment-card:hover,.driver-card:hover,.employee-card:hover,.fuel-card:hover,.fuel-card-compact:hover,.maintenance-card:hover,.inventory-item-card:hover,.rental-card:hover,.user-row:hover,
 .equipment-card.touch-active,.driver-card.touch-active,.employee-card.touch-active,.fuel-card.touch-active,.fuel-card-compact.touch-active,.maintenance-card.touch-active,.inventory-item-card.touch-active,.rental-card.touch-active{
-  background:var(--glass-bg-strong)!important;
+  background:rgba(255,255,255,0.96)!important;
   box-shadow:var(--glass-shadow-lg),var(--glass-highlight)!important;
   border-color:rgba(255,255,255,.7)!important;
 }
 
-/* --- التنقل السفلي (Tab Bar): زجاج عائم بحافة علوية مضيئة --- */
+/* --- التنقل السفلي (Tab Bar): زجاج داكن عالي الدقة بطراز iOS 27 Liquid Glass ---
+   طبقات متعددة تحاكي انكسار الضوء الحقيقي على سطح الزجاج: تشبّع وضبابية أقوى + تباين خفيف
+   + انعكاس ضوئي علوي منحني + حافة مضيئة رفيعة + نسيج حبيبي خفيف يمنع التسطح البلاستيكي.
+   العنصر ده أصبح ثابت (مش هو اللي بيتسحب) فمقدر أرفع فيه الجودة براحة من غير ما يأثر على أداء السحب. */
 .tab-bar{
-  background:rgba(255,255,255,.42)!important;
-  backdrop-filter:var(--glass-blur-strong)!important;-webkit-backdrop-filter:var(--glass-blur-strong)!important;
-  border-top:1px solid var(--glass-border)!important;
-  border-radius:26px 26px 0 0;
-  box-shadow:0 -8px 30px rgba(13,27,42,.10),inset 0 1px 0 rgba(255,255,255,.8);
+  background:
+    radial-gradient(120% 180% at 50% -40%, rgba(255,255,255,.22), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.02) 22%, rgba(255,255,255,0) 45%),
+    linear-gradient(180deg, rgba(26,32,46,.74) 0%, rgba(14,18,28,.86) 55%, rgba(6,9,15,.92) 100%)!important;
+  backdrop-filter:blur(34px) saturate(220%) contrast(1.06) brightness(1.04)!important;
+  -webkit-backdrop-filter:blur(34px) saturate(220%) contrast(1.06) brightness(1.04)!important;
+  border-top:1px solid rgba(255,255,255,.22)!important;
+  border-radius:28px 28px 0 0;
+  box-shadow:
+    0 -16px 40px rgba(0,0,0,.42),
+    0 -2px 8px rgba(0,0,0,.28),
+    inset 0 1.5px 0 rgba(255,255,255,.32),
+    inset 0 -1px 0 rgba(0,0,0,.25),
+    inset 1px 0 0 rgba(255,255,255,.05),
+    inset -1px 0 0 rgba(255,255,255,.05);
+  isolation:isolate;
 }
+/* نسيج حبيبي دقيق جداً فوق الزجاج يعطي واقعية السطح المصنفر بدل المظهر البلاستيكي المسطح */
+.tab-bar::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* خط انعكاس ضوئي منحني رفيع أعلى الحافة، زي انكسار الضوء على حرف الزجاج الحقيقي */
+.tab-bar::after{
+  content:'';position:absolute;top:0;left:8%;right:8%;height:1px;pointer-events:none;z-index:1;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.65) 45%,rgba(255,255,255,.65) 55%,transparent);
+  filter:blur(.4px);
+}
+.tab-bar-scroll{position:relative;z-index:2}
+.tab-btn{color:rgba(235,240,248,.52)!important;-webkit-tap-highlight-color:transparent}
+.tab-btn .icon{filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+
 
 /* --- الشريط الجانبي (سطح المكتب): زجاج داكن --- */
 @media (min-width:1024px){
@@ -515,7 +551,7 @@ body{background:
 }
 
 /* --- المودالز واللوحات الإدارية: زجاج على خلفية معتمة --- */
-.modal-overlay,.admin-panel-overlay{background:rgba(238,242,247,.86)!important;backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%)}
+.modal-overlay,.admin-panel-overlay{background:rgba(238,242,247,.9)!important;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%)}
 .modal-header{
   background:linear-gradient(135deg,rgba(13,27,42,.88),rgba(27,40,56,.82))!important;
   backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
@@ -526,10 +562,9 @@ body{background:
   .modal-overlay,.admin-panel-overlay{box-shadow:0 30px 90px rgba(0,0,0,.35),0 0 0 3000px rgba(9,16,26,.42)!important;border:1px solid rgba(255,255,255,.5)}
 }
 
-/* --- النماذج: حقول زجاجية --- */
+/* --- النماذج: حقول شبه معتمة بدون ضبابية --- */
 .form-group{
-  background:var(--glass-bg)!important;
-  backdrop-filter:var(--glass-blur)!important;-webkit-backdrop-filter:var(--glass-blur)!important;
+  background:rgba(255,255,255,0.82)!important;
   border:1px solid var(--glass-border-soft)!important;
   border-radius:var(--radius-glass)!important;
   box-shadow:var(--glass-shadow),var(--glass-highlight)!important;
@@ -553,27 +588,24 @@ body{background:
 }
 .danger-btn{background:rgba(220,38,38,.88)!important;border-color:rgba(255,255,255,.3)!important}
 
-/* --- الشارات: كبسولات زجاجية شفافة بدل الألوان الصلبة --- */
+/* --- الشارات: كبسولات شبه معتمة بدون ضبابية (تتكرر كثيراً في كل شاشة) --- */
 .badge,.status-badge,.category-badge,.role-badge,.plan-badge,.eq-quick-btn{
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border:1px solid rgba(255,255,255,.4);
 }
-.badge-working{background:rgba(16,185,129,.16)!important;color:#065f46!important}
-.badge-maintenance{background:rgba(245,158,11,.16)!important;color:#78350f!important}
-.badge-stopped{background:rgba(239,68,68,.16)!important;color:#7f1d1d!important}
-.badge-active{background:rgba(37,99,235,.16)!important;color:#1e40af!important}
+.badge-working{background:rgba(16,185,129,.22)!important;color:#065f46!important}
+.badge-maintenance{background:rgba(245,158,11,.22)!important;color:#78350f!important}
+.badge-stopped{background:rgba(239,68,68,.22)!important;color:#7f1d1d!important}
+.badge-active{background:rgba(37,99,235,.22)!important;color:#1e40af!important}
 
 /* --- شرائح المراجعة السريعة (زيت/مياه/فلتر) --- */
 .check-chip{
-  background:var(--glass-bg-soft)!important;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(255,255,255,0.5)!important;
   border:2px solid var(--glass-border-soft)!important;
 }
 .check-chip.flagged{background:rgba(239,68,68,.10)!important;border-color:rgba(239,68,68,.4)!important}
 
-/* --- شبكة أقسام لوحة التحكم: أيقونات زجاجية --- */
+/* --- شبكة أقسام لوحة التحكم: أيقونات بدون ضبابية --- */
 .app-tile-icon{
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,.5);
   box-shadow:0 8px 20px rgba(13,27,42,.14),inset 0 1px 0 rgba(255,255,255,.6);
 }
@@ -631,29 +663,18 @@ body{background:
    Liquid Glass بأعلى درجة تلميع ممكنة بدون كسر أي وظيفة.
    ======================================================================= */
 
-/* --- نسيج حبيبي خفيف فوق كل الصفحة (يمنع تسطح الضبابية، تفصيلة أصلية بمواد آبل الزجاجية) --- */
-body::after{
-  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.025;mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* --- تمت إزالة النسيج الحبيبي المتكرر (كان يُعاد رسمه فوق الشاشة كاملة باستمرار) --- */
 
-/* --- فقاعات الخلفية السائلة: حركة بطيئة عائمة لعمق حقيقي --- */
+/* --- فقاعات الخلفية: أصبحت ثابتة بدون ضبابية ولا حركة (كانت السبب الرئيسي لاهتزاز/تقطّع
+   الحركة أثناء التمرير، لأن طبقة filter:blur متحركة بحجم الشاشة كاملة مكلفة جداً على الموبايل) --- */
 body{position:relative}
 body::before{
-  content:'';position:fixed;inset:-10%;z-index:-1;pointer-events:none;
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(480px 420px at 10% 15%, rgba(232,160,32,.14), transparent 60%),
-    radial-gradient(520px 440px at 90% 25%, rgba(14,116,144,.13), transparent 60%),
-    radial-gradient(460px 400px at 25% 90%, rgba(139,92,246,.10), transparent 60%);
-  filter:blur(10px);
-  animation:liquidDrift 22s ease-in-out infinite alternate;
+    radial-gradient(480px 420px at 10% 15%, rgba(232,160,32,.10), transparent 60%),
+    radial-gradient(520px 440px at 90% 25%, rgba(14,116,144,.09), transparent 60%),
+    radial-gradient(460px 400px at 25% 90%, rgba(139,92,246,.07), transparent 60%);
 }
-@keyframes liquidDrift{
-  0%{transform:translate(0,0) scale(1)}
-  50%{transform:translate(2%,-2%) scale(1.04)}
-  100%{transform:translate(-2%,2%) scale(1.02)}
-}
-@media (prefers-reduced-motion:reduce){body::before{animation:none}}
 
 /* --- إضاءة حافة علوية (Rim Light) على كل سطح زجاجي: خط لمعان رفيع أعلى الحافة --- */
 .equipment-card,.driver-card,.employee-card,.fuel-card,.fuel-card-compact,.maintenance-card,
@@ -668,14 +689,19 @@ body::before{
   opacity:.7;pointer-events:none;
 }
 
-/* --- التنقل السفلي: كبسولة زجاجية متحركة خلف العنصر النشط --- */
+/* --- التنقل السفلي: كبسولة زجاجية محايدة (شفافة/فضية) خلف العنصر النشط — بالظبط زي تأثير iOS 27
+   الحقيقي: الكبسولة نفسها زجاج شفاف عادي بدون لون، واللون بييجي بس من الأيقونة والنص --- */
 .tab-btn.active{
-  background:rgba(255,255,255,.55)!important;
-  backdrop-filter:blur(10px) saturate(180%);-webkit-backdrop-filter:blur(10px) saturate(180%);
-  border-radius:16px;box-shadow:0 4px 14px rgba(13,27,42,.12),inset 0 1px 0 rgba(255,255,255,.8);
+  color:#ffffff!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.10))!important;
+  backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:0 4px 14px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(255,255,255,.06);
   padding:4px 8px;margin-top:-4px;
   transition:background .25s ease,box-shadow .25s ease;
 }
+.tab-btn.active .icon{filter:drop-shadow(0 0 4px rgba(255,255,255,.35))}
 .tab-btn.active::after{display:none}
 
 /* --- الشريط الجانبي: توهج زجاجي أعمق للعنصر النشط --- */
@@ -693,13 +719,10 @@ body::before{
 .stats-row .stat-card:nth-child(4n+3){background:linear-gradient(160deg,rgba(16,185,129,.16),var(--glass-bg))!important}
 .stats-row .stat-card:nth-child(4n+4){background:linear-gradient(160deg,rgba(139,92,246,.14),var(--glass-bg))!important}
 
-/* --- تلاشي المحتوى قبل وصوله لشريط التنقل السفلي (طبقة زجاجية متدرجة) --- */
+/* --- ملاحظة: أزيل تأثير التلاشي فوق شريط التنقل لأنه كان يعطّل التمرير الأفقي
+   (overflow:visible) ويمنع الوصول لتبويبات "المخزن" و"استيراد" لما التبويبات
+   أكتر من عرض الشاشة. شريط التنقل رجع يسمح بالتمرير الأفقي عادي. --- */
 body::marker{content:none}
-.tab-bar{overflow:visible}
-.tab-bar::before{
-  content:'';position:absolute;left:0;right:0;bottom:100%;height:26px;pointer-events:none;
-  background:linear-gradient(180deg,transparent,rgba(238,242,247,.55));
-}
 
 /* --- المودالز: دخول أنعم بتمويه متدرج --- */
 @keyframes glassSheetIn{from{opacity:0;transform:translateY(14px) scale(.98);filter:blur(6px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
@@ -725,8 +748,9 @@ body::marker{content:none}
    --glass-* أو --gray يتلوّن تلقائيًا. باقي العناصر (التقارير/المعاينات
    الداخلية التي لها خلفية فاتحة صريحة) تُترك كما هي عمدًا لسهولة القراءة.
    ======================================================================= */
-html[data-theme="dark"]{color-scheme:dark}
-html:not([data-theme="dark"]){color-scheme:light}
+/* --- تمت إزالة color-scheme هنا بناءً على طلب المستخدم: كانت بتخلي المتصفح يغيّر لون
+   الكتابة تلقائياً في عناصر النماذج (select/input) اللي مالهاش لون كتابة محدد صراحةً في الكود،
+   وده كان بيظهر كأثر متبقي على الكتابة في بعض الصفحات رغم إزالة كل تخصيصات اللون --- */
 
 html[data-theme="dark"]{
   --glass-bg:rgba(32,38,52,.55);
@@ -737,7 +761,6 @@ html[data-theme="dark"]{
   --glass-highlight:inset 0 1px 0 rgba(255,255,255,.09),inset 0 0 0 1px rgba(255,255,255,.06);
   --glass-shadow:0 8px 32px rgba(0,0,0,.38),0 1px 2px rgba(0,0,0,.25);
   --glass-shadow-lg:0 20px 60px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
-  --gray:#9aa7ba;
 }
 
 /* --- خلفية الصفحة: زجاج سائل داكن --- */
@@ -749,7 +772,6 @@ html[data-theme="dark"] body{
     radial-gradient(620px 520px at 20% 108%, rgba(139,92,246,.10), transparent 60%),
     radial-gradient(500px 460px at 95% 100%, rgba(16,185,129,.07), transparent 60%),
     linear-gradient(180deg,#0d1219,#0a0e14)!important;
-  color:#e8edf3;
 }
 html[data-theme="dark"] body::before{
   background:
@@ -758,18 +780,7 @@ html[data-theme="dark"] body::before{
     radial-gradient(460px 400px at 25% 90%, rgba(139,92,246,.09), transparent 60%);
 }
 
-/* --- التنقل السفلي والشريط الجانبي: زجاج داكن أعمق --- */
-html[data-theme="dark"] .tab-bar{
-  background:rgba(18,22,30,.62)!important;
-  border-top:1px solid rgba(255,255,255,.10)!important;
-  box-shadow:0 -8px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);
-}
-html[data-theme="dark"] .tab-bar::before{background:linear-gradient(180deg,transparent,rgba(11,15,22,.55))}
-html[data-theme="dark"] .tab-btn{color:var(--gray)}
-html[data-theme="dark"] .tab-btn.active{
-  background:rgba(255,255,255,.10)!important;
-  box-shadow:0 4px 14px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.12);
-}
+/* --- التنقل السفلي الآن داكن دائماً (زجاج iOS 27) بغض النظر عن وضع الإضاءة، فلا حاجة لتخصيص إضافي هنا --- */
 html[data-theme="dark"] .modal-overlay,html[data-theme="dark"] .admin-panel-overlay{
   background:rgba(11,15,22,.90)!important;
 }
@@ -780,40 +791,12 @@ html[data-theme="dark"] .modal-overlay,html[data-theme="dark"] .admin-panel-over
   }
 }
 
-/* --- النصوص الأساسية داخل الأسطح الزجاجية: تتحول للون فاتح --- */
-html[data-theme="dark"] .card-title,
-html[data-theme="dark"] .employee-card .emp-name,
-html[data-theme="dark"] .driver-card .drv-name,
-html[data-theme="dark"] .fuel-card-compact .fc-name,
-html[data-theme="dark"] .detail-value,
-html[data-theme="dark"] .user-email,
-html[data-theme="dark"] .form-input,
-html[data-theme="dark"] .form-select,
-html[data-theme="dark"] .form-textarea,
-html[data-theme="dark"] .app-tile-label,
-html[data-theme="dark"] .check-chip-label,
-html[data-theme="dark"] .stat-label,
-html[data-theme="dark"] .section-title{
-  color:#eef2f7!important;
-}
-html[data-theme="dark"] .form-input::placeholder,
-html[data-theme="dark"] .form-textarea::placeholder{color:rgba(232,237,243,.4)}
+/* --- بناءً على طلب المستخدم: ألوان الكتابة تبقى كما هي في الوضع الفاتح ولا تتغير مع الوضع الداكن،
+   والتأثير الداكن يقتصر على خلفية الصفحة والكروت فقط --- */
 html[data-theme="dark"] .form-field{border-bottom-color:rgba(255,255,255,.08)!important}
-html[data-theme="dark"] .stat-number{
-  background:linear-gradient(90deg,#ffffff,#f3d9a6)!important;
-  -webkit-background-clip:text;background-clip:text;
-}
 
-/* --- الشارات: ألوان أفتح لضمان التباين فوق الزجاج الداكن --- */
-html[data-theme="dark"] .badge-working{background:rgba(16,185,129,.22)!important;color:#6ee7b7!important}
-html[data-theme="dark"] .badge-maintenance{background:rgba(245,158,11,.22)!important;color:#fcd34d!important}
-html[data-theme="dark"] .badge-stopped{background:rgba(239,68,68,.22)!important;color:#fca5a5!important}
-html[data-theme="dark"] .badge-active{background:rgba(37,99,235,.22)!important;color:#93c5fd!important}
-
-/* --- شريط البحث والأزرار الكبيرة: حدود أوضح على الزجاج الداكن --- */
-html[data-theme="dark"] .search-box input,html[data-theme="dark"] .search-box select{color:#eef2f7}
+/* --- شريط البحث والأزرار الكبيرة --- */
 html[data-theme="dark"] .save-btn,html[data-theme="dark"] .big-btn{filter:brightness(.96)}
-html[data-theme="dark"] .empty-state{color:var(--gray)}
 
 /* --- خط اللمعان أعلى الكروت: أهدأ في الوضع الداكن --- */
 html[data-theme="dark"] .equipment-card::after,html[data-theme="dark"] .driver-card::after,
@@ -1006,7 +989,7 @@ body,.equipment-card,.driver-card,.employee-card,.fuel-card,.fuel-card-compact,.
     <div id="analytics-body"></div>
   </div></div>
   
-  <div id="view-equipment" style="display:none"><div style="padding:14px"><button id="meter-update-btn" class="big-btn" style="margin:0 0 10px 0">⏱️ تحديث العدادات اليومي</button><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div style="margin-bottom:10px;display:flex;gap:8px"><select id="location-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" style="flex:1;border:none;outline:none;font-family:inherit;background:white;border-radius:30px;padding:10px 16px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><button id="export-owned-daily-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#7c3aed,#4f46e5)">📆 تصدير ساعات معدات الملك (شيت لكل معدة)</button><button id="print-qr-labels-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#0891b2,#155e75)" onclick="openQRLabelsModal()">🏷️ طباعة ملصقات QR للمعدات</button><div id="equipment-list"></div></div></div>
+  <div id="view-equipment" style="display:none"><div style="padding:14px"><button id="meter-update-btn" class="big-btn" style="margin:0 0 10px 0">⏱️ تحديث العدادات اليومي</button><div class="search-box"><span>🔍</span><input type="text" id="search-equipment" placeholder="بحث باسم أو كود..."></div><div class="eq-filter-row"><select id="location-filter" class="eq-filter-select"><option value="">🏢 كل المواقع</option></select><select id="project-site-filter" class="eq-filter-select"><option value="">📍 كل المشاريع</option></select><select id="ownership-filter" class="eq-filter-select"><option value="">🏷️ ملك وإيجار</option><option value="ملك">🔑 ملك فقط</option><option value="إيجار">📋 إيجار فقط</option></select></div><div style="display:flex;gap:10px;margin-bottom:10px"><button id="export-hours-excel-btn" class="big-btn" style="margin:0;flex:1;background:linear-gradient(135deg,#10b981,#0e7490)">📊 تصدير سجل العدادات</button><button id="delete-all-equipment-btn" class="big-btn" style="margin:0;flex:1;background:#dc2626">🗑️ حذف الكل</button></div><button id="export-owned-daily-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#7c3aed,#4f46e5)">📆 تصدير ساعات معدات الملك (شيت لكل معدة)</button><button id="print-qr-labels-btn" class="big-btn" style="margin:0 0 10px 0;background:linear-gradient(135deg,#0891b2,#155e75)" onclick="openQRLabelsModal()">🏷️ طباعة ملصقات QR للمعدات</button><div id="equipment-list"></div></div></div>
   
   <div id="view-employees" style="display:none"><div style="padding:14px">
     <div id="employees-subtabs" style="display:flex;gap:8px;margin-bottom:12px;background:#eef1f5;padding:4px;border-radius:14px">
@@ -1156,7 +1139,7 @@ body,.equipment-card,.driver-card,.employee-card,.fuel-card,.fuel-card-compact,.
   </div>
   
   </div><!-- /.app-main -->
-  <div class="tab-bar"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="map"><span class="tab-icon"><svg class="icon"><use href="#ic-map"/></svg></span><span>الخريطة</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div>
+  <div class="tab-bar"><div class="tab-bar-scroll"><button class="tab-btn" data-view="home"><span class="tab-icon"><svg class="icon"><use href="#ic-dashboard"/></svg></span><span>الرئيسية</span></button><button class="tab-btn" data-view="equipment"><span class="tab-icon"><svg class="icon"><use href="#ic-equipment"/></svg></span><span>المعدات</span></button><button class="tab-btn" data-view="rental"><span class="tab-icon"><svg class="icon"><use href="#ic-rental"/></svg></span><span>الإيجار</span></button><button class="tab-btn" data-view="map"><span class="tab-icon"><svg class="icon"><use href="#ic-map"/></svg></span><span>الخريطة</span></button><button class="tab-btn" data-view="sites"><span class="tab-icon"><svg class="icon"><use href="#ic-building"/></svg></span><span>المواقع</span></button><button class="tab-btn" data-view="analytics"><span class="tab-icon"><svg class="icon"><use href="#ic-chart"/></svg></span><span>التحليلات</span></button><button class="tab-btn" data-view="employees"><span class="tab-icon"><svg class="icon"><use href="#ic-employees"/></svg></span><span>الموظفين</span></button><button class="tab-btn" data-view="fuel"><span class="tab-icon"><svg class="icon"><use href="#ic-fuel"/></svg></span><span>الوقود</span></button><button class="tab-btn" data-view="maintenance"><span class="tab-icon"><svg class="icon"><use href="#ic-maintenance"/></svg></span><span>الصيانة</span></button><button class="tab-btn" data-view="inventory"><span class="tab-icon"><svg class="icon"><use href="#ic-inventory"/></svg></span><span>المخزن</span></button><button class="tab-btn" data-view="import"><span class="tab-icon"><svg class="icon"><use href="#ic-import"/></svg></span><span>استيراد</span></button></div></div>
   <button class="fab" id="fab-btn">+</button>
 </div>
 
@@ -2651,6 +2634,9 @@ function preloadLoginData() {
         if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         var app = firebase.apps[0];
         var db = firebase.database(app);
+        // نُعيّن الاتصال في المتغيّر العام fbDb فورًا حتى تعمل نماذج ما قبل الدخول
+        // (مثل "طلب فتح حساب") بشكل صحيح دون انتظار تسجيل الدخول الفعلي
+        if (!fbDb) fbDb = db;
         Promise.all([
             db.ref('appUsers').once('value'),
             db.ref('appSettings/viewerSections').once('value')
@@ -2852,6 +2838,29 @@ function localMonthStr(d) {
 // ==================== هوية الشركة (شعار حسن علام) ====================
 var COMPANY_LOGO_DATA_URI = null;   // شعار الشركة الأصلي (مستخرج من صفحة الدخول)
 var COMPANY_ICON_SQUARE_URI = null; // نسخة مربعة من الشعار لاستخدامها كأيقونة تطبيق
+
+// رسالة "غير مسموح" تظهر لأي مستخدم يدخل على صفحة مالوش صلاحية عليها
+// (الصفحة تتقفل والتبويب يفضل ظاهر زي كل التبويبات، لكن محتواه محجوب)
+function showAccessDeniedModal() {
+    var existing = document.getElementById('access-denied-modal');
+    if (existing) existing.remove();
+    var overlay = document.createElement('div');
+    overlay.id = 'access-denied-modal';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;max-width:none;transform:none;margin:0;display:flex;align-items:center;justify-content:center;z-index:99999;background:rgba(15,20,28,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px;box-sizing:border-box';
+    var logoHtml = COMPANY_LOGO_DATA_URI
+        ? '<img src="' + COMPANY_LOGO_DATA_URI + '" alt="Hassan Allam Holding" style="width:140px;height:auto;display:block;margin:0 auto 16px">'
+        : '<div style="font-size:44px;margin-bottom:12px">🏗️</div>';
+    overlay.innerHTML =
+        '<div style="background:white;border-radius:24px;padding:30px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35);box-sizing:border-box">' +
+        logoHtml +
+        '<div style="font-size:17px;font-weight:800;color:#7f1d1d;margin-bottom:8px">🚫 غير مسموح</div>' +
+        '<div style="font-size:13.5px;color:#475569;line-height:1.7;margin-bottom:20px">برجاء التواصل مع إدارة المعدات لفتح الخدمة</div>' +
+        '<button id="access-denied-ok-btn" style="background:var(--accent);color:white;border:none;border-radius:14px;padding:10px 28px;font-size:14px;font-weight:700;cursor:pointer">حسناً</button>' +
+        '</div>';
+    document.body.appendChild(overlay);
+    document.getElementById('access-denied-ok-btn').onclick = function() { overlay.remove(); };
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+}
 
 function setupBrandedAppIcon() {
     var logoImg = document.querySelector('#login-screen img[alt="Hassan Allam Holding"]');
@@ -3995,12 +4004,13 @@ function proceedToApp() {
 
     var firstAllowedView = null;
 
-    // إخفاء التبويبات غير المسموح بها
+    // إظهار كل التبويبات دايمًا لكل المستخدمين (بناءً على طلب المستخدم)، حتى لو مالوش صلاحية عليها،
+    // والصفحات المش متاحة له هتقفل وتوريله رسالة "غير مسموح" لو دخل عليها بدل ما تختفي من الأساس.
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
         var view = btn.dataset.view;
         var allowed;
         if (view === 'employees') {
-            // زرار "الموظفين" المدمج يظهر لو عند المستخدم صلاحية على قسم الموظفين أو السائقين (أيهما)
+            // زرار "الموظفين" المدمج يُعتبر "مسموح" لتحديد الصفحة الافتراضية لو عند المستخدم صلاحية على قسم الموظفين أو السائقين
             allowed = canView('employees') || canView('drivers');
         } else {
             var sectionKey = null;
@@ -4008,12 +4018,8 @@ function proceedToApp() {
             allowed = sectionKey && canView(sectionKey);
         }
 
-        if (isAdmin || allowed) {
-            btn.style.display = 'flex';
-            if (!firstAllowedView) firstAllowedView = view;
-        } else {
-            btn.style.display = 'none';
-        }
+        btn.style.display = 'flex';
+        if ((isAdmin || allowed) && !firstAllowedView) firstAllowedView = view;
     });
 
     // إخفاء أزرار التعديل/الحذف بحسب الصلاحيات (للمستخدمين غير المدير)
@@ -4955,9 +4961,11 @@ function initEquipmentPublicViewPage(eqId) {
     document.title = 'تفاصيل المعدة';
     document.body.innerHTML =
         '<div style="min-height:100vh;background:#f1f5f9;padding:16px;font-family:Cairo,Tahoma,sans-serif;direction:rtl">' +
-        '<div id="eqpv-content" style="max-width:480px;margin:0 auto">' +
+        '<div style="max-width:480px;margin:0 auto">' +
+        '<div id="eqpv-work-cards"></div>' +
+        '<div id="eqpv-content">' +
         '<div style="background:white;border-radius:18px;padding:40px 20px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)"><div style="font-size:36px;margin-bottom:10px">⏳</div><div style="color:#64748b;font-size:14px">جاري تحميل بيانات المعدة...</div></div>' +
-        '</div></div>';
+        '</div></div></div>';
 
     try {
         if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
@@ -5023,8 +5031,28 @@ function initEquipmentPublicViewPage(eqId) {
             var activeCycle = getPeriodRange(getCurrentCycleMonthStr());
             var dayData = buildRentalDayEntriesLocal(dailyList, rentalContract, activeCycle.from, activeCycle.to);
 
+            // كارت "حالة العمل" (بدء/انتهاء العمل) وكارت "تسجيل الحضور والانصراف" فوق التايم شيت مباشرة —
+            // بنفس منطق صفحة رابط السائق المباشر، بس هنا بيفتحوا تلقائيًا من QR المعدة نفسها بدون رابط منفصل
+            if (rentalContract && rentalContract.driverId && rentalContractId) {
+                var workCardsEl = document.getElementById('eqpv-work-cards');
+                if (workCardsEl) {
+                    workCardsEl.innerHTML = buildWorkStatusCardHtml() + buildAttendanceFormCardHtml();
+                    wireRentalAttendanceCards(rentalContract.driverId, rentalContractId, rentalContract);
+                }
+            }
+
             renderEquipmentPublicAttendanceView(eq, rentalContract, dayData.days, rentalDriverName, results[4].denied || results[3].denied, activeCycle);
             return;
+        }
+
+        // معدات الملك اللي عليها سائق مسجل: كارت مصغّر أعلى الصفحة لمشاركة الموقع وتسجيل بدء/انتهاء العمل
+        // (بدون التأثير على باقي بيانات المعدة والصيانة المعروضة تحته)
+        if (eq.assignedDriver) {
+            var workCardsEl = document.getElementById('eqpv-work-cards');
+            if (workCardsEl) {
+                workCardsEl.innerHTML = buildOwnedEquipmentWorkCardHtml();
+                wireOwnedEquipmentWorkCard(eq.assignedDriver);
+            }
         }
 
         // معدات الملك: التفاصيل الكاملة + آخر 4 صيانات (من pmHistory بنفس منطق شاشة "سجل الصيانات")
@@ -7531,12 +7559,8 @@ function initShareLocationPage(driverId) {
 }
 
 // ==================== شاشة تسجيل ساعة الحضور والانصراف (لسائقي معدات الإيجار فقط) ====================
-function initRentalDriverAttendancePage(driverId, rentalId, rentalContract) {
-    document.title = 'تسجيل الحضور والانصراف';
-    document.body.innerHTML =
-        '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:20px;font-family:Cairo,Tahoma,sans-serif;direction:rtl">' +
-        '<div style="max-width:380px;width:100%">' +
-        '<div style="background:white;border-radius:20px;padding:26px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3);margin-bottom:14px">' +
+function buildAttendanceFormCardHtml() {
+    return '<div style="background:white;border-radius:20px;padding:26px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3);margin-bottom:14px">' +
         '<div style="font-size:44px;margin-bottom:8px">🕒</div>' +
         '<div id="attend-driver-name" style="font-size:17px;font-weight:800;color:#0d1b2a;margin-bottom:2px">جاري التحميل...</div>' +
         '<div id="attend-eq-label" style="font-size:12.5px;color:#6b7a8d;margin-bottom:16px"></div>' +
@@ -7555,8 +7579,10 @@ function initRentalDriverAttendancePage(driverId, rentalId, rentalContract) {
         '</div>' +
         '<button id="attend-save-btn" style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">📤 إرسال للمراجعة</button>' +
         '<div style="font-size:10.5px;color:#9ca3af;margin-top:14px">تسجيلك بيتبعت للمشرف المسؤول للمراجعة والموافقة عليه — تقدر تعدّل وتبعت تاني قبل ما يراجعه</div>' +
-        '</div>' +
-        '<div style="background:white;border-radius:20px;padding:22px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)">' +
+        '</div>';
+}
+function buildWorkStatusCardHtml() {
+    return '<div style="background:white;border-radius:20px;padding:22px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3);margin-bottom:14px">' +
         '<div style="font-size:34px;margin-bottom:6px">🛠️</div>' +
         '<div style="font-size:14px;font-weight:800;color:#0d1b2a;margin-bottom:2px">حالة العمل</div>' +
         '<div style="font-size:11.5px;color:#6b7a8d;margin-bottom:14px">سجّل بدء وانتهاء شغلك اليوم عشان فريق العمل يتابع المعدة أول بأول</div>' +
@@ -7564,9 +7590,205 @@ function initRentalDriverAttendancePage(driverId, rentalId, rentalContract) {
         '<div id="loc-share-queue-info" style="font-size:10.5px;color:#9ca3af;margin-bottom:10px;display:none"></div>' +
         '<button id="loc-share-toggle-btn" style="width:100%;padding:13px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">▶️ بدء العمل</button>' +
         '<div style="font-size:10px;color:#9ca3af;margin-top:12px">هيطلب المتصفح إذن الوصول — اضغط "سماح"<br>البيانات بتتسجّل حتى لو النت اتقطع، وترفع تلقائي أول ما النت يرجع</div>' +
-        '</div>' +
-        '</div></div>';
+        '</div>';
+}
 
+// ==================== كارت مصغّر: الموقع + بدء/انتهاء العمل (لسائقي معدات الملك) — يظهر أعلى صفحة QR الخاصة بالمعدة ====================
+function buildOwnedEquipmentWorkCardHtml() {
+    return '<div style="background:white;border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+        '<span style="font-size:20px">📍</span>' +
+        '<div style="font-size:13px;font-weight:800;color:#0d1b2a">الموقع وحالة العمل</div>' +
+        '</div>' +
+        '<div id="eqpv-share-status" style="font-size:11.5px;font-weight:700;color:#f59e0b;background:#fef3c7;border-radius:8px;padding:7px;margin-bottom:8px">⏳ لسه ما بدأتش الشغل</div>' +
+        '<div id="eqpv-share-queue-info" style="font-size:10px;color:#9ca3af;margin-bottom:8px;display:none"></div>' +
+        '<div style="text-align:right;margin-bottom:8px">' +
+            '<label style="font-size:11px;font-weight:700;color:#0d1b2a;display:block;margin-bottom:4px">⏱️ قراءة العداد الحالية (ساعات)</label>' +
+            '<input type="number" id="eqpv-share-meter-input" placeholder="مثال: 1250" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box">' +
+        '</div>' +
+        '<button id="eqpv-share-toggle-btn" style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">▶️ بدء العمل</button>' +
+        '</div>';
+}
+
+// يربط منطق مشاركة الموقع وتسجيل بدء/انتهاء العمل بالكارت المصغّر (نفس منطق initEquipmentMeterSharePage بالضبط، بس مربوط بعناصر الكارت المدمج داخل صفحة QR للمعدة)
+function wireOwnedEquipmentWorkCard(driverId) {
+    var driverName = '';
+    var QUEUE_KEY = 'offlineLocQueue_' + driverId;
+
+    function getLocalDateKey(d) {
+        d = d || new Date();
+        var y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + day;
+    }
+
+    var btn = document.getElementById('eqpv-share-toggle-btn');
+    var statusEl = document.getElementById('eqpv-share-status');
+    var queueInfoEl = document.getElementById('eqpv-share-queue-info');
+    var meterInput = document.getElementById('eqpv-share-meter-input');
+    if (!btn || !statusEl || !meterInput) return;
+
+    fbDb.ref('drivers/' + driverId).once('value').then(function(snap) {
+        var d = snap.val();
+        driverName = d ? d.name : '';
+        if (!d) btn.style.display = 'none';
+        tryFlushQueue();
+    });
+
+    var WORK_STATE_KEY = 'driverWorkState_' + driverId;
+    function getSavedWorkState() {
+        try { return JSON.parse(localStorage.getItem(WORK_STATE_KEY) || 'null'); }
+        catch (e) { return null; }
+    }
+    function saveWorkState(state) {
+        try { localStorage.setItem(WORK_STATE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+    var savedWorkState = getSavedWorkState();
+    var sharing = !!(savedWorkState && savedWorkState.sharing);
+    var startMeter = (savedWorkState && savedWorkState.startMeter != null) ? savedWorkState.startMeter : null;
+
+    function getQueue() {
+        try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); }
+        catch (e) { return []; }
+    }
+    function setQueue(arr) {
+        try { localStorage.setItem(QUEUE_KEY, JSON.stringify(arr)); } catch (e) {}
+    }
+    function updateQueueBadge() {
+        var q = getQueue();
+        if (q.length > 0) {
+            queueInfoEl.style.display = 'block';
+            queueInfoEl.innerHTML = '📴 ' + q.length + ' نقطة متخزنة محليًا على جهازك — هترفع تلقائي مجمّعة حسب يومها أول ما النت يرجع';
+        } else {
+            queueInfoEl.style.display = 'none';
+        }
+    }
+
+    var flushInProgress = false;
+    function tryFlushQueue() {
+        var q = getQueue();
+        if (!q.length || !navigator.onLine || flushInProgress) return;
+        flushInProgress = true;
+        var updates = {};
+        q.forEach(function(pt) {
+            var dateKey = pt.dateKey || getLocalDateKey(new Date(pt.updatedAt));
+            var key = fbDb.ref('driverLocationHistory/' + driverId + '/' + dateKey).push().key;
+            updates['driverLocationHistory/' + driverId + '/' + dateKey + '/' + key] = pt;
+        });
+        var last = q[q.length - 1];
+        updates['driverLocations/' + driverId] = {
+            driverId: driverId, driverName: driverName,
+            lat: last.lat, lng: last.lng, accuracy: last.accuracy,
+            updatedAt: last.updatedAt, meter: last.meter
+        };
+        fbDb.ref().update(updates).then(function() {
+            setQueue([]);
+            updateQueueBadge();
+            flushInProgress = false;
+            if (sharing) {
+                statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+                statusEl.innerHTML = '🟢 شغّال دلوقتي — تم رفع مسار اليوم كامل';
+            }
+        }).catch(function() {
+            flushInProgress = false;
+        });
+    }
+
+    function pushLocation(pos) {
+        var now = new Date();
+        var point = {
+            lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy,
+            updatedAt: now.toISOString(), dateKey: getLocalDateKey(now), meter: startMeter
+        };
+
+        if (!navigator.onLine) {
+            var q = getQueue(); q.push(point); setQueue(q); updateQueueBadge();
+            statusEl.style.color = '#92400e'; statusEl.style.background = '#fef3c7';
+            statusEl.innerHTML = '📴 من غير نت — بيتم تسجيل موقعك ومسارك محليًا على الجهاز';
+            return;
+        }
+
+        var updates = {};
+        var histKey = fbDb.ref('driverLocationHistory/' + driverId + '/' + point.dateKey).push().key;
+        updates['driverLocationHistory/' + driverId + '/' + point.dateKey + '/' + histKey] = point;
+        updates['driverLocations/' + driverId] = {
+            driverId: driverId, driverName: driverName,
+            lat: point.lat, lng: point.lng, accuracy: point.accuracy, updatedAt: point.updatedAt, meter: point.meter
+        };
+        fbDb.ref().update(updates).then(function() {
+            statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+            statusEl.innerHTML = '🟢 شغّال دلوقتي — آخر تحديث الآن';
+            tryFlushQueue();
+        }).catch(function() {
+            var q = getQueue(); q.push(point); setQueue(q); updateQueueBadge();
+            statusEl.style.color = '#92400e'; statusEl.style.background = '#fef3c7';
+            statusEl.innerHTML = '📴 الشبكة ضعيفة — بيتم تسجيل موقعك ومسارك محليًا';
+        });
+    }
+
+    window.addEventListener('online', tryFlushQueue);
+    setInterval(tryFlushQueue, 20000);
+    updateQueueBadge();
+
+    function startSharing(meterVal) {
+        startMeter = meterVal;
+        sharing = true;
+        meterInput.value = startMeter;
+        meterInput.disabled = true;
+        saveWorkState({ sharing: true, startMeter: startMeter });
+        shareWatchId = navigator.geolocation.watchPosition(pushLocation, function(err) {
+            statusEl.style.color = '#dc2626'; statusEl.style.background = '#fee2e2';
+            statusEl.innerHTML = '❌ ' + (err.code === 1 ? 'رفضت إذن الموقع' : 'تعذّر تحديد الموقع');
+        }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
+        btn.textContent = '⏹️ انتهاء العمل';
+        btn.style.background = 'linear-gradient(135deg,#dc2626,#991b1b)';
+    }
+
+    function stopSharing() {
+        sharing = false;
+        if (shareWatchId !== null) navigator.geolocation.clearWatch(shareWatchId);
+        tryFlushQueue();
+        meterInput.disabled = false;
+        saveWorkState({ sharing: false, startMeter: null });
+        statusEl.style.color = '#f59e0b'; statusEl.style.background = '#fef3c7';
+        statusEl.innerHTML = '⏸️ تم إنهاء العمل';
+        btn.textContent = '▶️ بدء العمل';
+        btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+    }
+
+    btn.onclick = function() {
+        if (!navigator.geolocation) { statusEl.innerHTML = '❌ الجهاز مش بيدعم تحديد الموقع'; return; }
+        if (!sharing) {
+            var meterVal = parseFloat(meterInput.value);
+            if (isNaN(meterVal)) {
+                statusEl.style.color = '#dc2626'; statusEl.style.background = '#fee2e2';
+                statusEl.innerHTML = '⚠️ من فضلك اكتب قراءة العداد الحالية';
+                meterInput.focus(); return;
+            }
+            startSharing(meterVal);
+        } else {
+            stopSharing();
+        }
+    };
+
+    if (sharing && startMeter != null) {
+        startSharing(startMeter);
+        statusEl.style.color = '#065f46'; statusEl.style.background = '#d1fae5';
+        statusEl.innerHTML = '🟢 شغّال دلوقتي — تم استكمال الجلسة تلقائيًا';
+    }
+}
+
+function initRentalDriverAttendancePage(driverId, rentalId, rentalContract) {
+    document.title = 'تسجيل الحضور والانصراف';
+    document.body.innerHTML =
+        '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:20px;font-family:Cairo,Tahoma,sans-serif;direction:rtl">' +
+        '<div style="max-width:380px;width:100%">' +
+        buildAttendanceFormCardHtml() + buildWorkStatusCardHtml() +
+        '</div></div>';
+    wireRentalAttendanceCards(driverId, rentalId, rentalContract);
+}
+
+// يربط منطق الحفظ والمشاركة بالكروت (سواء كانت في صفحة رابط السائق المستقلة أو مدمجة في صفحة QR الخاصة بالمعدة)
+function wireRentalAttendanceCards(driverId, rentalId, rentalContract) {
     var todayStr = businessDateStr(new Date());
     var eqLabel = rentalContract.equipmentType || rentalContract.equipmentCode || '—';
     var pendingId = null; // طلب معلّق بانتظار المراجعة (يُحدَّث عند التعديل بدل تكرار الطلبات)
@@ -11700,12 +11922,17 @@ function updateEmployeesFab() {
 function switchView(view) {
     // التحقق من صلاحية الوصول للقسم
     if (currentUser && currentUser.role !== 'admin') {
+        var denied = false;
         if (view === 'employees') {
-            if (!canView('employees') && !canView('drivers')) return;
+            if (!canView('employees') && !canView('drivers')) denied = true;
+        } else if (view === 'import') {
+            // صفحة استيراد البيانات مقصورة على المدير فقط
+            denied = true;
         } else {
             var sectionMap = { home:'home', sites:'sites', analytics:'analytics', equipment:'equipment', fuel:'fuel', maintenance:'maintenance', inventory:'inventory', rental:'rental', map:'map' };
-            if (sectionMap[view] && !canView(sectionMap[view])) return;
+            if (sectionMap[view] && !canView(sectionMap[view])) denied = true;
         }
+        if (denied) { showAccessDeniedModal(); return; }
     }
     document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
     document.getElementById('view-sites').style.display = view === 'sites' ? 'block' : 'none';
