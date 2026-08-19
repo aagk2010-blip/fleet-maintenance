@@ -7379,10 +7379,40 @@ function renderEquipmentMap() {
 
     if (!equipmentMapInstance) {
         equipmentMapInstance = L.map(mapEl, { zoomControl: true }).setView(center, points.length ? 11 : 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+        // ==================== طبقات الخريطة: قمر صناعي (تضاريس وألوان حقيقية) + طبوغرافي ملوّن + شوارع كلاسيكي ====================
+        // قمر صناعي عالي الدقة (Esri World Imagery) — بيوضّح التضاريس الفعلية (رمل/زرع/مباني) بألوانها الحقيقية، مجاني وبدون مفتاح API
+        var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        });
+        // طبقة أسماء وحدود فوق القمر الصناعي عشان تفاصيل أكتر (أسماء مناطق/طرق) من غير ما تخفي الألوان
+        var referenceLabelsLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Labels &copy; Esri'
+        });
+        var satelliteGroup = L.layerGroup([satelliteLayer, referenceLabelsLayer]);
+
+        // خريطة طبوغرافية ملوّنة توضّح خطوط الكنتور والارتفاعات (تضاريس واضحة برسم توضيحي بدل الصور الفعلية)
+        var terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
+        });
+
+        // خريطة الشوارع الكلاسيكية (الوضع الأصلي) كخيار احتياطي
+        var streetsLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(equipmentMapInstance);
+        });
+
+        satelliteGroup.addTo(equipmentMapInstance); // الافتراضي: قمر صناعي (أوضح تضاريس وألوان وتفاصيل)
+
+        L.control.layers({
+            '🛰️ قمر صناعي (تضاريس)': satelliteGroup,
+            '⛰️ طبوغرافي ملوّن': terrainLayer,
+            '🗺️ خريطة الشوارع': streetsLayer
+        }, null, { position: 'topleft', collapsed: true }).addTo(equipmentMapInstance);
+
         equipmentMapInstance._markers = [];
         // الخريطة أحياناً بتتنشئ قبل ما تكتمل حسابات مقاس الشريط الجانبي على الشاشات الكبيرة،
         // فبنجبرها تعيد حساب حجمها فور إنشائها عشان متعديش على مساحة القائمة الجانبية
@@ -7426,9 +7456,12 @@ function renderEquipmentMap() {
         marker._locUpdatedAt = p.loc.updatedAt;
         var timeAgoText = minsAgo < 1 ? 'الآن' : minsAgo < 60 ? Math.round(minsAgo) + ' دقيقة' : Math.round(minsAgo / 60) + ' ساعة';
         marker.bindPopup(
-            '<div style="font-family:Cairo,sans-serif;text-align:right;min-width:160px">' +
+            '<div style="font-family:Cairo,sans-serif;text-align:right;min-width:180px">' +
                 '<div style="font-weight:800;font-size:13px;margin-bottom:3px">🏗️ ' + (p.eq.name || '') + '</div>' +
+                '<div style="font-size:11px;color:#888;direction:ltr;text-align:right;margin-bottom:3px">' + (p.eq.code || '') + '</div>' +
                 '<div style="font-size:11.5px;color:#555">👨‍✈️ ' + (p.drv ? p.drv.name : '—') + '</div>' +
+                (p.eq.type ? '<div style="font-size:11.5px;color:#555">🔧 النوع: ' + p.eq.type + '</div>' : '') +
+                (p.eq.projectSite ? '<div style="font-size:11.5px;color:#555">📍 المشروع: ' + p.eq.projectSite + '</div>' : '') +
                 (p.loc.meter !== undefined && p.loc.meter !== null ? '<div style="font-size:11.5px;color:#555">⏱️ العداد: ' + p.loc.meter + ' س</div>' : '') +
                 '<div style="font-size:11px;color:#888;margin-top:3px">🕐 آخر تحديث: منذ ' + timeAgoText + '</div>' +
                 '</div>'
