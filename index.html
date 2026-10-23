@@ -1828,6 +1828,7 @@ html:not([data-theme="dark"]) #view-home #home-hr-section div[style*="font-size:
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <button class="big-btn" style="margin:0;flex:1;font-size:12.5px;padding:9px;background:linear-gradient(135deg,#0284c7,#075985)" onclick="openEmployeeAttendanceReport()">📊 <span class="i18n-label" data-en="Monthly Attendance Report" data-ar="تقرير الحضور الشهري"></span></button>
+        <button class="big-btn" style="margin:0;flex:1;font-size:12.5px;padding:9px;background:linear-gradient(135deg,#059669,#047857)" onclick="empBulkSyncAttendance()">🔗 ربط الحضور بالمرتبات</button>
       </div>
       <div id="employees-list"></div>
     </div>
@@ -2177,7 +2178,7 @@ html:not([data-theme="dark"]) #view-home #home-hr-section div[style*="font-size:
 
 <div class="modal-overlay" id="driver-modal"><div class="modal-header"><div class="modal-title" id="modal-title-driver"><span class="i18n-label" data-en="Add New Driver" data-ar="إضافة سائق جديد"></span></div><button class="modal-close" onclick="closeModal('driver-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Full Name" data-ar="الاسم الكامل"></span> *</label><input class="form-input" id="driver-name" placeholder="أحمد محمد"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Phone Number" data-ar="رقم الهاتف"></span></label><input class="form-input" id="driver-phone" placeholder="05xxxxxxxx"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Driving License No." data-ar="رقم رخصة القيادة"></span></label><input class="form-input" id="driver-license"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="License Expiry Date" data-ar="تاريخ انتهاء الرخصة"></span></label><input class="form-input" type="date" id="driver-license-expiry"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Status" data-ar="الحالة"></span></label><select class="form-select" id="driver-status"><option>نشط</option><option>في إجازة</option><option>منتهي العقد</option></select></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Notes" data-ar="ملاحظات"></span></label><textarea class="form-textarea" id="driver-notes"></textarea></div></div><button class="save-btn" onclick="saveDriver()">✅ حفظ السائق</button></div></div>
 
-<div class="modal-overlay" id="employee-modal"><div class="modal-header"><div class="modal-title" id="modal-title-employee"><span class="i18n-label" data-en="Add New Employee" data-ar="إضافة موظف جديد"></span></div><button class="modal-close" onclick="closeModal('employee-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Employee Name" data-ar="اسم الموظف"></span> *</label><input class="form-input" id="employee-name" placeholder="الاسم الكامل"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Profession / Job" data-ar="المهنة / الوظيفة"></span> *</label><input class="form-input" id="employee-title" placeholder="مثال: فورمان كهرباء قوي"></div><div class="form-field"><label class="form-label">🏗️ الموقع / المشروع *</label><input class="form-input" id="employee-project" list="employee-locations-list" placeholder="اكتب اسم الموقع أو اختر من القائمة"><datalist id="employee-locations-list"></datalist></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Mobile Number" data-ar="رقم الموبايل"></span></label><input class="form-input" id="employee-phone" placeholder="01xxxxxxxxx"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Job Code" data-ar="الكود الوظيفي"></span></label><input class="form-input" id="employee-code" placeholder="مثال: 10213419"></div><div class="form-field"><label class="form-label">معين / سركي</label><select class="form-select" id="employee-type" onchange="toggleEmployeeLeaveField()"><option>معين</option><option>سركي</option></select></div><div class="form-field" id="employee-leave-field"><label class="form-label">🏖️ رصيد الإجازات (أيام) — للمعين فقط</label><input class="form-input" id="employee-leave-balance" type="number" min="0" step="0.5" placeholder="0"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Status" data-ar="الحالة"></span></label><select class="form-select" id="employee-status"><option>نشط</option><option>منتهي الخدمة</option></select></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Notes" data-ar="ملاحظات"></span></label><textarea class="form-textarea" id="employee-notes"></textarea></div></div><button class="save-btn" onclick="saveEmployee()">✅ حفظ الموظف</button></div></div>
+<div class="modal-overlay" id="employee-modal"><div class="modal-header"><div class="modal-title" id="modal-title-employee"><span class="i18n-label" data-en="Add New Employee" data-ar="إضافة موظف جديد"></span></div><button class="modal-close" onclick="closeModal('employee-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Employee Name" data-ar="اسم الموظف"></span> *</label><input class="form-input" id="employee-name" placeholder="الاسم الكامل"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Profession / Job" data-ar="المهنة / الوظيفة"></span> *</label><input class="form-input" id="employee-title" placeholder="مثال: فورمان كهرباء قوي"></div><div class="form-field"><label class="form-label">🏗️ الموقع / المشروع *</label><input class="form-input" id="employee-project" list="employee-locations-list" placeholder="اكتب اسم الموقع أو اختر من القائمة"><datalist id="employee-locations-list"></datalist></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Mobile Number" data-ar="رقم الموبايل"></span></label><input class="form-input" id="employee-phone" placeholder="01xxxxxxxxx"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Job Code" data-ar="الكود الوظيفي"></span></label><input class="form-input" id="employee-code" placeholder="مثال: 10213419"></div><div class="form-field"><label class="form-label">معين / سركي</label><select class="form-select" id="employee-type" onchange="toggleEmployeeLeaveField()"><option>معين</option><option>سركي</option></select></div><div class="form-field" id="employee-leave-field"><label class="form-label">🏖️ رصيد الإجازات (أيام) — للمعين فقط</label><input class="form-input" id="employee-leave-balance" type="number" min="0" step="0.5" placeholder="0"></div><div class="form-field" id="employee-salary-box" style="background:var(--light,#f8fafc);border:1px solid #cbd5e1;border-radius:12px;padding:10px"><label class="form-label" style="font-weight:800">💰 الراتب والأيام</label><div style="margin-bottom:8px"><label class="form-label" style="font-size:11px">🗓️ شهر التسجيل (المدة من 21 إلى 20)</label><input class="form-input" id="employee-period-month" type="month" onchange="empPeriodChanged()"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px"><div><label class="form-label" style="font-size:11px">▶️ بداية المدة</label><input class="form-input" id="employee-period-start" type="date" onchange="empSyncWorkDaysFromAttendance()"></div><div><label class="form-label" style="font-size:11px">⏹️ نهاية المدة</label><input class="form-input" id="employee-period-end" type="date" onchange="empSyncWorkDaysFromAttendance()"></div></div><label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:4px"><input type="checkbox" id="employee-link-att" checked onchange="empLinkAttChanged()"> 🔗 ربط أيام العمل بالحضور والانصراف</label><div id="employee-att-info" style="font-size:11.5px;color:#475569;margin-bottom:8px"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label class="form-label" style="font-size:11px">📅 أيام العمل</label><input class="form-input" id="employee-work-days" type="number" min="0" step="0.5" placeholder="0" oninput="empSalaryRecalc()"></div><div><label class="form-label" style="font-size:11px">🌙 أيام السهر</label><input class="form-input" id="employee-night-days" type="number" min="0" step="0.5" placeholder="0" oninput="empSalaryRecalc()"></div><div><label class="form-label" style="font-size:11px">⚡ أيام الإنتاجية</label><input class="form-input" id="employee-prod-days" type="number" min="0" step="0.5" placeholder="0" oninput="empSalaryRecalc()"></div><div><label class="form-label" style="font-size:11px">📍 بدل المنطقة (أيام)</label><input class="form-input" id="employee-area-days" type="number" min="0" step="0.5" placeholder="0" oninput="empSalaryRecalc()"></div><div><label class="form-label" style="font-size:11px">⏱️ الإضافي (أيام)</label><input class="form-input" id="employee-overtime-days" type="number" min="0" step="0.01" placeholder="0" readonly style="background:#f1f5f9;font-weight:700" oninput="empSalaryRecalc()"><label style="display:flex;align-items:center;gap:4px;font-size:10.5px;margin-top:3px"><input type="checkbox" id="employee-ot-auto" checked onchange="empOtAutoChanged()"> تلقائي 15%</label></div><div style="grid-column:1/-1"><label class="form-label" style="font-size:11px">💵 اليومية (ج.م)</label><input class="form-input" id="employee-daily-wage" type="number" min="0" step="0.01" placeholder="0" oninput="empSalaryRecalc()"></div><div style="grid-column:1/-1"><label class="form-label" style="font-size:11px">🧾 الضرايب (%) — نسبة من الإجمالي</label><input class="form-input" id="employee-tax" type="number" min="0" max="100" step="0.01" placeholder="0" oninput="empSalaryRecalc()"></div></div><div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;background:#ecfdf5;border-radius:10px;padding:8px 12px"><span style="font-weight:700;font-size:12.5px;color:#065f46">صافي الراتب</span><span id="employee-total-salary" style="font-weight:800;font-size:16px;color:#047857">0 ج.م</span></div><div id="employee-salary-break" style="font-size:11.5px;color:#475569;margin-top:6px"></div></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Status" data-ar="الحالة"></span></label><select class="form-select" id="employee-status"><option>نشط</option><option>منتهي الخدمة</option></select></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Notes" data-ar="ملاحظات"></span></label><textarea class="form-textarea" id="employee-notes"></textarea></div></div><button class="save-btn" onclick="saveEmployee()">✅ حفظ الموظف</button></div></div>
 
 <div class="modal-overlay" id="fuel-modal"><div class="modal-header" style="background:linear-gradient(135deg,#065f46,#0e7490)"><div class="modal-title">⛽ <span class="i18n-label" data-en="Log Fuel Refill" data-ar="تسجيل تزود بالوقود"></span></div><button class="modal-close" onclick="closeModal('fuel-modal')">✕</button></div><div><div class="form-group"><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Equipment" data-ar="المعدة"></span></label><select class="form-select" id="fuel-equipment"></select></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Quantity (L)" data-ar="الكمية (لتر)"></span></label><input class="form-input" type="number" id="fuel-amount"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Cost (EGP)" data-ar="التكلفة (ج.م)"></span></label><input class="form-input" type="number" id="fuel-cost"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Current Meter" data-ar="العداد الحالي"></span></label><input class="form-input" type="number" id="fuel-hours"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Date" data-ar="التاريخ"></span></label><input class="form-input" type="date" id="fuel-date"></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Driver" data-ar="السائق"></span></label><select class="form-select" id="fuel-driver"></select></div><div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Notes" data-ar="ملاحظات"></span></label><textarea class="form-textarea" id="fuel-notes"></textarea></div></div><button class="save-btn" onclick="saveFuelRecord()">✅ <span class="i18n-label" data-en="Save Refill" data-ar="حفظ التزود"></span></button></div></div>
 
@@ -10891,6 +10892,283 @@ function populateEmployeeLocationsDatalist() {
     dl.innerHTML = locs.map(function(l) { return '<option value="' + escapeHtml(l) + '">' + escapeHtml(l) + '</option>'; }).join('');
 }
 
+
+// ===== راتب الموظف بالمدد الشهرية (المدة من 21 إلى 20) =====
+var EMP_PERIOD_CLOSE_DAY = 20; // آخر يوم في المدة، والمدة الجديدة تبدأ يوم 21
+function empPad2(n) { return (n < 10 ? '0' : '') + n; }
+function empOvertime(workDays) { return Math.round((parseFloat(workDays) || 0) * 0.15 * 100) / 100; }
+function empSalaryTotals(e) {
+    var n = function(v) { return parseFloat(v) || 0; };
+    var r2 = function(v) { return Math.round(v * 100) / 100; };
+    var ot = e.overtimeManual ? n(e.overtimeDays) : empOvertime(e.workDays);
+    var days = r2(n(e.workDays) + n(e.nightDays) + n(e.productivityDays) + n(e.areaDays) + ot);
+    var gross = r2(days * n(e.dailyWage));
+    var tax = (e.taxPercent != null) ? r2(gross * n(e.taxPercent) / 100) : n(e.tax);
+    return { days: days, ot: ot, gross: gross, tax: tax, total: r2(gross - tax) };
+}
+function empMoney(v) { return (Math.round((parseFloat(v) || 0) * 100) / 100).toLocaleString('en-US'); }
+// المدة المسماة بشهر النهاية: شهر 10 = من 21/09 إلى 20/10
+function empPeriodRange(key) {
+    var p = String(key || '').split('-'), y = parseInt(p[0], 10), m = parseInt(p[1], 10);
+    if (!y || !m) return { start: '', end: '' };
+    var py = m === 1 ? y - 1 : y, pm = m === 1 ? 12 : m - 1;
+    return { start: py + '-' + empPad2(pm) + '-' + empPad2(EMP_PERIOD_CLOSE_DAY + 1), end: y + '-' + empPad2(m) + '-' + empPad2(EMP_PERIOD_CLOSE_DAY) };
+}
+function empDefaultPeriodKey() {
+    var d = new Date(), y = d.getFullYear(), m = d.getMonth() + 1;
+    if (d.getDate() > EMP_PERIOD_CLOSE_DAY) { m++; if (m > 12) { m = 1; y++; } }
+    return y + '-' + empPad2(m);
+}
+function empFmtDate(iso) { var p = String(iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : '—'; }
+function empPeriodLabel(e, key) {
+    var rec = empAllPeriods(e)[key], rng = empPeriodRange(key);
+    var st = (rec && rec.periodStart) || rng.start, en = (rec && rec.periodEnd) || rng.end;
+    var p = key.split('-');
+    return 'شهر ' + p[1] + '/' + p[0] + '  (' + empFmtDate(st) + ' ← ' + empFmtDate(en) + ')';
+}
+// كل مدد الموظف (مع ترحيل بيانات قديمة كانت محفوظة بدون مدد)
+function empAllPeriods(e) {
+    var out = Object.assign({}, (e && e.salaryPeriods) || {});
+    if (e && !Object.keys(out).length && (e.workDays || e.nightDays || e.productivityDays || e.areaDays || e.dailyWage)) {
+        out[empDefaultPeriodKey()] = { workDays: e.workDays || 0, nightDays: e.nightDays || 0, productivityDays: e.productivityDays || 0, areaDays: e.areaDays || 0, dailyWage: e.dailyWage || 0 };
+    }
+    return out;
+}
+function empLastWage(e) {
+    var ps = empAllPeriods(e), ks = Object.keys(ps).sort().reverse();
+    for (var i = 0; i < ks.length; i++) if (parseFloat(ps[ks[i]].dailyWage)) return ps[ks[i]].dailyWage;
+    return (e && e.dailyWage) || '';
+}
+function empLoadPeriodIntoForm(e, key) {
+    var rec = e ? empAllPeriods(e)[key] : null, rng = empPeriodRange(key);
+    var set = function(i, v) { var el = document.getElementById(i); if (el) el.value = v; };
+    set('employee-period-month', key);
+    set('employee-period-start', (rec && rec.periodStart) || rng.start);
+    set('employee-period-end', (rec && rec.periodEnd) || rng.end);
+    set('employee-work-days', rec ? (rec.workDays || '') : '');
+    set('employee-night-days', rec ? (rec.nightDays || '') : '');
+    set('employee-prod-days', rec ? (rec.productivityDays || '') : '');
+    set('employee-area-days', rec ? (rec.areaDays || '') : '');
+    set('employee-daily-wage', rec ? (rec.dailyWage || '') : (e ? empLastWage(e) : ''));
+    set('employee-tax', rec ? (rec.taxPercent != null ? (rec.taxPercent || '') : '') : '');
+    var oa = document.getElementById('employee-ot-auto'); if (oa) oa.checked = rec ? !rec.overtimeManual : true;
+    set('employee-overtime-days', (rec && rec.overtimeManual) ? (rec.overtimeDays || '') : '');
+    var lk = document.getElementById('employee-link-att'); if (lk) lk.checked = rec ? !!rec.linkAtt : true;
+    empSalaryRecalc();
+    empSyncWorkDaysFromAttendance();
+}
+function empPeriodChanged() {
+    var e = editingEmployeeId ? employeesData.find(function(x) { return x.id === editingEmployeeId; }) : null;
+    var el = document.getElementById('employee-period-month');
+    empLoadPeriodIntoForm(e, (el && el.value) || empDefaultPeriodKey());
+}
+function empSalaryRecalc() {
+    var g = function(i) { var el = document.getElementById(i); return el ? (parseFloat(el.value) || 0) : 0; };
+    var autoEl = document.getElementById('employee-ot-auto'), auto = !autoEl || autoEl.checked;
+    var otEl = document.getElementById('employee-overtime-days');
+    if (otEl) { otEl.readOnly = auto; otEl.style.background = auto ? '#f1f5f9' : ''; if (auto) otEl.value = empOvertime(g('employee-work-days')) || ''; }
+    var ot = auto ? empOvertime(g('employee-work-days')) : g('employee-overtime-days');
+    var gross = Math.round((g('employee-work-days') + g('employee-night-days') + g('employee-prod-days') + g('employee-area-days') + ot) * g('employee-daily-wage') * 100) / 100;
+    var taxPct = g('employee-tax'), tax = Math.round(gross * taxPct) / 100, net = Math.round((gross - tax) * 100) / 100;
+    var out = document.getElementById('employee-total-salary');
+    if (out) out.textContent = empMoney(net) + ' ج.م';
+    var br = document.getElementById('employee-salary-break');
+    if (br) br.innerHTML = tax ? 'قبل الضرايب: <b>' + empMoney(gross) + '</b> − ضرايب (' + taxPct + '%): <b>' + empMoney(tax) + '</b> ج.م' : '';
+    return net;
+}
+function empOtAutoChanged() {
+    var a = document.getElementById('employee-ot-auto'), o = document.getElementById('employee-overtime-days');
+    if (a && !a.checked && o && !o.value) o.value = empOvertime(parseFloat((document.getElementById('employee-work-days') || {}).value) || 0) || '';
+    empSalaryRecalc();
+}
+window.empOtAutoChanged = empOtAutoChanged;
+function empPhoneToWa(raw) {
+    var d = String(raw || '').replace(/\D/g, '');
+    if (!d) return '';
+    if (d.indexOf('00') === 0) d = d.slice(2);
+    else if (d.charAt(0) === '0' && d.length === 11) d = '20' + d.slice(1);
+    else if (d.charAt(0) === '1' && d.length === 10) d = '20' + d;
+    return d;
+}
+function empSalaryCardHtml(e, key) {
+    var rec = empAllPeriods(e)[key];
+    var _lk = !!(rec && rec.linkAtt);
+    if (_lk) { var _r = empPeriodRange(key), _c = empCachedCount(e.id, rec.periodStart || _r.start, rec.periodEnd || _r.end); if (_c) rec = Object.assign({}, rec, { workDays: _c.present }); }
+    if (!rec) return '<div style="font-size:12px;color:#64748b;background:#f8fafc;border-radius:10px;padding:10px;margin-bottom:8px">لا توجد بيانات مسجلة لهذه المدة — اضغط «تعديل» واختر الشهر لتسجيلها.</div>';
+    var t = empSalaryTotals(rec), rng = empPeriodRange(key);
+    var f = function(v) { return parseFloat(v) || 0; };
+    return '<div style="font-size:12px;color:#475569;margin-bottom:6px">🗓️ من ' + empFmtDate(rec.periodStart || rng.start) + ' إلى ' + empFmtDate(rec.periodEnd || rng.end) + (_lk ? ' · 🔗 أيام العمل من الحضور' : '') + '</div>' +
+        '<div class="grid-2" style="margin:6px 0">' +
+        '<div><div class="detail-label">📅 أيام العمل</div><div class="detail-value">' + f(rec.workDays) + '</div></div>' +
+        '<div><div class="detail-label">🌙 أيام السهر</div><div class="detail-value">' + f(rec.nightDays) + '</div></div>' +
+        '<div><div class="detail-label">⚡ أيام الإنتاجية</div><div class="detail-value">' + f(rec.productivityDays) + '</div></div>' +
+        '<div><div class="detail-label">📍 بدل المنطقة (أيام)</div><div class="detail-value">' + f(rec.areaDays) + '</div></div>' +
+        '<div><div class="detail-label">⏱️ الإضافي</div><div class="detail-value">' + t.ot + ' يوم</div></div>' +
+        '<div><div class="detail-label">💵 اليومية</div><div class="detail-value">' + empMoney(rec.dailyWage) + ' ج.م</div></div></div>' +
+        (t.tax ? '<div style="display:flex;justify-content:space-between;font-size:12px;color:#475569;margin-bottom:6px"><span>الإجمالي قبل الضرايب: <b>' + empMoney(t.gross) + '</b></span><span style="color:#b91c1c">🧾 الضرايب' + (rec.taxPercent != null ? ' (' + (parseFloat(rec.taxPercent) || 0) + '%)' : '') + ': <b>−' + empMoney(t.tax) + '</b></span></div>' : '') +
+        '<div style="display:flex;justify-content:space-between;align-items:center;background:#ecfdf5;border-radius:10px;padding:8px 12px;margin-bottom:8px"><span style="font-weight:700;font-size:12.5px;color:#065f46">' + (t.tax ? 'صافي الراتب' : 'إجمالي الراتب') + ' (' + t.days + ' يوم)</span><span style="font-weight:800;font-size:17px;color:#047857">' + empMoney(t.total) + ' ج.م</span></div>';
+}
+function empDetailPeriodChange(id) {
+    var e = employeesData.find(function(x) { return x.id === id; });
+    var sel = document.getElementById('emp-det-period'), body = document.getElementById('emp-det-salary-body');
+    if (e && sel && body) { body.innerHTML = empSalaryCardHtml(e, sel.value); empDetailRefreshLinked(id); }
+}
+function empSalarySectionHtml(e) {
+    setTimeout(function() { empDetailRefreshLinked(e.id); }, 250);
+    var ps = empAllPeriods(e), dk = empDefaultPeriodKey();
+    var keys = Object.keys(ps);
+    if (keys.indexOf(dk) === -1) keys.push(dk);
+    keys.sort().reverse();
+    var recorded = Object.keys(ps).sort().reverse();
+    var selKey = recorded[0] || dk;
+    var opts = keys.map(function(k) { return '<option value="' + k + '"' + (k === selKey ? ' selected' : '') + '>' + escapeHtml(empPeriodLabel(e, k)) + (ps[k] ? '' : ' — (لا بيانات)') + '</option>'; }).join('');
+    return '<div class="detail-section"><div class="detail-label">💰 الراتب — اختر المدة</div>' +
+        '<select id="emp-det-period" class="form-select" style="margin:6px 0 10px" onchange="empDetailPeriodChange(\'' + e.id + '\')">' + opts + '</select>' +
+        '<div id="emp-det-salary-body">' + empSalaryCardHtml(e, selKey) + '</div>' +
+        '<button class="save-btn" style="margin:0;width:100%;background:linear-gradient(135deg,#16a34a,#15803d)" onclick="sendEmployeeSalaryWhatsApp(\'' + e.id + '\')">📲 إرسال راتب المدة المختارة واتساب</button></div>';
+}
+function sendEmployeeSalaryWhatsApp(id, key) {
+    var e = employeesData.find(function(x) { return x.id === id; });
+    if (!e) return;
+    var sel = document.getElementById('emp-det-period');
+    key = key || (sel && sel.value) || empDefaultPeriodKey();
+    var rec = empAllPeriods(e)[key];
+    if (!rec) { showToast('⚠️ لا توجد بيانات راتب مسجلة لهذه المدة', true); return; }
+    if (rec.linkAtt) { var _r0 = empPeriodRange(key), _c0 = empCachedCount(e.id, rec.periodStart || _r0.start, rec.periodEnd || _r0.end); if (_c0) rec = Object.assign({}, rec, { workDays: _c0.present }); }
+    var t = empSalaryTotals(rec), rng = empPeriodRange(key), p = key.split('-');
+    var f = function(v) { return parseFloat(v) || 0; };
+    var msg = '*💰 كشف الراتب — ' + (e.name || '') + '*\n' +
+        (e.title ? '👷 الوظيفة: ' + e.title + '\n' : '') +
+        (e.projectSite ? '🏗️ المشروع: ' + e.projectSite + '\n' : '') +
+        '🗓️ المدة: شهر ' + p[1] + '/' + p[0] + '\n' +
+        '   من ' + empFmtDate(rec.periodStart || rng.start) + ' إلى ' + empFmtDate(rec.periodEnd || rng.end) + '\n' +
+        '━━━━━━━━━━━━\n' +
+        '📅 أيام العمل: ' + f(rec.workDays) + '\n' +
+        '🌙 أيام السهر: ' + f(rec.nightDays) + '\n' +
+        '⚡ أيام الإنتاجية: ' + f(rec.productivityDays) + '\n' +
+        '📍 بدل المنطقة (أيام): ' + f(rec.areaDays) + '\n' +
+        (t.ot ? '⏱️ الإضافي: ' + t.ot + ' يوم\n' : '') +
+        '📊 إجمالي الأيام: ' + t.days + '\n' +
+        '💵 اليومية: ' + empMoney(rec.dailyWage) + ' ج.م\n' +
+        '━━━━━━━━━━━━\n' +
+        (t.tax ? '💵 الإجمالي قبل الضرايب: ' + empMoney(t.gross) + ' ج.م\n🧾 الضرايب' + (rec.taxPercent != null ? ' (' + (parseFloat(rec.taxPercent) || 0) + '%)' : '') + ': −' + empMoney(t.tax) + ' ج.م\n' : '') +
+        '💰 *' + (t.tax ? 'صافي الراتب' : 'إجمالي الراتب') + ': ' + empMoney(t.total) + ' ج.م*\n\n' +
+        COMPANY_NAME_AR + ' 🏗️';
+    var phone = empPhoneToWa(e.phone);
+    if (!phone) showToast('⚠️ لا يوجد رقم هاتف للموظف — اختر جهة الاتصال يدويًا في واتساب', true);
+    window.open((phone ? 'https://wa.me/' + phone : 'https://wa.me/') + '?text=' + encodeURIComponent(msg), '_blank');
+}
+window.sendEmployeeSalaryWhatsApp = sendEmployeeSalaryWhatsApp;
+window.empSalaryRecalc = empSalaryRecalc;
+window.empPeriodChanged = empPeriodChanged;
+window.empDetailPeriodChange = empDetailPeriodChange;
+
+
+// ===== ربط أيام العمل بالحضور والانصراف (دورة 21 → 20) =====
+var EMP_ATT_CACHE = {}, EMP_SYNC_SEQ = 0, EMP_SYNC_PENDING = false;
+function empFetchAttendanceRange(start, end) {
+    var ck = start + '|' + end, c = EMP_ATT_CACHE[ck];
+    if (c && Date.now() - c.t < 60000) return Promise.resolve(c.v);
+    if (typeof fbDb === 'undefined' || !fbDb) return Promise.reject(new Error('غير متصل بقاعدة البيانات'));
+    var q = function(path) { return fbDb.ref(path).orderByKey().startAt(start).endAt(end).once('value'); };
+    return Promise.all([q('employeeAttendance'), q('employeeDayStatus').catch(function() { return null; })]).then(function(r) {
+        var v = { att: r[0].val() || {}, st: (r[1] && r[1].val()) || {} };
+        EMP_ATT_CACHE[ck] = { t: Date.now(), v: v };
+        return v;
+    });
+}
+// نفس منطق تقرير الحضور الشهري: ✓ أو QR = حضور، إجازة، غياب
+function empCountAttendance(data, empId) {
+    var out = { present: 0, leave: 0, absent: 0 }, dates = {};
+    Object.keys(data.att || {}).forEach(function(d) { dates[d] = 1; });
+    Object.keys(data.st || {}).forEach(function(d) { dates[d] = 1; });
+    Object.keys(dates).forEach(function(d) {
+        var a = data.att[d] && data.att[d][empId] && data.att[d][empId].startAt;
+        var s = data.st[d] && data.st[d][empId] && data.st[d][empId].status;
+        var kind = s || (a ? 'present' : '');
+        if (kind === 'present') out.present++; else if (kind === 'leave') out.leave++; else if (kind === 'absent') out.absent++;
+    });
+    return out;
+}
+function empCachedCount(empId, start, end) {
+    var c = EMP_ATT_CACHE[start + '|' + end];
+    return c ? empCountAttendance(c.v, empId) : null;
+}
+function empLinkOn() { var c = document.getElementById('employee-link-att'); return !c || c.checked; }
+function empSyncWorkDaysFromAttendance() {
+    var w = document.getElementById('employee-work-days'), info = document.getElementById('employee-att-info');
+    var on = empLinkOn();
+    if (w) { w.readOnly = on; w.style.background = on ? '#f1f5f9' : ''; }
+    if (!on) { if (info) info.textContent = ''; EMP_SYNC_PENDING = false; return; }
+    if (!editingEmployeeId) { if (info) info.textContent = 'هيتحسب من الحضور بعد حفظ الموظف'; return; }
+    var s = (document.getElementById('employee-period-start') || {}).value, e = (document.getElementById('employee-period-end') || {}).value;
+    if (!s || !e) return;
+    var seq = ++EMP_SYNC_SEQ, id = editingEmployeeId;
+    EMP_SYNC_PENDING = true;
+    if (info) info.textContent = '⏳ جاري سحب الحضور...';
+    empFetchAttendanceRange(s, e).then(function(d) {
+        if (seq !== EMP_SYNC_SEQ) return;
+        EMP_SYNC_PENDING = false;
+        var c = empCountAttendance(d, id);
+        if (w) w.value = c.present || '';
+        if (info) info.innerHTML = '🔗 من الحضور: <b>' + c.present + '</b> يوم حضور' + (c.leave ? ' · ' + c.leave + ' إجازة' : '') + (c.absent ? ' · ' + c.absent + ' غياب' : '');
+        empSalaryRecalc();
+    }).catch(function(err) {
+        if (seq !== EMP_SYNC_SEQ) return;
+        EMP_SYNC_PENDING = false;
+        if (info) info.textContent = '⚠️ تعذّر سحب الحضور: ' + ((err && err.message) || '');
+    });
+}
+function empLinkAttChanged() { empSyncWorkDaysFromAttendance(); }
+function empDetailRefreshLinked(id) {
+    var e = employeesData.find(function(x) { return x.id === id; });
+    var sel = document.getElementById('emp-det-period');
+    if (!e || !sel) return;
+    var key = sel.value, rec = empAllPeriods(e)[key];
+    if (!rec || !rec.linkAtt) return;
+    var rng = empPeriodRange(key);
+    empFetchAttendanceRange(rec.periodStart || rng.start, rec.periodEnd || rng.end).then(function() {
+        var s2 = document.getElementById('emp-det-period'), body = document.getElementById('emp-det-salary-body');
+        if (s2 && body && s2.value === key) body.innerHTML = empSalaryCardHtml(e, key);
+    }).catch(function() {});
+}
+// زر جماعي: سحب أيام الحضور لكل الموظفين على مدة واحدة وحفظها
+function empBulkSyncAttendance() {
+    if (!empCanMark()) { showToast('⛔ غير مصرح', true); return; }
+    empDialog('🔗 ربط الحضور بالمرتبات',
+        'اختر شهر المدة (من 21 إلى 20) وهيتم سحب أيام الحضور الفعلية لكل موظف وحفظها كأيام عمل.<br>' +
+        '<input type="month" id="emp-bulk-month" value="' + empDefaultPeriodKey() + '" style="width:100%;margin-top:8px;border:1px solid #cbd5e1;border-radius:12px;padding:10px 12px;font-size:14px;font-family:inherit;box-sizing:border-box">' +
+        '<div style="font-size:11.5px;color:#64748b;margin-top:6px">الموظف اللي أيام عمله مكتوبة يدويًا (من غير ربط) مش بيتغيّر.</div>',
+        [{ label: '🔗 سحب وحفظ للجميع', bg: '#059669', color: '#fff', action: function(ov) {
+            var key = (document.getElementById('emp-bulk-month') || {}).value;
+            if (!key) { showToast('اختر الشهر', true); return true; }
+            var rng = empPeriodRange(key);
+            showToast('⏳ جاري سحب الحضور...');
+            empFetchAttendanceRange(rng.start, rng.end).then(function(d) {
+                var n = 0, manual = 0, nowIso = new Date().toISOString();
+                (employeesData || []).filter(employeeIsUnassigned).forEach(function(e) {
+                    if (!checkDocumentOwnership(e)) return;
+                    var periods = empAllPeriods(e), old = periods[key];
+                    if (old && !old.linkAtt && (parseFloat(old.workDays) || 0) > 0) { manual++; return; }
+                    var c = empCountAttendance(d, e.id);
+                    if (!old && !c.present) return;
+                    var rec = Object.assign({ nightDays: 0, productivityDays: 0, areaDays: 0, dailyWage: parseFloat(empLastWage(e)) || 0 }, old || {});
+                    rec.workDays = c.present; rec.linkAtt = true;
+                    rec.periodStart = (old && old.periodStart) || rng.start; rec.periodEnd = (old && old.periodEnd) || rng.end;
+                    rec.overtimeDays = rec.overtimeManual ? (parseFloat(rec.overtimeDays) || 0) : empOvertime(rec.workDays); var _t2 = empSalaryTotals(rec); rec.totalSalary = _t2.total; rec.tax = _t2.tax;
+                    periods[key] = rec;
+                    var data = { id: e.id, salaryPeriods: periods, updatedAt: nowIso };
+                    if (e.ownerId) data.ownerId = e.ownerId;
+                    saveToFirebase('employees', data); n++;
+                });
+                showToast('✅ تم ربط الحضور لعدد ' + n + ' موظف' + (manual ? ' (تخطّي ' + manual + ' مكتوبين يدويًا)' : ''));
+            }).catch(function(err) { showToast('⚠️ تعذّر سحب الحضور: ' + ((err && err.message) || ''), true); });
+        } }, { label: 'إلغاء' }]);
+}
+window.empLinkAttChanged = empLinkAttChanged;
+window.empSyncWorkDaysFromAttendance = empSyncWorkDaysFromAttendance;
+window.empBulkSyncAttendance = empBulkSyncAttendance;
+
 function openAddEmployeeModal() {
     if (!canAdd('employees') && !hasPermission('all')) {
         showToast(RL('Not authorized to add employees','غير مصرح بإضافة موظفين'), true);
@@ -10906,6 +11184,8 @@ function openAddEmployeeModal() {
     document.getElementById('employee-type').value = 'معين';
     document.getElementById('employee-status').value = 'نشط';
     document.getElementById('employee-leave-balance').value = '';
+    ['employee-work-days','employee-night-days','employee-prod-days','employee-area-days','employee-daily-wage'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value=''; });
+    empLoadPeriodIntoForm(null, empDefaultPeriodKey());
     toggleEmployeeLeaveField();
     populateEmployeeLocationsDatalist();
     document.getElementById('employee-modal').classList.add('active');
@@ -10924,6 +11204,24 @@ function saveEmployee() {
         notes: document.getElementById('employee-notes').value,
         updatedAt: new Date().toISOString()
     };
+    if (EMP_SYNC_PENDING && empLinkOn()) { showToast('⏳ جاري سحب أيام الحضور… جرّب الحفظ بعد ثانية', true); return; }
+    var _nv = function(i) { var v = parseFloat(document.getElementById(i).value); return isNaN(v) ? 0 : v; };
+    var _pKey = document.getElementById('employee-period-month').value || empDefaultPeriodKey();
+    var _rng = empPeriodRange(_pKey);
+    var _rec = { workDays: _nv('employee-work-days'), nightDays: _nv('employee-night-days'), productivityDays: _nv('employee-prod-days'), areaDays: _nv('employee-area-days'), dailyWage: _nv('employee-daily-wage') };
+    _rec.linkAtt = empLinkOn();
+    _rec.taxPercent = _nv('employee-tax');
+    var _oa = document.getElementById('employee-ot-auto');
+    _rec.overtimeManual = !!(_oa && !_oa.checked);
+    _rec.overtimeDays = _rec.overtimeManual ? _nv('employee-overtime-days') : empOvertime(_rec.workDays);
+    var _tt = empSalaryTotals(_rec); _rec.totalSalary = _tt.total; _rec.tax = _tt.tax;
+    _rec.periodStart = document.getElementById('employee-period-start').value || _rng.start;
+    _rec.periodEnd = document.getElementById('employee-period-end').value || _rng.end;
+    var _ex = editingEmployeeId ? employeesData.find(function(x) { return x.id === editingEmployeeId; }) : null;
+    var _periods = empAllPeriods(_ex);
+    if (_rec.workDays || _rec.nightDays || _rec.productivityDays || _rec.areaDays || _rec.dailyWage || _periods[_pKey]) _periods[_pKey] = _rec;
+    employee.salaryPeriods = _periods;
+    employee.dailyWage = _rec.dailyWage;
     var _lb = parseFloat(document.getElementById('employee-leave-balance').value);
     if (employee.employmentType === 'معين') employee.leaveBalance = isNaN(_lb) ? 0 : _lb;   // السركي: لا رصيد (يُحاسب على ساعات الحضور)
 
@@ -11016,6 +11314,7 @@ function openEmployeeDetail(id) {
                 '</div></div>';
         }
     }
+    if (hasPermission('all') || canEdit('employees')) contentHtml += empSalarySectionHtml(employee);
     contentHtml += '<div class="grid-2" style="margin:12px 14px">';
     if (hasPermission('all') || canEdit('employees')) {
         contentHtml += '<button class="save-btn" style="margin:0;background:var(--accent)" onclick="editEmployee(\'' + employee.id + '\')">✏️ <span class="i18n-label" data-en="Edit" data-ar="تعديل"></span></button>';
@@ -11047,6 +11346,7 @@ function editEmployee(id) {
     document.getElementById('employee-code').value = employee.jobCode || '';
     document.getElementById('employee-type').value = employee.employmentType || 'معين';
     document.getElementById('employee-leave-balance').value = (employee.leaveBalance != null ? employee.leaveBalance : '');
+    empLoadPeriodIntoForm(employee, empDefaultPeriodKey());
     toggleEmployeeLeaveField();
     document.getElementById('employee-status').value = employee.status || 'نشط';
     document.getElementById('employee-notes').value = employee.notes || '';
@@ -20501,11 +20801,62 @@ var PRO_TRACK = {
         ctx.restore();
     }
 };
+// ===== جودة عرض الرسوم: دقة أعلى (Supersampling) + تدرجات لونية للأعمدة + حلقات الدونات بلون الكارت =====
+function proHexToRgb(h) {
+    var m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(h || '');
+    if (!m) return null;
+    var x = m[1];
+    if (x.length === 3) x = x[0] + x[0] + x[1] + x[1] + x[2] + x[2];
+    var n = parseInt(x, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function proMix(rgb, t) { // t>0 ناحية الأبيض، t<0 ناحية الأسود
+    var k = t >= 0 ? 255 : 0, a = Math.abs(t);
+    return 'rgb(' + rgb.map(function(c) { return Math.round(c + (k - c) * a); }).join(',') + ')';
+}
+var PRO_QUALITY = {
+    id: 'proQuality',
+    beforeUpdate: function(chart) {
+        var type = chart.config.type, card = '';
+        try { card = getComputedStyle(document.documentElement).getPropertyValue('--white').trim(); } catch (e) {}
+        chart.data.datasets.forEach(function(ds) {
+            var t = ds.type || type;
+            if (t === 'bar' && !ds.__proGrad && typeof ds.backgroundColor === 'string') {
+                var rgb = proHexToRgb(ds.backgroundColor);
+                if (!rgb) return;
+                ds.__proGrad = true;
+                var solid = 'rgb(' + rgb.join(',') + ')';
+                ds.backgroundColor = function(c) {
+                    try {
+                        var ch = c.chart, el = c.element;
+                        if (!el || !el.getProps) return solid;
+                        var horiz = ch.options.indexAxis === 'y';
+                        var p = el.getProps(['x', 'y', 'base'], true);
+                        var a = horiz ? p.base : p.base, b = horiz ? p.x : p.y;
+                        if (!isFinite(a) || !isFinite(b) || a === b) return solid;
+                        var g = horiz ? ch.ctx.createLinearGradient(a, 0, b, 0) : ch.ctx.createLinearGradient(0, a, 0, b);
+                        g.addColorStop(0, proMix(rgb, -0.08));
+                        g.addColorStop(1, proMix(rgb, 0.22));
+                        return g;
+                    } catch (e) { return solid; }
+                };
+            }
+            if ((t === 'doughnut' || t === 'pie') && card && /^#(fff|ffffff)$/i.test(ds.borderColor || '')) ds.borderColor = card;
+        });
+    }
+};
 function proApplyChartDefaults() {
     if (!window.Chart || Chart.__proApplied) return;
     Chart.__proApplied = true;
     try {
         var D = Chart.defaults;
+        // دقة الرسم: لا تقل عن 2x (حتى على الشاشات العادية) ولا تزيد عن 3x
+        D.devicePixelRatio = function(ctx) {
+            var r = 1;
+            try { r = ctx.chart.platform.getDevicePixelRatio(); } catch (e) { r = window.devicePixelRatio || 1; }
+            return Math.max(2, Math.min(3, r));
+        };
+        D.font.size = 12;
         D.font.family = 'Cairo, Tahoma, sans-serif';
         D.plugins.legend.labels.usePointStyle = true; D.plugins.legend.labels.pointStyle = 'circle';
         var t = D.plugins.tooltip;
@@ -20517,8 +20868,14 @@ function proApplyChartDefaults() {
         if (D.datasets && D.datasets.bar) { D.datasets.bar.barPercentage = 0.6; D.datasets.bar.categoryPercentage = 0.75; }
         if (D.scale && D.scale.border) { D.scale.border.display = false; D.scale.border.dash = [4, 4]; }
         Chart.register(PRO_TRACK);
+        Chart.register(PRO_QUALITY);
     } catch (e) {}
 }
+// تطبيق الإعدادات على كل الصفحات فور توفر Chart.js (مش بس لما الرئيسية ترسم)
+(function proBoot(n) {
+    if (window.Chart) { proApplyChartDefaults(); return; }
+    if (n < 80 && !window.__chartLoadFailed) setTimeout(function() { proBoot(n + 1); }, 250);
+})(0);
 
 function renderHomeUsageChartsInner(equipmentList) {
     if (window.Chart) proApplyChartDefaults();
@@ -20591,7 +20948,7 @@ function renderHomeUsageChartsInner(equipmentList) {
                     { label: 'نفس المدة من الدورة اللي فاتت', data: [Math.round(data.owned.prev), Math.round(data.rented.prevHours)], backgroundColor: '#94a3b8', borderRadius: 8 }
                 ]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 8.5 }, boxWidth: 8, padding: 4 } } }, scales: { y: { beginAtZero: true, ticks: { color: _numClr, font: { size: 8.5 } } }, x: { ticks: { color: _numClr, font: { size: 8.5 } } } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 10 }, boxWidth: 10, padding: 6 } } }, scales: { y: { beginAtZero: true, ticks: { color: _numClr, font: { size: 10 } } }, x: { ticks: { color: _numClr, font: { size: 10 } } } } }
         });
     }
 
@@ -20606,7 +20963,7 @@ function renderHomeUsageChartsInner(equipmentList) {
                     { label: 'نفس المدة من الدورة اللي فاتت', data: [Math.round(data.rented.prevCost)], backgroundColor: '#94a3b8', borderRadius: 8 }
                 ]
             },
-            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 8.5 }, boxWidth: 8, padding: 4 } } }, scales: { x: { beginAtZero: true, ticks: { color: _numClr, font: { size: 8.5 } } }, y: { ticks: { color: _numClr, font: { size: 8.5 } } } } }
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 10 }, boxWidth: 10, padding: 6 } } }, scales: { x: { beginAtZero: true, ticks: { color: _numClr, font: { size: 10 } } }, y: { ticks: { color: _numClr, font: { size: 10 } } } } }
         });
     }
 
@@ -20639,7 +20996,7 @@ function renderHomeUsageChartsInner(equipmentList) {
                 labels: ['ساعات الملك 🔑', 'ساعات الإيجار 📋'],
                 datasets: [{ data: [Math.round(data.owned.cur), Math.round(data.rented.curHours)], backgroundColor: ['#0284c7', '#075985'], borderWidth: 2, borderColor: '#fff' }]
             },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '74%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 8.5 }, boxWidth: 8, padding: 4 } }, tooltip: { callbacks: { label: function(ctx) {
+            options: { responsive: true, maintainAspectRatio: false, cutout: '74%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo', size: 10 }, boxWidth: 10, padding: 6 } }, tooltip: { callbacks: { label: function(ctx) {
                 var total = ctx.dataset.data.reduce(function(s, v) { return s + (v || 0); }, 0);
                 var pct = total > 0 ? Math.round((ctx.parsed / total) * 100) : 0;
                 return ctx.label + ': ' + formatNumber(ctx.parsed) + ' ساعة (' + pct + '%)';
@@ -20738,7 +21095,7 @@ function renderHomeDashboardChartsInner(eqList) {
     var txt = dark ? '#ffffff' : '#000000';
     var grid = dark ? 'rgba(255,255,255,.08)' : 'rgba(15,23,42,.06)';
     var ringBorder = dark ? '#1e293b' : '#ffffff';
-    var font = { family: 'Cairo', size: 9.5 };
+    var font = { family: 'Cairo', size: 10.5 };
     var lbl = function(m) { return m.month.slice(5) + '/' + m.month.slice(2, 4); };
     var showEmpty = function(canvasId, msg) {
         var c = document.getElementById(canvasId);
