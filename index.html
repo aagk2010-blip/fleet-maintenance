@@ -1706,7 +1706,7 @@ html:not([data-theme="dark"]) #view-home #home-hr-section div[style*="font-size:
   <div class="page-topbar"><div class="page-topbar-title"><span id="header-title">📊 لوحة القيادة</span><span id="sync-status-placeholder" style="display:none"></span></div><div class="page-topbar-actions"><span id="conn-indicator" title="حالة الاتصال">🔴</span><button id="global-search-toggle" title="بحث عالمي">🔍</button><button id="kiosk-mode-btn" title="شاشة الإدارة">🖥️</button><button id="export-pdf-btn" title="تصدير PDF">📄</button><button id="notif-settings-btn" title="الإشعارات">🔔</button></div></div><div class="page-topbar-sync" id="sync-status">جاري الاتصال...</div>
   <div id="alert-bar" style="display:none"></div>
   
-  <div id="view-home"><div class="dash-hero"><div class="dash-hero-deco"><svg viewBox="0 0 24 24"><use href="#ic-crane"/></svg></div><div class="dash-hero-text"><div class="dash-hero-eyebrow">Equipment Maintenance Service</div><div class="dash-hero-title"><span class="i18n-label" data-en="Dashboard" data-ar="لوحة القيادة"></span></div><div class="dash-hero-sub"><span class="i18n-label" data-en="Real-time tracking of equipment, maintenance, and fuel status across all sites." data-ar="متابعة حالة المعدات والصيانة والوقود لحظة بلحظة عبر جميع المواقع."></span></div></div><div class="dash-hero-art"><svg viewBox="0 0 24 24"><use href="#ic-gauge"/></svg></div></div><div id="report-reminder-banner"></div><div class="stats-row" id="stats-summary"></div><div class="home-layout"><div class="home-main"><div id="home-hr-section"></div><div id="home-usage-section"><div class="hdash-head"><div class="section-title">📊 <span class="i18n-label" data-en="Equipment Usage: Owned vs Rented" data-ar="استخدام المعدات: الملك والإيجار"></span></div></div><div id="home-usage-note"></div><div class="stats-row" id="home-usage-cards"></div></div><div class="hdash-section" id="home-dash-section"><div class="hdash-head"><div class="section-title">📈 <span class="i18n-label" data-en="Interactive Dashboard" data-ar="لوحة التحكم التفاعلية"></span></div><span class="hdash-period" id="home-dash-period"></span></div><div class="hdash-grid"><div class="hdash-card solo c-hours"><div class="hdash-card-head"><span class="hdash-ico">⏱️</span><span class="hdash-title">ساعات التشغيل</span></div><div class="hdash-body"><canvas id="chart-home-hours"></canvas></div></div><div class="hdash-card solo c-cost"><div class="hdash-card-head"><span class="hdash-ico">💰</span><span class="hdash-title">تكلفة الإيجار</span></div><div class="hdash-body"><canvas id="chart-home-cost"></canvas></div></div><div class="hdash-card c-split"><div class="hdash-card-head"><span class="hdash-ico">🥯</span><span class="hdash-title">ملك مقابل إيجار</span></div><div class="hdash-body"><canvas id="chart-home-split"></canvas></div></div><div class="hdash-card c-fleet"><div class="hdash-card-head"><span class="hdash-ico">🥯</span><span class="hdash-title">حالة المعدات</span><span class="hdash-kpi" id="hdash-kpi-fleet"></span></div><div class="hdash-body"><canvas id="home-chart-fleet"></canvas></div></div><div class="hdash-card wide c-fuel"><div class="hdash-card-head"><span class="hdash-ico">⛽</span><span class="hdash-title">اتجاه استهلاك الوقود — آخر 6 فترات</span><span class="hdash-kpi" id="hdash-kpi-fuel"></span></div><div class="hdash-body"><canvas id="home-chart-fuel"></canvas></div><button class="hdash-more" onclick="switchView('fuel')">التفاصيل ‹</button></div><div class="hdash-card wide c-top"><div class="hdash-card-head"><span class="hdash-ico">🏆</span><span class="hdash-title">أعلى 10 معدات استخدامًا</span><span class="hdash-kpi" id="hdash-kpi-top"></span></div><div class="hdash-body" id="home-chart-top-wrap"><canvas id="home-chart-top"></canvas></div><button class="hdash-more" onclick="switchView('analytics')">كل التحليلات ‹</button></div><div class="hdash-card wide c-maint"><div class="hdash-card-head"><span class="hdash-ico">🔧</span><span class="hdash-title">الصيانات المكتملة</span><span class="hdash-kpi" id="hdash-kpi-maint"></span></div><div class="hdash-body"><canvas id="home-chart-maint"></canvas></div><button class="hdash-more" onclick="switchView('maintenance')">التفاصيل ‹</button></div></div></div></div><div class="home-side"><div class="home-panel home-quick"><div class="hdash-head"><div class="section-title">⚡ <span class="i18n-label" data-en="Quick Actions" data-ar="إجراءات سريعة"></span></div></div><div class="home-quick-actions"><button id="force-refresh-btn" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🔄</span><span class="i18n-label" data-en="Refresh" data-ar="تحديث البيانات"></span></button><button id="ai-analysis-btn" onclick="openAiAnalysisModal()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🤖</span><span class="i18n-label" data-en="AI Analysis" data-ar="تحليل ذكي AI"></span></button><button onclick="openAiReportModal()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🤖</span><span class="i18n-label" data-en="AI Report" data-ar="تقرير AI"></span></button><button onclick="openExecutiveDashboard()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">📊</span><span class="i18n-label" data-en="Executive" data-ar="لوحة تنفيذية"></span></button><button id="data-manager-btn" onclick="openDataManagerModal()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🗑️</span><span class="i18n-label" data-en="Data & Storage" data-ar="البيانات والمساحة"></span></button></div></div><div class="section home-sections"><div class="section-title">📂 <span class="i18n-label" data-en="Sections" data-ar="الأقسام"></span></div><div id="home-app-grid" class="app-grid"></div></div></div></div></div>
+  <div id="view-home"><div class="dash-hero"><div class="dash-hero-deco"><svg viewBox="0 0 24 24"><use href="#ic-crane"/></svg></div><div class="dash-hero-text"><div class="dash-hero-eyebrow">Equipment Maintenance Service</div><div class="dash-hero-title"><span class="i18n-label" data-en="Dashboard" data-ar="لوحة القيادة"></span></div><div class="dash-hero-sub"><span class="i18n-label" data-en="Real-time tracking of equipment, maintenance, and fuel status across all sites." data-ar="متابعة حالة المعدات والصيانة والوقود لحظة بلحظة عبر جميع المواقع."></span></div></div><div class="dash-hero-art"><svg viewBox="0 0 24 24"><use href="#ic-gauge"/></svg></div></div><div id="report-reminder-banner"></div><div class="stats-row" id="stats-summary"></div><div class="home-layout"><div class="home-main"><div id="home-hr-section"></div><div id="home-usage-section"><div class="hdash-head"><div class="section-title">📊 <span class="i18n-label" data-en="Equipment Usage: Owned vs Rented" data-ar="استخدام المعدات: الملك والإيجار"></span></div></div><div id="home-usage-note"></div><div class="stats-row" id="home-usage-cards"></div></div><div class="hdash-section" id="home-dash-section"><div class="hdash-head"><div class="section-title">📈 <span class="i18n-label" data-en="Interactive Dashboard" data-ar="لوحة التحكم التفاعلية"></span></div><span class="hdash-period" id="home-dash-period"></span></div><div class="hdash-grid"><div class="hdash-card solo c-hours"><div class="hdash-card-head"><span class="hdash-ico">⏱️</span><span class="hdash-title">ساعات التشغيل</span></div><div class="hdash-body"><canvas id="chart-home-hours"></canvas></div></div><div class="hdash-card solo c-cost"><div class="hdash-card-head"><span class="hdash-ico">💰</span><span class="hdash-title">تكلفة الإيجار</span></div><div class="hdash-body"><canvas id="chart-home-cost"></canvas></div></div><div class="hdash-card c-split"><div class="hdash-card-head"><span class="hdash-ico">🥯</span><span class="hdash-title">ملك مقابل إيجار</span></div><div class="hdash-body"><canvas id="chart-home-split"></canvas></div></div><div class="hdash-card c-fleet"><div class="hdash-card-head"><span class="hdash-ico">🥯</span><span class="hdash-title">حالة المعدات</span><span class="hdash-kpi" id="hdash-kpi-fleet"></span></div><div class="hdash-body"><canvas id="home-chart-fleet"></canvas></div></div><div class="hdash-card wide c-fuel"><div class="hdash-card-head"><span class="hdash-ico">⛽</span><span class="hdash-title">اتجاه الوقود — نفس الفترة من آخر 6 دورات</span><span class="hdash-kpi" id="hdash-kpi-fuel"></span></div><div class="hdash-body"><canvas id="home-chart-fuel"></canvas></div><button class="hdash-more" onclick="switchView('fuel')">التفاصيل ‹</button></div><div class="hdash-card wide c-top"><div class="hdash-card-head"><span class="hdash-ico">🏆</span><span class="hdash-title">أعلى 10 معدات استخدامًا</span><span class="hdash-kpi" id="hdash-kpi-top"></span></div><div class="hdash-body" id="home-chart-top-wrap"><canvas id="home-chart-top"></canvas></div><button class="hdash-more" onclick="switchView('analytics')">كل التحليلات ‹</button></div><div class="hdash-card wide c-maint"><div class="hdash-card-head"><span class="hdash-ico">🔧</span><span class="hdash-title">الصيانات المكتملة — نفس الفترة</span><span class="hdash-kpi" id="hdash-kpi-maint"></span></div><div class="hdash-body"><canvas id="home-chart-maint"></canvas></div><button class="hdash-more" onclick="switchView('maintenance')">التفاصيل ‹</button></div></div></div></div><div class="home-side"><div class="home-panel home-quick"><div class="hdash-head"><div class="section-title">⚡ <span class="i18n-label" data-en="Quick Actions" data-ar="إجراءات سريعة"></span></div></div><div class="home-quick-actions"><button id="force-refresh-btn" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🔄</span><span class="i18n-label" data-en="Refresh" data-ar="تحديث البيانات"></span></button><button id="ai-analysis-btn" onclick="openAiAnalysisModal()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🤖</span><span class="i18n-label" data-en="AI Analysis" data-ar="تحليل ذكي AI"></span></button><button onclick="openAiReportModal()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🤖</span><span class="i18n-label" data-en="AI Report" data-ar="تقرير AI"></span></button><button onclick="openExecutiveDashboard()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">📊</span><span class="i18n-label" data-en="Executive" data-ar="لوحة تنفيذية"></span></button><button id="data-manager-btn" onclick="openDataManagerModal()" class="home-quick-btn" style="background:linear-gradient(135deg,#0284c7,#075985)"><span class="qi">🗑️</span><span class="i18n-label" data-en="Data & Storage" data-ar="البيانات والمساحة"></span></button></div></div><div class="section home-sections"><div class="section-title">📂 <span class="i18n-label" data-en="Sections" data-ar="الأقسام"></span></div><div id="home-app-grid" class="app-grid"></div></div></div></div></div>
   <div id="view-sites" style="display:none"><div style="padding:14px">
     <div class="search-box"><span>🔍</span><input type="text" id="search-site" placeholder="بحث باسم الموقع..."></div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -20708,7 +20708,7 @@ function rentalHoursAndCostInRange(eq, fromStr, toStr) {
     return { hours: hours, cost: cost };
 }
 
-// بيحسب مقارنة الاستخدام: من بداية الدورة الحالية (21 → 20، نفس نظام الإيجار والملك) لحد النهاردة، مقابل نفس عدد الأيام من الدورة اللي فاتت
+// بيحسب مقارنة الاستخدام: من بداية الدورة الحالية (21 → 20) لحد امبارح، مقابل نفس التاريخ من الدورة اللي فاتت
 function computeHomeUsageComparison(equipmentList) {
     var todayStr = localDateStr(new Date());
     var curMonthStr = getCurrentCycleMonthStr();
@@ -20717,16 +20717,15 @@ function computeHomeUsageComparison(equipmentList) {
     var prevRange = getPeriodRange(prevMonthStr);
 
     var curFrom = curRange.from;
-    // الدورة النشطة ممكن تكون لسه شغالة، فبنوقف عند النهاردة أو عند نهاية الدورة أيهما الأقرب
-    var curTo = todayStr < curRange.to ? todayStr : curRange.to;
-    // نفس عدد الأيام بالظبط من بداية الدورة اللي فاتت
-    var daysSoFar = Math.round((new Date(curTo + 'T00:00:00') - new Date(curFrom + 'T00:00:00')) / 86400000) + 1;
-    var prevFromDate = new Date(prevRange.from + 'T00:00:00');
-    var prevToDate = new Date(prevFromDate.getTime() + (daysSoFar - 1) * 86400000);
-    var prevRangeEndDate = new Date(prevRange.to + 'T00:00:00');
-    if (prevToDate > prevRangeEndDate) prevToDate = prevRangeEndDate;
+    // المقارنة لحد امبارح بس، ونفس التاريخ في الدورة اللي فاتت (النهارده 18 → من 21 لـ 17 في الدورتين)
+    var yest = new Date(); yest.setHours(0, 0, 0, 0); yest.setDate(yest.getDate() - 1);
+    var yestStr = localDateStr(yest);
+    var curTo = yestStr < curRange.to ? yestStr : curRange.to;
+    var empty = curTo < curFrom;   // النهارده أول يوم في الدورة: مفيش أيام كاملة للمقارنة لسه
     var prevFrom = prevRange.from;
-    var prevTo = localDateStr(prevToDate);
+    var prevCut = localDateStr(accountsShiftMonth(yest, 1));
+    var prevTo = prevCut < prevRange.to ? prevCut : prevRange.to;
+    var daysSoFar = empty ? 0 : Math.round((new Date(curTo + 'T00:00:00') - new Date(curFrom + 'T00:00:00')) / 86400000) + 1;
 
     var list = (equipmentList || []).filter(function(e) { return !isToolEquipment(e); });
     var owned = list.filter(function(e) { return (e.ownership || 'ملك') !== 'إيجار'; });
@@ -20734,20 +20733,20 @@ function computeHomeUsageComparison(equipmentList) {
 
     var ownedCur = 0, ownedPrev = 0;
     owned.forEach(function(e) {
-        ownedCur += hoursInRangeFromLog(e.hoursLog, curFrom, curTo);
-        ownedPrev += hoursInRangeFromLog(e.hoursLog, prevFrom, prevTo);
+        ownedCur += empty ? 0 : hoursInRangeFromLog(e.hoursLog, curFrom, curTo);
+        ownedPrev += empty ? 0 : hoursInRangeFromLog(e.hoursLog, prevFrom, prevTo);
     });
 
     var rentedCurHours = 0, rentedPrevHours = 0, rentedCurCost = 0, rentedPrevCost = 0;
     rented.forEach(function(e) {
-        var cur = rentalHoursAndCostInRange(e, curFrom, curTo);
-        var prev = rentalHoursAndCostInRange(e, prevFrom, prevTo);
+        var cur = empty ? { hours: 0, cost: 0 } : rentalHoursAndCostInRange(e, curFrom, curTo);
+        var prev = empty ? { hours: 0, cost: 0 } : rentalHoursAndCostInRange(e, prevFrom, prevTo);
         rentedCurHours += cur.hours; rentedCurCost += cur.cost;
         rentedPrevHours += prev.hours; rentedPrevCost += prev.cost;
     });
 
     return {
-        days: daysSoFar, curFrom: curFrom, curTo: curTo, prevFrom: prevFrom, prevTo: prevTo,
+        empty: empty, days: daysSoFar, curFrom: curFrom, curTo: curTo, prevFrom: prevFrom, prevTo: prevTo,
         owned: { cur: ownedCur, prev: ownedPrev, count: owned.length },
         rented: { curHours: rentedCurHours, prevHours: rentedPrevHours, curCost: rentedCurCost, prevCost: rentedPrevCost, count: rented.length }
     };
@@ -20882,7 +20881,7 @@ function renderHomeUsageChartsInner(equipmentList) {
     var data = computeHomeUsageComparison(equipmentList);
     var noteEl = document.getElementById('home-usage-note');
     if (noteEl) {
-        noteEl.textContent = '📅 دورة 21 → 20: من ' + data.curFrom + ' لحد ' + data.curTo + ' (' + data.days + ' يوم) مقابل نفس المدة من الدورة اللي فاتت (' + data.prevFrom + ' → ' + data.prevTo + ')';
+        noteEl.textContent = data.empty ? '📅 الدورة بدأت النهارده — المقارنة بتبدأ من بكرة (لحد امبارح بس)' : '📅 دورة 21 → 20: من ' + data.curFrom + ' لحد ' + data.curTo + ' (' + data.days + ' يوم، لحد امبارح) مقابل نفس المدة من الدورة اللي فاتت (' + data.prevFrom + ' → ' + data.prevTo + ')';
     }
 
     var cardsEl = document.getElementById('home-usage-cards');
@@ -21024,15 +21023,19 @@ function computeHomeDashboardData(eqList) {
         var refM = new Date(month + '-01T00:00:00');
         periodsBack.push(localMonthStr(new Date(refM.getFullYear(), refM.getMonth() - i, 1)));
     }
-    var maintByMonth = periodsBack.map(function(mo) {
-        var r = getPeriodRange(mo);
+    // كل دورة بتتحسب لحد نفس التاريخ (امبارح) عشان المقارنة تبقى عادلة
+    var yest = new Date(); yest.setHours(0, 0, 0, 0); yest.setDate(yest.getDate() - 1);
+    var cuts = periodsBack.map(function(mo, idx) { return localDateStr(accountsShiftMonth(yest, periodsBack.length - 1 - idx)); });
+    var winOf = function(mo, idx) { var rr = getPeriodRange(mo); return { from: rr.from, to: cuts[idx] < rr.to ? cuts[idx] : rr.to }; };
+    var maintByMonth = periodsBack.map(function(mo, idx) {
+        var r = winOf(mo, idx);
         var count = maintenanceSchedules.filter(function(ms) {
             return ms.status === 'مكتمل' && ms.completedAt && ms.completedAt.slice(0, 10) >= r.from && ms.completedAt.slice(0, 10) <= r.to;
         }).length;
         return { month: mo, count: count };
     });
-    var fuelTrend = periodsBack.map(function(mo) {
-        var r = getPeriodRange(mo);
+    var fuelTrend = periodsBack.map(function(mo, idx) {
+        var r = winOf(mo, idx);
         var recs = fuelData.filter(function(f) { return f.date >= r.from && f.date <= r.to; });
         return {
             month: mo,
@@ -21049,7 +21052,7 @@ function computeHomeDashboardData(eqList) {
     return {
         period: period, total: eqList.length,
         fleet: { healthy: healthy, soon: soon, overdue: overdue, stopped: stopped },
-        maintByMonth: maintByMonth, fuelTrend: fuelTrend, top10: top10
+        maintByMonth: maintByMonth, fuelTrend: fuelTrend, top10: top10, cutTo: cuts[cuts.length - 1]
     };
 }
 function renderHomeDashboardCharts(eqList) {
@@ -21065,7 +21068,7 @@ function renderHomeDashboardChartsInner(eqList) {
     var data = computeHomeDashboardData(eqList);
 
     var periodEl = document.getElementById('home-dash-period');
-    if (periodEl) periodEl.textContent = '📅 ' + data.period.from + ' → ' + data.period.to;
+    if (periodEl) periodEl.textContent = '📅 ' + data.period.from + ' → ' + data.period.to + (data.cutTo >= data.period.from ? ' • الاتجاهات لحد يوم ' + (+data.cutTo.slice(8)) + ' من كل دورة' : '');
     var totalMaint = data.maintByMonth.reduce(function(s, m) { return s + m.count; }, 0);
     var curFuel = data.fuelTrend[data.fuelTrend.length - 1];
     var topHours = data.top10.reduce(function(s, u) { return s + u.hours; }, 0);
@@ -24650,6 +24653,10 @@ window.confirmIssueVoucherImport = confirmIssueVoucherImport;
       '<div class="form-field" style="display:flex;align-items:center;gap:8px;background:#fff7ed;border-radius:12px;padding:10px 12px">' +
       '<input type="checkbox" id="rental-daily-break" style="width:20px;height:20px;flex-shrink:0">' +
       '<label class="form-label" for="rental-daily-break" style="margin:0;flex:1">☕ اشتغلت المعدة ساعة الراحة؟ (تُحسب ساعة إضافية منفصلة)</label></div>' +
+      '<div class="form-field" style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:10px 12px">' +
+      '<label class="form-label" style="color:#b91c1c;font-weight:800">⛔ خصم (ساعات) — اتركه فاضي لو مفيش خصم</label>' +
+      '<input class="form-input" type="number" id="rental-daily-ded" min="0" step="0.25" placeholder="0" style="margin-bottom:6px">' +
+      '<input class="form-input" type="text" id="rental-daily-dedr" placeholder="سبب الخصم (إجباري لو فيه خصم)"></div>' +
       '<div id="rental-daily-calc" style="display:none;background:#f0fdf4;border-radius:12px;padding:12px;margin:0 16px 8px;font-size:13px"></div>' +
       '<div class="form-field"><label class="form-label"><span class="i18n-label" data-en="Notes" data-ar="ملاحظات"></span></label>' +
       '<textarea class="form-textarea" id="rental-daily-notes" rows="2"></textarea></div></div>' +
@@ -25107,6 +25114,8 @@ function openAddDailyModal(rentalId) {
     document.getElementById('rental-daily-out').value='17:00';
     document.getElementById('rental-daily-break').checked=false;
     document.getElementById('rental-daily-notes').value='';
+    document.getElementById('rental-daily-ded').value='';
+    document.getElementById('rental-daily-dedr').value='';
     document.getElementById('rental-daily-calc').style.display='none';
     var attrElReset = document.getElementById('rental-daily-attribution');
     if (attrElReset) attrElReset.style.display='none';
@@ -25129,9 +25138,12 @@ function openAddDailyModal(rentalId) {
             (h.break>0?'<div style="background:#fef3c7;color:#92400e;padding:6px 10px;border-radius:8px">☕ '+RL('Break hour (worked)','ساعة راحة (اشتغلت)')+': <strong>'+h.break.toFixed(1)+RL('h','س')+'</strong></div>':'<div style="background:white;padding:6px 10px;border-radius:8px;color:var(--gray)">☕ '+RL('Normal break (not counted)','راحة عادية (غير محسوبة)')+'</div>')+
             (h.extra>0?'<div style="background:#fef3c7;color:#92400e;padding:6px 10px;border-radius:8px">⚡ '+RL('Overtime (after 5pm)','إضافي (بعد 5م)')+': <strong>'+h.extra.toFixed(2)+RL('h','س')+'</strong></div>':'<div style="background:white;padding:6px 10px;border-radius:8px;color:var(--gray)">⚡ '+RL('No overtime','لا إضافي')+'</div>')+
             '</div>';
+        var dd=parseFloat((document.getElementById('rental-daily-ded')||{}).value)||0;
+        if (dd>0) div.innerHTML+='<div style="margin-top:6px;background:#fef2f2;color:#b91c1c;padding:6px 10px;border-radius:8px">⛔ '+RL('Deduction','خصم')+': <strong>-'+dd.toFixed(2)+RL('h','س')+'</strong> — '+RL('Net','الصافي')+': <strong>'+(h.total-dd).toFixed(2)+RL('h','س')+'</strong></div>';
     }
     ['rental-daily-in','rental-daily-out'].forEach(function(id){ var el=document.getElementById(id); if(el) el.oninput=updCalc; });
     document.getElementById('rental-daily-break').onchange=updCalc;
+    var dedInp=document.getElementById('rental-daily-ded'); if (dedInp) dedInp.oninput=updCalc;
 }
 // ==================== تنبيه تلقائي عند إدخال بيانات يومية غير منطقية (وقت الإدخال نفسه) ====================
 // بيراجع الرقم قبل ما يتحفظ فعليًا في القاعدة، ويقارنه بـ: حد مطلق، وتاريخ نفس المعدة، ومتوسط المعدات المشابهة (نفس النوع)
@@ -25190,6 +25202,9 @@ function saveRentalDaily() {
     var outT=document.getElementById('rental-daily-out').value;
     var brk=document.getElementById('rental-daily-break').checked;
     var notes=document.getElementById('rental-daily-notes').value.trim();
+    var dedH=Math.max(0, parseFloat(document.getElementById('rental-daily-ded').value)||0);
+    var dedWhy=document.getElementById('rental-daily-dedr').value.trim();
+    if (dedH>0 && !dedWhy) { showToast('اكتب سبب الخصم في خانة السبب',true); return; }
     if (!rId) { showToast(RL('Select the equipment','اختر المعدة'),true); return; }
     if (!date) { showToast(RL('Enter the date','أدخل التاريخ'),true); return; }
     if (!inT||!outT) { showToast(RL('Enter check-in and check-out time','أدخل وقت الحضور والانصراف'),true); return; }
@@ -25220,11 +25235,10 @@ function saveRentalDaily() {
 
     // نحافظ على اسم أول شخص سجّل البيانات، وننبّه لو حصل تعديل بعد كده من حساب مش هو نفسه ومش المدير
     var existingRecord = editingRentalDailyId ? rentalDailyData.find(function(d){ return d.id === editingRentalDailyId; }) : null;
-    if (existingRecord && existingRecord.deductionHours > 0) {
-        record.deductionHours = existingRecord.deductionHours; record.deductionReason = existingRecord.deductionReason || '';
-        record.extraHours = (record.extraHours||0) - record.deductionHours; record.totalHours = (record.totalHours||0) - record.deductionHours;
-        record.notes = rentalNotesWithDeduction(record.notes, record.deductionHours, record.deductionReason);
-    }
+    // الخصم بيتاخد من خانات المودال (متعبية بالقيمة القديمة عند التعديل) — فنقدر نضيف/نعدّل/نلغي خصم على أي يوم قديم
+    record.deductionHours = dedH; record.deductionReason = dedH>0 ? dedWhy : '';
+    if (dedH>0) { record.extraHours = (record.extraHours||0) - dedH; record.totalHours = (record.totalHours||0) - dedH; }
+    record.notes = rentalNotesWithDeduction(record.notes, dedH, dedWhy);
     var actingUserName = (currentUser && (currentUser.name || currentUser.username)) || 'مستخدم';
     var isAdminActing = currentUser && currentUser.role === 'admin';
 
@@ -25259,6 +25273,8 @@ function editRentalDaily(id) {
         document.getElementById('rental-daily-out').value=r.outTime||'';
         document.getElementById('rental-daily-break').checked=!!r.breakWorked;
         document.getElementById('rental-daily-notes').value=r.notes||'';
+        document.getElementById('rental-daily-ded').value=r.deductionHours>0?r.deductionHours:'';
+        document.getElementById('rental-daily-dedr').value=r.deductionReason||'';
         document.getElementById('rental-daily-modal-title').innerHTML='✏️ '+RL('Edit Work Day','تعديل يوم عمل');
         var attrEl = document.getElementById('rental-daily-attribution');
         if (attrEl) {
@@ -25468,8 +25484,10 @@ function showRentalReport(rentalId, mode) {
 // ده فحص بقواعد بسيطة (مش محتاج أي API خارجي أو تكلفة) بيعتمد على بيانات الموقع الموجودة بالفعل في النظام.
 // ==================== طباعة مستخلص إيجار رسمي (قيمة العقد للفترة بناءً على إجمالي الساعات) ====================
 // ---- حساب إجمالي قيمة مستخلص كل معدات الإيجار مجتمعة لدورة شهرية معيّنة (21 → 20) ----
-function computeAccountsMonthTotal(monthStr) {
+function computeAccountsMonthTotal(monthStr, toDate) {
     var range = getPeriodRange(monthStr);
+    if (toDate && toDate < range.to) range.to = toDate;
+    if (range.to < range.from) return 0;
     var total = 0;
     rentalData.forEach(function(r) {
         var rate = r.dailyRate || 0;
@@ -25483,8 +25501,10 @@ function computeAccountsMonthTotal(monthStr) {
 }
 
 // ---- نفس الحساب السابق لكن مقصور على مقاول واحد بعينه (contractorId = null يعني معدات بدون مقاول محدد) ----
-function computeContractorMonthTotal(contractorId, monthStr) {
+function computeContractorMonthTotal(contractorId, monthStr, toDate) {
     var range = getPeriodRange(monthStr);
+    if (toDate && toDate < range.to) range.to = toDate;
+    if (range.to < range.from) return 0;
     var total = 0;
     rentalData.forEach(function(r) {
         var rate = r.dailyRate || 0;
@@ -25498,29 +25518,42 @@ function computeContractorMonthTotal(contractorId, monthStr) {
     return total;
 }
 
-// ---- شريط تفاعلي: يوضح قيمة الدورة الحالية كنسبة من أعلى دورة سابقة، وبيفتح تفاصيل عند الضغط عليه ----
-function accountsBarRowHtml(rowKey, label, currentTotal, pastTotals, mainColor) {
+// ---- شريط تفاعلي: مقارنة الدورة الحالية (لحد امبارح) بنفس الفترة من الدورة السابقة، بتفتح تفاصيل عند الضغط ----
+function accountsShiftMonth(d, k) {
+    var last = new Date(d.getFullYear(), d.getMonth() - k + 1, 0).getDate();
+    return new Date(d.getFullYear(), d.getMonth() - k, Math.min(d.getDate(), last));
+}
+function accountsFmtDM(iso) { var p = String(iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] : ''; }
+function accountsBarRowHtml(rowKey, label, currentTotal, pastTotals, mainColor, info) {
+    info = info || {};
+    var fmt = function(v) { return v.toLocaleString(undefined, { maximumFractionDigits: 0 }); };
+    var prev = pastTotals.length ? pastTotals[pastTotals.length - 1] : 0;
     var maxPast = pastTotals.length ? Math.max.apply(null, pastTotals) : 0;
-    var pct = maxPast > 0 ? (currentTotal / maxPast) * 100 : (currentTotal > 0 ? 100 : 0);
-    var barWidth = Math.min(100, pct);
-    var over = pct > 100;
+    var hasBase = !info.empty && prev > 0;
+    var pct = hasBase ? (currentTotal / prev) * 100 : 0;
+    var over = hasBase && pct > 100;
+    var barWidth = hasBase ? Math.min(100, pct) : 0;
     var barColor = over ? '#dc2626' : mainColor;
-    var pctLabel = maxPast > 0 ? pct.toFixed(0) + '%' : '—';
+    var diff = currentTotal - prev;
+    var capColor = over ? '#dc2626' : (hasBase ? '#059669' : '#6b7a8d');
+    var cap;
+    if (info.empty) cap = 'الدورة بدأت النهارده — المقارنة تبدأ من بكرة';
+    else if (!hasBase) cap = currentTotal > 0 ? 'لا يوجد استهلاك في نفس الفترة بالدورة السابقة' : '—';
+    else cap = '<b>' + pct.toFixed(0) + '%</b> من نفس الفترة بالدورة السابقة · ' + (diff <= 0 ? '✅ وفّرنا ' + fmt(-diff) : '⚠️ زيادة ' + fmt(diff)) + ' (اضغط للتفاصيل)';
     var detailId = 'acc-bar-detail-' + rowKey;
-    var detailText = maxPast > 0
-        ? ('أعلى دورة سابقة: ' + maxPast.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' — الدورات السابقة: ' +
-            pastTotals.map(function(v) { return v.toLocaleString(undefined, { maximumFractionDigits: 0 }); }).join('، '))
-        : 'لا توجد دورات سابقة لعرضها';
+    var older = pastTotals.slice(0, -1);
+    var detailText = info.empty ? 'لسه مفيش أيام كاملة في الدورة الحالية للمقارنة'
+        : ('الدورة الحالية (' + (info.curWin || '') + '): ' + fmt(currentTotal) + ' — الدورة السابقة (' + (info.prevWin || '') + '): ' + fmt(prev) +
+            (older.length ? ' — دورات أقدم لنفس الفترة: ' + older.map(fmt).join('، ') + ' — أعلى فترة مماثلة: ' + fmt(maxPast) : ''));
     return '<div style="margin-bottom:12px">' +
         '<div onclick="toggleAccountsBarDetail(\'' + detailId + '\')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;margin-bottom:5px">' +
         '<span style="font-weight:700;color:#0d1b2a">' + label + '</span>' +
-        '<span style="font-weight:800;color:' + mainColor + '">' + currentTotal.toLocaleString(undefined, { maximumFractionDigits: 0 }) + '</span>' +
+        '<span style="font-weight:800;color:' + mainColor + '">' + fmt(currentTotal) + '</span>' +
         '</div>' +
         '<div style="background:#e2e8f0;border-radius:20px;height:9px;overflow:hidden">' +
         '<div style="background:' + barColor + ';height:100%;width:' + barWidth + '%;border-radius:20px;transition:width .4s"></div>' +
         '</div>' +
-        '<div style="display:flex;justify-content:flex-end;margin-top:3px"><span style="font-size:10.5px;color:' + (over ? '#dc2626' : '#6b7a8d') + ';font-weight:700">' +
-        pctLabel + (maxPast > 0 ? ' من أعلى دورة سابقة (اضغط للتفاصيل)' : '') + '</span></div>' +
+        '<div style="display:flex;justify-content:flex-end;margin-top:3px"><span style="font-size:10.5px;color:' + capColor + ';font-weight:700">' + cap + '</span></div>' +
         '<div id="' + detailId + '" style="display:none;margin-top:6px;background:#f8fafc;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#475569;line-height:1.6">' + detailText + '</div>' +
         '</div>';
 }
@@ -25551,8 +25584,17 @@ function renderAccountsSummary() {
     var pastMonths = months.slice(0, months.length - 1);
 
     var totals = months.map(function(m) { return computeAccountsMonthTotal(m); });
-    var currentTotal = totals[totals.length - 1];
     var currentRange = getPeriodRange(currentMonth);
+
+    // المقارنة لحد امبارح بس، ونفس التاريخ في كل دورة سابقة (مثلًا النهارده 18 → من 21 لـ 17 في كل دورة)
+    var yest = new Date(); yest.setHours(0, 0, 0, 0); yest.setDate(yest.getDate() - 1);
+    var cuts = months.map(function(m, idx) { return localDateStr(accountsShiftMonth(yest, months.length - 1 - idx)); });
+    var curCut = cuts[cuts.length - 1], isEmpty = curCut < currentRange.from;
+    var prevRange = getPeriodRange(pastMonths[pastMonths.length - 1]);
+    var prevCut = cuts[cuts.length - 2] < prevRange.to ? cuts[cuts.length - 2] : prevRange.to;
+    var cmpInfo = { empty: isEmpty, curWin: accountsFmtDM(currentRange.from) + ' → ' + accountsFmtDM(curCut), prevWin: accountsFmtDM(prevRange.from) + ' → ' + accountsFmtDM(prevCut) };
+    var tdTotals = months.map(function(m, i) { return computeAccountsMonthTotal(m, cuts[i]); });
+    var currentTD = tdTotals[tdTotals.length - 1], histTD = tdTotals.slice(0, -1);
 
     // كل المقاولين اللي ليهم معدات مُسعّرة (بما فيهم "بدون مقاول")
     var contractorKeys = {};
@@ -25570,16 +25612,16 @@ function renderAccountsSummary() {
     var rowsHtml = contractorOrder.map(function(key, idx) {
         var name = contractorKeys[key];
         var actualId = key === '__none__' ? null : key;
-        var curr = computeContractorMonthTotal(actualId, currentMonth);
-        var hist = pastMonths.map(function(m) { return computeContractorMonthTotal(actualId, m); });
-        return accountsBarRowHtml('c' + idx, '👷 ' + escapeHtml(name), curr, hist, '#0e7490');
+        var curr = computeContractorMonthTotal(actualId, currentMonth, curCut);
+        var hist = pastMonths.map(function(m, i) { return computeContractorMonthTotal(actualId, m, cuts[i]); });
+        return accountsBarRowHtml('c' + idx, '👷 ' + escapeHtml(name), curr, hist, '#0e7490', cmpInfo);
     }).join('');
 
-    var histOverall = pastMonths.map(function(m) { return computeAccountsMonthTotal(m); });
-    var totalRowHtml = accountsBarRowHtml('grand', '💰 الإجمالي الكلي', currentTotal, histOverall, '#0d1b2a');
+    var totalRowHtml = accountsBarRowHtml('grand', '💰 الإجمالي الكلي', currentTD, histTD, '#0d1b2a', cmpInfo);
 
     summaryEl.innerHTML =
         '<div style="font-size:12px;color:#6b7a8d;margin-bottom:10px">💰 مستخلص المقاولين — الدورة الحالية (' + currentRange.from + ' → ' + currentRange.to + ')</div>' +
+        '<div style="font-size:11.5px;color:#0e7490;background:#ecfeff;border-radius:8px;padding:6px 10px;margin-bottom:10px">' + (isEmpty ? '📊 الدورة بدأت النهارده، المقارنة بتبدأ من بكرة' : '📊 المقارنة لحد نفس اليوم: ' + cmpInfo.curWin + ' مقابل ' + cmpInfo.prevWin) + '</div>' +
         (rowsHtml || '<div style="font-size:11.5px;color:#94a3b8;margin-bottom:10px">لا توجد معدات إيجار مُسعّرة بعد</div>') +
         '<div style="border-top:1px dashed #e2e8f0;margin:6px 0 12px"></div>' +
         totalRowHtml;
