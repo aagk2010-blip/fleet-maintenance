@@ -28232,7 +28232,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        var sF = 0, sG = 0, sI = 0, sJ = 0, sL = 0, sN = 0;
+        var sF = 0, sG = 0, sI = 0, sJ = 0, sL = 0, sN = 0, wd = 0;
         for (var k = 0; k < 31; k++) {
             var row = 9 + k, date = days[k];
             if (!date) { 'CDEFGHIJKLMNO'.split('').forEach(function (c) { h.blank(c + row); }); continue; }
@@ -28248,7 +28248,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (l > 0) { h.setNum('L' + row, l); sL += l; if (!note) note = '🚫 توقف لعدم وجود أعمال'; }
             if (fuel[date]) { h.setNum('N' + row, tsRound(fuel[date])); sN += tsRound(fuel[date]); }
             h.setStr('O' + row, note);
-            h.setFV('J' + row, f + g - iR); sF += f; sG += g; sI += iR; sJ += f + g - iR;
+            h.setFV('J' + row, f + g - iR); sF += f; sG += g; sI += iR; sJ += f + g - iR; if (f + g - iR > 0) wd++;
         }
         sN = tsRound(sN);
 
@@ -28266,7 +28266,7 @@ document.addEventListener('DOMContentLoaded', function() {
         h.setFV('M40', 0); h.setFV('N40', sN);
         h.setFV('N43', sJ ? K40 / sJ : DIV0); h.setFV('N44', K40 ? sN / K40 : DIV0);
         tsApplyDayStyles(h, pack.meta[info.tplKey], 'CDEFGHIJKLMNO'.split(''), days);
-        return { xml: h.xml(), tot: { F: sF, G: sG, I: sI, J: sJ, L: sL, fuel: sN, K9: M ? M.base.hours : null, Kend: M ? M.end.hours : null, lastRow: 8 + n, baseDate: M ? M.base.date : '', endDate: M ? M.end.date : '', audit: info.audit ? info.audit.msgs : [] } };
+        return { xml: h.xml(), tot: { F: sF, G: sG, I: sI, J: sJ, L: sL, days: wd, fuel: sN, K9: M ? M.base.hours : null, Kend: M ? M.end.hours : null, lastRow: 8 + n, baseDate: M ? M.base.date : '', endDate: M ? M.end.date : '', audit: info.audit ? info.audit.msgs : [] } };
     }
 
     // ---------- أسماء الشيتات (حد أقصى 31 حرف، بدون رموز ممنوعة، وفريدة) ----------
@@ -28275,7 +28275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         items.forEach(function (it, idx) {
             var base = String(it.sheetName || ('معدة ' + (idx + 1))).replace(/[\\\/\?\*\[\]:']/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 31) || ('معدة ' + (idx + 1));
             var nm = base, n = 2;
-            while (used[nm.toLowerCase()] || nm.toLowerCase() === 'type' || nm.toLowerCase() === 'status' || nm.toLowerCase() === 'history') {
+            while (used[nm.toLowerCase()] || nm.toLowerCase() === 'type' || nm.toLowerCase() === 'status' || nm.toLowerCase() === 'history' || nm.toLowerCase() === 'summary') {
                 var suf = ' (' + n + ')'; nm = base.slice(0, 31 - suf.length) + suf; n++;
             }
             used[nm.toLowerCase()] = true; out.push(nm);
@@ -28312,7 +28312,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return p;
     }
 
-    // ---------- ورقة السمري (أول شيت في الملف): كل تفاصيل المعدات + الساعات + الإضافي + السولار ----------
+    // ---------- ورقة Summary (أول شيت في الملف): المقاول ← المعدات ← الساعات وأيام العمل ----------
     function tsStyleOf(xml, ref) { var m = xml.match(new RegExp('<c r="' + ref + '"[^>]*? s="(\\d+)"')); return m ? +m[1] : 0; }
     function tsCol(i) { return String.fromCharCode(65 + i); }
     function dmyTs(ds) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(ds || ''); return m ? (m[3] + '/' + m[2] + '/' + m[1]) : ''; }
@@ -28326,79 +28326,49 @@ document.addEventListener('DOMContentLoaded', function() {
         var rent = kind === 'rent', key = rent ? 'main' : 'gen2', tpl = pack.sheets[key], meta = pack.meta[key];
         var sHead = tsStyleOf(tpl, 'F7'), sTxt = meta.D[2], sNum = meta.F[2], sTotL = tsStyleOf(tpl, 'C40'), sTotN = tsStyleOf(tpl, 'F40');
         var q = function (nm) { return "'" + nm + "'!"; };
-        var R0 = 4, n = items.length, RL_ = R0 + n - 1, RT = RL_ + 1;
-        // الأعمدة: A..O (J ساعات التشغيل، K إضافي، L إجمالي الساعات، N السولار — نفس المواضع في الإيجار والملك)
-        var heads = rent
-            ? ['م', 'اسم / كود المعدة', 'النوع', 'القدرة', 'رقم الشاسيه', 'المشروع', 'المقاول', 'المشغل', 'حالة السولار', 'ساعات التشغيل', 'ساعات إضافية', 'إجمالي الساعات', 'أيام الغياب', 'السولار (لتر)', 'أيام العمل الفعلية']
-            : ['م', 'كود المعدة', 'النوع', 'القدرة', 'رقم الشاسيه', 'المشروع', 'المشغل', 'قراءة العداد — البداية', 'قراءة العداد — النهاية', 'ساعات التشغيل', 'ساعات إضافية', 'إجمالي الساعات', 'ساعات التوقف', 'السولار (لتر)', 'استهلاك السولار / ساعة', 'تاريخ قراءة البداية', 'تاريخ قراءة النهاية', 'فحص قراءات العداد'];
-        var widths = rent ? [5, 24, 18, 12, 16, 24, 42, 18, 18, 13, 13, 14, 11, 13, 13] : [5, 20, 18, 12, 18, 24, 18, 14, 14, 13, 13, 14, 13, 13, 15, 14, 14, 70];
-        var rows = '', sums = { J: 0, K: 0, L: 0, M: 0, N: 0 };
-        rows += '<row r="1" ht="30" customHeight="1">' + tsCell('A1', sHead, 'ملخص ' + (rent ? 'بيان تشغيل معدات الإيجار' : 'بيان تشغيل معدات الملك') + ' — الدورة من ' + range.from + ' إلى ' + range.to) + heads.slice(1).map(function (x, i) { return tsCell(tsCol(i + 1) + '1', sHead, ''); }).join('') + '</row>';
+        var r2 = function (v) { return Math.round((+v || 0) * 100) / 100; };
+        // تجميع المعدات تحت اسم المقاول (الملك: مجموعة واحدة)
+        var groups = [], gmap = {};
+        items.forEach(function (it, i) {
+            var g = rent ? (String(it.contractor || '').trim() || 'بدون مقاول / No Contractor') : 'HAC — معدات الملك / Owned Equipment';
+            if (!gmap[g]) { gmap[g] = { name: g, idx: [] }; groups.push(gmap[g]); }
+            gmap[g].idx.push(i);
+        });
+        var heads = ['م / No', 'المعدة / Equipment', 'الساعات / Hours', 'أيام العمل / Working Days'];
+        var blank = function (r, st) { return ['B', 'C', 'D'].map(function (c) { return tsCell(c + r, st, ''); }).join(''); };
+        var merges = ['A1:D1'], rows = '';
+        rows += '<row r="1" ht="30" customHeight="1">' + tsCell('A1', sHead, 'Summary — ' + (rent ? 'معدات الإيجار / Rented Equipment' : 'معدات الملك / Owned Equipment') + ' — ' + range.from + ' → ' + range.to) + blank(1, sHead) + '</row>';
         rows += '<row r="2" ht="6" customHeight="1"/>';
-        rows += '<row r="3" ht="42" customHeight="1">' + heads.map(function (h, i) { return tsCell(tsCol(i) + '3', sHead, h); }).join('') + '</row>';
-        items.forEach(function (it, i) {
-            var r = R0 + i, nm = q(names[i]), t = tots[i], c = [];
-            c.push(tsCell('A' + r, sTxt, i + 1));
-            c.push(tsCell('B' + r, sTxt, rent ? it.name : it.code));
-            c.push(tsCell('C' + r, sTxt, it.type)); c.push(tsCell('D' + r, sTxt, it.capacity)); c.push(tsCell('E' + r, sTxt, it.chassis)); c.push(tsCell('F' + r, sTxt, it.project));
-            if (rent) {
-                c.push(tsCell('G' + r, sTxt, it.contractor)); c.push(tsCell('H' + r, sTxt, it.operator)); c.push(tsCell('I' + r, sTxt, it.fuelMode));
-                c.push(tsCell('M' + r, sNum, t.absent));
-                c.push(tsCell('O' + r, sNum, { f: nm + 'M51', v: t.actual }));
-            } else {
-                c.push(tsCell('G' + r, sTxt, it.operator));
-                c.push(tsCell('H' + r, sNum, t.K9 == null ? '' : { f: nm + 'K9', v: t.K9 }));
-                c.push(tsCell('I' + r, sNum, t.Kend == null ? '' : { f: nm + 'K' + t.lastRow, v: t.Kend }));
-                c.push(tsCell('M' + r, sNum, { f: nm + 'L40', v: t.L || 0 }));
-                c.push(tsCell('O' + r, sNum, t.J ? { f: 'IF(L' + r + '=0,0,N' + r + '/L' + r + ')', v: t.fuel / t.J } : ''));
-                c.push(tsCell('P' + r, sTxt, dmyTs(t.baseDate))); c.push(tsCell('Q' + r, sTxt, dmyTs(t.endDate)));
-                c.push(tsCell('R' + r, sTxt, it.tool ? '' : ((t.audit && t.audit.length) ? '⚠️ ' + t.audit.join(' | ') : '✓ سليم')));
-            }
-            c.push(tsCell('J' + r, sNum, { f: nm + 'F40', v: t.F })); c.push(tsCell('K' + r, sNum, { f: nm + 'G40', v: t.G }));
-            c.push(tsCell('L' + r, sNum, { f: nm + 'J40', v: t.J })); c.push(tsCell('N' + r, sNum, { f: nm + (rent ? 'M40' : 'N40'), v: t.fuel }));
-            sums.J += t.F; sums.K += t.G; sums.L += t.J; sums.N += t.fuel; sums.M += rent ? t.absent : (t.L || 0);
-            c.sort(function (a, b2) { return a.match(/r="([A-Z]+)/)[1] < b2.match(/r="([A-Z]+)/)[1] ? -1 : 1; });
-            rows += '<row r="' + r + '" ht="21" customHeight="1">' + c.join('') + '</row>';
+        rows += '<row r="3" ht="34" customHeight="1">' + heads.map(function (h, i) { return tsCell(tsCol(i) + '3', sHead, h); }).join('') + '</row>';
+        var r = 4, subRows = [], gH = 0, gD = 0;
+        groups.forEach(function (g) {
+            rows += '<row r="' + r + '" ht="24" customHeight="1">' + tsCell('A' + r, sTotL, g.name) + blank(r, sTotL) + '</row>';
+            merges.push('A' + r + ':D' + r); r++;
+            var first = r, sh = 0, sd = 0;
+            g.idx.forEach(function (i, n) {
+                var it = items[i], t = tots[i], nm = q(names[i]), hrs = r2(t.J), dys = r2(rent ? t.actual : t.days);
+                rows += '<row r="' + r + '" ht="21" customHeight="1">' + tsCell('A' + r, sTxt, n + 1) + tsCell('B' + r, sTxt, rent ? it.name : it.code) +
+                    tsCell('C' + r, sNum, { f: nm + 'J40', v: hrs }) + (rent ? tsCell('D' + r, sNum, { f: nm + 'M51', v: dys }) : tsCell('D' + r, sNum, dys)) + '</row>';
+                sh += hrs; sd += dys; r++;
+            });
+            rows += '<row r="' + r + '" ht="24" customHeight="1">' + tsCell('A' + r, sTotL, 'الإجمالي / Total') + tsCell('B' + r, sTotL, '') +
+                tsCell('C' + r, sTotN, { f: 'SUM(C' + first + ':C' + (r - 1) + ')', v: sh }) + tsCell('D' + r, sTotN, { f: 'SUM(D' + first + ':D' + (r - 1) + ')', v: sd }) + '</row>';
+            merges.push('A' + r + ':B' + r); subRows.push(r); gH += sh; gD += sd; r++;
         });
-        // صف الإجمالي العام
-        var tot = [tsCell('A' + RT, sTotL, 'الإجمالي')];
-        for (var ci = 1; ci < heads.length; ci++) {
-            var L = tsCol(ci), v = null;
-            if ('JKLMN'.indexOf(L) >= 0) v = { f: 'SUM(' + L + R0 + ':' + L + RL_ + ')', v: sums[L] };
-            tot.push(tsCell(L + RT, sTotN, v));
+        if (groups.length > 1) {
+            var fh = subRows.map(function (x) { return 'C' + x; }).join('+'), fd = subRows.map(function (x) { return 'D' + x; }).join('+');
+            rows += '<row r="' + r + '" ht="26" customHeight="1">' + tsCell('A' + r, sHead, 'الإجمالي العام / Grand Total') + tsCell('B' + r, sHead, '') +
+                tsCell('C' + r, sHead, { f: fh, v: gH }) + tsCell('D' + r, sHead, { f: fd, v: gD }) + '</row>';
+            merges.push('A' + r + ':B' + r); r++;
         }
-        rows += '<row r="' + RT + '" ht="24" customHeight="1">' + tot.join('') + '</row>';
-        // إجمالي حسب نوع المعدة
-        var types = [], tmap = {};
-        items.forEach(function (it, i) {
-            var ty = it.type || 'غير محدد';
-            if (!tmap[ty]) { tmap[ty] = { cnt: 0, J: 0, K: 0, L: 0, N: 0 }; types.push(ty); }
-            var m = tmap[ty], t = tots[i]; m.cnt++; m.J += t.F; m.K += t.G; m.L += t.J; m.N += t.fuel;
-        });
-        var T1 = RT + 2;
-        rows += '<row r="' + T1 + '" ht="26" customHeight="1">' + tsCell('A' + T1, sHead, 'الإجمالي حسب نوع المعدة') + ['B', 'C', 'D', 'E', 'F', 'G'].map(function (x) { return tsCell(x + T1, sHead, ''); }).join('') + '</row>';
-        var T2 = T1 + 1, th = ['م', 'النوع', 'عدد المعدات', 'ساعات التشغيل', 'ساعات إضافية', 'إجمالي الساعات', 'السولار (لتر)'];
-        rows += '<row r="' + T2 + '" ht="34" customHeight="1">' + th.map(function (h, i) { return tsCell(tsCol(i) + T2, sHead, h); }).join('') + '</row>';
-        var gT = { cnt: 0, J: 0, K: 0, L: 0, N: 0 };
-        types.forEach(function (ty, i) {
-            var r = T2 + 1 + i, m = tmap[ty], rng = function (c) { return '$' + c + '$' + R0 + ':$' + c + '$' + RL_; };
-            var crit = ty === 'غير محدد' ? '""' : 'B' + r;
-            var sumif = function (c) { return { f: 'SUMIF(' + rng('C') + ',' + crit + ',' + rng(c) + ')', v: m[c] }; };
-            rows += '<row r="' + r + '" ht="21" customHeight="1">' + tsCell('A' + r, sTxt, i + 1) + tsCell('B' + r, sTxt, ty) +
-                tsCell('C' + r, sNum, { f: 'COUNTIF(' + rng('C') + ',' + crit + ')', v: m.cnt }) + tsCell('D' + r, sNum, sumif('J')) + tsCell('E' + r, sNum, sumif('K')) +
-                tsCell('F' + r, sNum, sumif('L')) + tsCell('G' + r, sNum, sumif('N')) + '</row>';
-            gT.cnt += m.cnt; gT.J += m.J; gT.K += m.K; gT.L += m.L; gT.N += m.N;
-        });
-        var TR = T2 + 1 + types.length, f1 = T2 + 1, f2 = TR - 1;
-        var sm = function (c, v) { return tsCell(c + TR, sTotN, { f: 'SUM(' + c + f1 + ':' + c + f2 + ')', v: v }); };
-        rows += '<row r="' + TR + '" ht="24" customHeight="1">' + tsCell('A' + TR, sTotL, 'الإجمالي') + tsCell('B' + TR, sTotN, '') + sm('C', gT.cnt) + sm('D', gT.J) + sm('E', gT.K) + sm('F', gT.L) + sm('G', gT.N) + '</row>';
+        var widths = [6, 46, 16, 20], last = r - 1;
         var cols = '<cols>' + widths.map(function (w, i) { return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>'; }).join('') + '</cols>';
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="' + TS_NS + '" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
-            '<sheetPr><tabColor rgb="FF059669"/><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:O' + TR + '"/>' +
+            '<sheetPr><tabColor rgb="FF059669"/><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:D' + last + '"/>' +
             '<sheetViews><sheetView rightToLeft="1" tabSelected="1" workbookViewId="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
             '<sheetFormatPr defaultRowHeight="15"/>' + cols + '<sheetData>' + rows + '</sheetData>' +
-            '<mergeCells count="4"><mergeCell ref="A1:' + tsCol(heads.length - 1) + '1"/><mergeCell ref="A' + T1 + ':G' + T1 + '"/><mergeCell ref="A' + RT + ':B' + RT + '"/><mergeCell ref="A' + TR + ':B' + TR + '"/></mergeCells>' +
-            '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToHeight="0"/></worksheet>';
+            '<mergeCells count="' + merges.length + '">' + merges.map(function (m) { return '<mergeCell ref="' + m + '"/>'; }).join('') + '</mergeCells>' +
+            '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="portrait" fitToHeight="0"/></worksheet>';
     }
 
     // ---------- بناء ملف الإكسيل كامل ----------
@@ -28409,7 +28379,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var names = tsSheetNames(items);
         var n = items.length, XH = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
         var out = new JSZip();
-        // الشيتات: 1 = السمري، 2..n+1 = المعدات، n+2 / n+3 = Type / Status (مخفيين)
+        // الشيتات: 1 = Summary، 2..n+1 = المعدات، n+2 / n+3 = Type / Status (مخفيين)
         var gen = items.map(function (it) { return (kind === 'rent') ? tsFillRent(pack, it, month, range) : tsFillOwned(pack, it, month, range); });
         var summaryXml = tsBuildSummary(kind, items, gen.map(function (g) { return g.tot; }), names, range, pack);
 
@@ -28427,9 +28397,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var wb = XH + '<workbook xmlns="' + TS_NS + '" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><workbookPr/><bookViews><workbookView xWindow="0" yWindow="0" windowWidth="20730" windowHeight="11040" tabRatio="800" activeTab="0"/></bookViews><sheets>';
         var rels = XH + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">', dn = '';
-        wb += '<sheet name="السمري" sheetId="1" r:id="rId1"/>';
+        wb += '<sheet name="Summary" sheetId="1" r:id="rId1"/>';
         rels += '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>';
-        dn += '<definedName name="_xlnm.Print_Titles" localSheetId="0">\'السمري\'!$1:$3</definedName>';
+        dn += '<definedName name="_xlnm.Print_Titles" localSheetId="0">Summary!$1:$3</definedName>';
         for (var s = 0; s < n; s++) {
             var sid = s + 2;
             wb += '<sheet name="' + tsXmlEsc(names[s]) + '" sheetId="' + sid + '" r:id="rId' + sid + '"/>';
